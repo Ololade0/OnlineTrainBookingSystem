@@ -113,7 +113,6 @@ public class UserServiceImpl implements UserService {
     }
 
 
-
     private static SignUpUserResponse getSignUpUserResponse(User signupUser) {
         return SignUpUserResponse.builder()
                 .id(signupUser.getId())
