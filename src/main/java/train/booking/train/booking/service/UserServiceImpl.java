@@ -1,10 +1,24 @@
 package train.booking.train.booking.service;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import train.booking.train.booking.dto.SignUpRequest;
+import train.booking.train.booking.dto.request.UserLoginRequest;
 import train.booking.train.booking.dto.response.SignUpUserResponse;
+import train.booking.train.booking.dto.response.UserLoginResponse;
 import train.booking.train.booking.exceptions.*;
 import train.booking.train.booking.model.Role;
 import train.booking.train.booking.model.User;
@@ -12,9 +26,9 @@ import train.booking.train.booking.model.enums.GenderType;
 import train.booking.train.booking.model.enums.RoleType;
 import train.booking.train.booking.repository.UserRepository;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -23,12 +37,96 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleService roleService;
+
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
     @Override
+    public SignUpUserResponse superAdminSignUp(SignUpRequest signUpRequest) {
+                User signupUser = User.builder()
+                .firstName(signUpRequest.getFirstName())
+                .lastName(signUpRequest.getLastName())
+                .email(signUpRequest.getEmail())
+                .gender(signUpRequest.getGender())
+                .DateOfBirth(signUpRequest.getDateOfBirth())
+                .identificationType(signUpRequest.getIdentificationType())
+                .phoneNumber(signUpRequest.getPhoneNumber())
+                .password(bCryptPasswordEncoder.encode(signUpRequest.getPassword()))
+                .idNumber(signUpRequest.getIdNumber())
+                .confirmPassword(bCryptPasswordEncoder.encode(signUpRequest.getConfirmPassword()))
+                .roleHashSet(new HashSet<>())
+                .build();
+
+      Role assignedRole = roleService.save(new Role(RoleType.SUPERADMIN_ROLE));
+        signupUser.getRoleHashSet().add(assignedRole);
+
+        log.info("User Details: {}", signupUser);
+        userRepository.save(signupUser);
+        return getSignUpUserResponse(signupUser);
+    }
+
+//    @Override
+//    @Transactional
+//    public SignUpUserResponse signUp(SignUpRequest signUpRequest) {
+//        // Default role is USER_ROLE if none is provided
+//        RoleType requestedRoleType = signUpRequest.getRoleType() != null ? signUpRequest.getRoleType() : RoleType.USER_ROLE;
+//
+//        // Only SUPERADMIN can create non-USER_ROLE accounts
+//        if (requestedRoleType != RoleType.USER_ROLE && requestedRoleType != RoleType.SUPERADMIN_ROLE) {
+//            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//            if (authentication == null || !authentication.isAuthenticated()) {
+//                throw new UnAuthorizedException("Only SUPERADMIN can create accounts for roles other than USER_ROLE!");
+//            }
+//        }
+//
+//        User signupUser = User.builder()
+//                .firstName(signUpRequest.getFirstName())
+//                .lastName(signUpRequest.getLastName())
+//                .email(signUpRequest.getEmail())
+//                .gender(signUpRequest.getGender())
+//                .DateOfBirth(signUpRequest.getDateOfBirth())
+//                .identificationType(signUpRequest.getIdentificationType())
+//                .phoneNumber(signUpRequest.getPhoneNumber())
+//                .password(bCryptPasswordEncoder.encode(signUpRequest.getPassword()))
+//                .idNumber(signUpRequest.getIdNumber())
+//                .confirmPassword(bCryptPasswordEncoder.encode(signUpRequest.getConfirmPassword()))
+//                .roleHashSet(new HashSet<>())
+//                .build();
+//
+//        // Assign role (always USER_ROLE unless assigned by SUPERADMIN)
+//        Role assignedRole = roleService.findByRoleType(requestedRoleType)
+//                .orElseGet(() -> roleService.save(new Role(RoleType.USER_ROLE)));
+//        signupUser.getRoleHashSet().add(assignedRole);
+//
+//        log.info("User Details: {}", signupUser);
+//        userRepository.save(signupUser);
+//        return getSignUpUserResponse(signupUser);
+//    }
+//
+
+    @Override
+    @Transactional
     public SignUpUserResponse signUp(SignUpRequest signUpRequest) {
 
         RoleType requestedRoleType = signUpRequest.getRoleType() != null ? signUpRequest.getRoleType() : RoleType.USER_ROLE;
-        if (requestedRoleType != RoleType.USER_ROLE && requestedRoleType != RoleType.SUPERADMIN_ROLE) {
-            throw new UnAuthorizedException("Only SUPERADMIN can create accounts for roles other than USER_ROLE!");
+
+        log.info("Requested RoleType: {}", requestedRoleType);
+
+        if (requestedRoleType != RoleType.USER_ROLE) {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || !authentication.isAuthenticated()) {
+                throw new UnAuthorizedException("Only SUPERADMIN can create accounts for roles other than USER_ROLE!");
+            }
+
+
+            User currentUser = userRepository.findUserByEmail(authentication.getName())
+                    .orElseThrow(() -> new UnAuthorizedException("Unauthorized"));
+
+            boolean isSuperAdmin = currentUser.getRoleHashSet().stream()
+                    .anyMatch(role -> role.getRoleType() == RoleType.SUPERADMIN_ROLE);
+
+            if (!isSuperAdmin) {
+                throw new UnAuthorizedException("Only SUPERADMIN can assign roles other than USER_ROLE!");
+            }
         }
 
         User signupUser = User.builder()
@@ -39,17 +137,20 @@ public class UserServiceImpl implements UserService {
                 .DateOfBirth(signUpRequest.getDateOfBirth())
                 .identificationType(signUpRequest.getIdentificationType())
                 .phoneNumber(signUpRequest.getPhoneNumber())
-                .password(signUpRequest.getPassword())
+                .password(bCryptPasswordEncoder.encode(signUpRequest.getPassword()))
                 .idNumber(signUpRequest.getIdNumber())
-                .confirmPassword(signUpRequest.getConfirmPassword())
-                .roleHashSet(new HashSet<>())
+                .confirmPassword(bCryptPasswordEncoder.encode(signUpRequest.getConfirmPassword()))
+                .roleHashSet(new HashSet<>()) // Ensure empty set is initialized
                 .build();
 
+        // Assign role (fetch existing or create new)
         Role assignedRole = roleService.findByRoleType(requestedRoleType)
-                .orElseGet(() -> roleService.save(new Role(RoleType.USER_ROLE)));
+                .orElseThrow(() -> new RuntimeException("Role not found: " + requestedRoleType));
+
         signupUser.getRoleHashSet().add(assignedRole);
 
-        log.info("User Details: {}", signupUser);
+        log.info("User Roles Before Saving: {}", signupUser.getRoleHashSet()); // Debugging
+
         userRepository.save(signupUser);
         return getSignUpUserResponse(signupUser);
     }
@@ -75,24 +176,23 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    private void validateUserInfo(User user){
-        if(!Objects.equals(user.getPassword(), user.getConfirmPassword())){
+    private void validateUserInfo(User user) {
+
+        if (!Objects.equals(user.getPassword(), user.getConfirmPassword())) {
             throw new PasswordDoesNotMatchException("The passwords you entered do not match. Please ensure both fields are identical.");
         }
-        if(userRepository.existsByEmail(user.getEmail())){
+        if (userRepository.existsByEmail(user.getEmail())) {
             throw new UserAlreadyExistException("User with the email already Exist");
         }
-        if(user.getIdNumber() == null || user.getIdNumber().length() < 10 || user.getIdNumber().length() > 15){
+        if (user.getIdNumber() == null || user.getIdNumber().length() < 10 || user.getIdNumber().length() > 15) {
             throw new InvalidIdNumber("IDss number must be between 10 and 15 characters.");
 
         }
-        if(userRepository.existsByIdNumber(user.getIdNumber())){
+        if (userRepository.existsByIdNumber(user.getIdNumber())) {
             throw new IdNumberAlreadyExist("user identification number already exist");
 
         }
     }
-
-
 
 
     @Override
@@ -112,18 +212,52 @@ public class UserServiceImpl implements UserService {
         return user.orElse(null); // Return null if user is not found
     }
 
-    @Override
-    public User save(User user) {
-       return userRepository.save(user);
-    }
+//    @Override
+//    public User save(User user) {
+//       return userRepository.save(user);
+//    }
 
     @Override
     public Optional<User> getUserById(Long userId) {
         return userRepository.findById(userId);
     }
 
-}
+    @Override
+    public UserLoginResponse login(UserLoginRequest userLoginRequestModel) {
+        var user = userRepository.findUserByEmail(userLoginRequestModel.getEmail());
 
+
+        if (user.isPresent() && bCryptPasswordEncoder.matches(userLoginRequestModel.getPassword(), user.get().getPassword())) {
+            return buildSuccessfulLoginResponse(user.get());
+        }
+        throw new IllegalArgumentException("Invalid email or password");
+
+
+    }
+
+
+    private UserLoginResponse buildSuccessfulLoginResponse(User user) {
+        return UserLoginResponse.builder()
+                .code(200)
+                .message("Login successful")
+                .build();
+
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findUserByEmail(username).orElse(null);
+        if (user != null) {
+            return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), getAuthorities(user.getRoleHashSet()));
+        }
+        return null;
+    }
+
+    private Collection<? extends GrantedAuthority> getAuthorities(Set<Role> roleHashSet) {
+        return roleHashSet.stream().map(role -> new SimpleGrantedAuthority(role.getRoleType().name())).collect(Collectors.toSet());
+    }
+
+}
 
 
 

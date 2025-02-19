@@ -18,7 +18,10 @@ public class RoleServiceImpl implements RoleService{
 
     @Override
     public Role save(Role userRole) {
-        return roleRepository.save(userRole);
+        Role newRole =  Role.builder()
+                .roleType(userRole.getRoleType())
+                .build();
+        return roleRepository.save(newRole);
     }
 
     @Override
