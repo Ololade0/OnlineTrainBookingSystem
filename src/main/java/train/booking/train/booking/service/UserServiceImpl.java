@@ -64,45 +64,6 @@ public class UserServiceImpl implements UserService {
         return getSignUpUserResponse(signupUser);
     }
 
-//    @Override
-//    @Transactional
-//    public SignUpUserResponse signUp(SignUpRequest signUpRequest) {
-//        // Default role is USER_ROLE if none is provided
-//        RoleType requestedRoleType = signUpRequest.getRoleType() != null ? signUpRequest.getRoleType() : RoleType.USER_ROLE;
-//
-//        // Only SUPERADMIN can create non-USER_ROLE accounts
-//        if (requestedRoleType != RoleType.USER_ROLE && requestedRoleType != RoleType.SUPERADMIN_ROLE) {
-//            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//            if (authentication == null || !authentication.isAuthenticated()) {
-//                throw new UnAuthorizedException("Only SUPERADMIN can create accounts for roles other than USER_ROLE!");
-//            }
-//        }
-//
-//        User signupUser = User.builder()
-//                .firstName(signUpRequest.getFirstName())
-//                .lastName(signUpRequest.getLastName())
-//                .email(signUpRequest.getEmail())
-//                .gender(signUpRequest.getGender())
-//                .DateOfBirth(signUpRequest.getDateOfBirth())
-//                .identificationType(signUpRequest.getIdentificationType())
-//                .phoneNumber(signUpRequest.getPhoneNumber())
-//                .password(bCryptPasswordEncoder.encode(signUpRequest.getPassword()))
-//                .idNumber(signUpRequest.getIdNumber())
-//                .confirmPassword(bCryptPasswordEncoder.encode(signUpRequest.getConfirmPassword()))
-//                .roleHashSet(new HashSet<>())
-//                .build();
-//
-//        // Assign role (always USER_ROLE unless assigned by SUPERADMIN)
-//        Role assignedRole = roleService.findByRoleType(requestedRoleType)
-//                .orElseGet(() -> roleService.save(new Role(RoleType.USER_ROLE)));
-//        signupUser.getRoleHashSet().add(assignedRole);
-//
-//        log.info("User Details: {}", signupUser);
-//        userRepository.save(signupUser);
-//        return getSignUpUserResponse(signupUser);
-//    }
-//
-
     @Override
     @Transactional
     public SignUpUserResponse signUp(SignUpRequest signUpRequest) {
@@ -140,17 +101,13 @@ public class UserServiceImpl implements UserService {
                 .password(bCryptPasswordEncoder.encode(signUpRequest.getPassword()))
                 .idNumber(signUpRequest.getIdNumber())
                 .confirmPassword(bCryptPasswordEncoder.encode(signUpRequest.getConfirmPassword()))
-                .roleHashSet(new HashSet<>()) // Ensure empty set is initialized
+                .roleHashSet(new HashSet<>())
                 .build();
-
-        // Assign role (fetch existing or create new)
         Role assignedRole = roleService.findByRoleType(requestedRoleType)
                 .orElseThrow(() -> new RuntimeException("Role not found: " + requestedRoleType));
-
         signupUser.getRoleHashSet().add(assignedRole);
 
         log.info("User Roles Before Saving: {}", signupUser.getRoleHashSet()); // Debugging
-
         userRepository.save(signupUser);
         return getSignUpUserResponse(signupUser);
     }
@@ -177,7 +134,6 @@ public class UserServiceImpl implements UserService {
 
 
     private void validateUserInfo(User user) {
-
         if (!Objects.equals(user.getPassword(), user.getConfirmPassword())) {
             throw new PasswordDoesNotMatchException("The passwords you entered do not match. Please ensure both fields are identical.");
         }
@@ -186,7 +142,6 @@ public class UserServiceImpl implements UserService {
         }
         if (user.getIdNumber() == null || user.getIdNumber().length() < 10 || user.getIdNumber().length() > 15) {
             throw new InvalidIdNumber("IDss number must be between 10 and 15 characters.");
-
         }
         if (userRepository.existsByIdNumber(user.getIdNumber())) {
             throw new IdNumberAlreadyExist("user identification number already exist");
@@ -212,11 +167,6 @@ public class UserServiceImpl implements UserService {
         return user.orElse(null); // Return null if user is not found
     }
 
-//    @Override
-//    public User save(User user) {
-//       return userRepository.save(user);
-//    }
-
     @Override
     public Optional<User> getUserById(Long userId) {
         return userRepository.findById(userId);
@@ -232,7 +182,6 @@ public class UserServiceImpl implements UserService {
         }
         throw new IllegalArgumentException("Invalid email or password");
 
-
     }
 
 
@@ -243,6 +192,7 @@ public class UserServiceImpl implements UserService {
                 .build();
 
     }
+
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

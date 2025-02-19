@@ -16,6 +16,7 @@ import train.booking.train.booking.exceptions.UserCannotBeFoundException;
 import train.booking.train.booking.model.AuthToken;
 import train.booking.train.booking.model.User;
 import train.booking.train.booking.security.jwt.TokenProvider;
+import train.booking.train.booking.service.AuthTokenService;
 import train.booking.train.booking.service.UserService;
 
 @RequiredArgsConstructor
@@ -26,19 +27,20 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final TokenProvider tokenProvider;
+    private final AuthTokenService authTokenService;
 
 
-//    @PostMapping("/login")
-//    public ResponseEntity<?> login(@RequestBody UserLoginRequest loginRequest) throws UserCannotBeFoundException {
-//        Authentication authentication = authenticationManager.authenticate(
-//                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),
-//                        loginRequest.getPassword())
-//        );
-//        userService.login(loginRequest);
-//        SecurityContextHolder.getContext().setAuthentication(authentication);
-//        final String token = tokenProvider.generateJWTToken(authentication);
-//        User user = userService.findUserByEmail(loginRequest.getEmail());
-//        return new ResponseEntity<>(new AuthToken(token, user.getId()), HttpStatus.OK);
-//    }
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody UserLoginRequest loginRequest) throws UserCannotBeFoundException {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),
+                        loginRequest.getPassword())
+        );
+        authTokenService.login(loginRequest);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        final String token = tokenProvider.generateJWTToken(authentication);
+        User user = userService.findUserByEmail(loginRequest.getEmail());
+        return new ResponseEntity<>(new AuthToken(token, user.getId(), user), HttpStatus.OK);
+    }
 }
 

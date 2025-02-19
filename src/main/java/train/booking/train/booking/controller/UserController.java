@@ -52,9 +52,6 @@ public class UserController {
 
 
 
-
-
-
     @GetMapping("/find-user/{email}")
     public ResponseEntity<?> findUserByEmail(@PathVariable("email") String email) {
         try {
@@ -65,18 +62,6 @@ public class UserController {
         }
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserLoginRequest loginRequest) throws UserCannotBeFoundException {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),
-                        loginRequest.getPassword())
-        );
-        userService.login(loginRequest);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        final String token = tokenProvider.generateJWTToken(authentication);
-        User user = userService.findUserByEmail(loginRequest.getEmail());
-        return new ResponseEntity<>(new AuthToken(token, user.getId()), HttpStatus.OK);
-    }
 
 
 
