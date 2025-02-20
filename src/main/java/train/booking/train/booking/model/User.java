@@ -7,7 +7,6 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import train.booking.train.booking.model.enums.GenderType;
 import train.booking.train.booking.model.enums.IdentificationType;
-import train.booking.train.booking.model.enums.Permission;
 import train.booking.train.booking.model.enums.RoleType;
 
 import java.time.LocalDate;
@@ -44,6 +43,7 @@ public class User extends AuditBaseEntity{
 //    @NotNull(message = "Kindly choose mode of identification")
     private IdentificationType identificationType;
 
+    private boolean enabled = true;
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
@@ -68,7 +68,6 @@ public class User extends AuditBaseEntity{
     public boolean hasRole(RoleType roleType) {
         return this.roleHashSet.stream().anyMatch(role -> role.getRoleType() == roleType);
     }
-
 
 
 }
