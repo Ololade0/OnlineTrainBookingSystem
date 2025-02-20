@@ -28,7 +28,6 @@ public class AuthTokenServiceImpl implements AuthTokenService{
     }
 
 
-
     private UserLoginResponse buildSuccessfulLoginResponse(User user) {
         return UserLoginResponse.builder()
                 .code(200)
