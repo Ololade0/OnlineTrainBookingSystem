@@ -11,7 +11,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -28,6 +27,7 @@ import train.booking.train.booking.repository.UserRepository;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 
@@ -42,6 +42,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public SignUpUserResponse superAdminSignUp(SignUpRequest signUpRequest) {
+
+//        validateUserInfo(signUpRequest);
+//        validateEmail(signUpRequest.getEmail());
+//        validatePasswordStrength(signUpRequest.getPassword());
                 User signupUser = User.builder()
                 .firstName(signUpRequest.getFirstName())
                 .lastName(signUpRequest.getLastName())
@@ -55,7 +59,6 @@ public class UserServiceImpl implements UserService {
                 .confirmPassword(bCryptPasswordEncoder.encode(signUpRequest.getConfirmPassword()))
                 .roleHashSet(new HashSet<>())
                 .build();
-
       Role assignedRole = roleService.save(new Role(RoleType.SUPERADMIN_ROLE));
         signupUser.getRoleHashSet().add(assignedRole);
 
@@ -64,10 +67,13 @@ public class UserServiceImpl implements UserService {
         return getSignUpUserResponse(signupUser);
     }
 
+
     @Override
     @Transactional
     public SignUpUserResponse signUp(SignUpRequest signUpRequest) {
-
+//        validateUserInfo(signUpRequest);
+//        validateEmail(signUpRequest.getEmail());
+//        validatePasswordStrength(signUpRequest.getPassword());
         RoleType requestedRoleType = signUpRequest.getRoleType() != null ? signUpRequest.getRoleType() : RoleType.USER_ROLE;
 
         log.info("Requested RoleType: {}", requestedRoleType);
@@ -77,7 +83,6 @@ public class UserServiceImpl implements UserService {
             if (authentication == null || !authentication.isAuthenticated()) {
                 throw new UnAuthorizedException("Only SUPERADMIN can create accounts for roles other than USER_ROLE!");
             }
-
 
             User currentUser = userRepository.findUserByEmail(authentication.getName())
                     .orElseThrow(() -> new UnAuthorizedException("Unauthorized"));
@@ -89,6 +94,7 @@ public class UserServiceImpl implements UserService {
                 throw new UnAuthorizedException("Only SUPERADMIN can assign roles other than USER_ROLE!");
             }
         }
+
 
         User signupUser = User.builder()
                 .firstName(signUpRequest.getFirstName())
@@ -107,11 +113,10 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new RuntimeException("Role not found: " + requestedRoleType));
         signupUser.getRoleHashSet().add(assignedRole);
 
-        log.info("User Roles Before Saving: {}", signupUser.getRoleHashSet()); // Debugging
+        log.info("User Roles Before Saving: {}", signupUser.getRoleHashSet());
         userRepository.save(signupUser);
         return getSignUpUserResponse(signupUser);
     }
-
 
     private static SignUpUserResponse getSignUpUserResponse(User signupUser) {
         return SignUpUserResponse.builder()
@@ -125,26 +130,38 @@ public class UserServiceImpl implements UserService {
                 .confirmPassword(signupUser.getConfirmPassword())
                 .idNumber(signupUser.getIdNumber())
                 .phoneNumber(signupUser.getPhoneNumber())
-                .message("User signed up successfully")
+                .message("Account successfully created")
                 .roles(signupUser.getRoleHashSet())
                 .build();
 
     }
 
 
-    private void validateUserInfo(User user) {
-        if (!Objects.equals(user.getPassword(), user.getConfirmPassword())) {
+    private void validateUserInfo(SignUpRequest signUpRequest) {
+        if (!Objects.equals(signUpRequest.getPassword().trim(), signUpRequest.getConfirmPassword().trim())) {
             throw new PasswordDoesNotMatchException("The passwords you entered do not match. Please ensure both fields are identical.");
         }
-        if (userRepository.existsByEmail(user.getEmail())) {
+        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
             throw new UserAlreadyExistException("User with the email already Exist");
         }
-        if (user.getIdNumber() == null || user.getIdNumber().length() < 10 || user.getIdNumber().length() > 15) {
+        if (signUpRequest.getIdNumber() == null || signUpRequest.getIdNumber().length() < 10 || signUpRequest.getIdNumber().length() > 15) {
             throw new InvalidIdNumber("IDss number must be between 10 and 15 characters.");
         }
-        if (userRepository.existsByIdNumber(user.getIdNumber())) {
+        if (userRepository.existsByIdNumber(signUpRequest.getIdNumber())) {
             throw new IdNumberAlreadyExist("user identification number already exist");
 
+        }
+    }
+
+    private void validatePasswordStrength(String password) {
+        if (!password.matches("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$")) {
+            throw new SeatAlreadyBookedException("Password must be at least 8 characters long and include uppercase, lowercase, a number, and a special character.");
+        }
+    }
+
+    private void validateEmail(String email) {
+        if (!Pattern.compile("^[A-Za-z0-9+_.-]+@(.+)$").matcher(email).matches()) {
+            throw new InvalidEmailException("Invalid email format");
         }
     }
 
@@ -174,8 +191,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserLoginResponse login(UserLoginRequest userLoginRequestModel) {
         var user = userRepository.findUserByEmail(userLoginRequestModel.getEmail());
-
-
         if (user.isPresent() && bCryptPasswordEncoder.matches(userLoginRequestModel.getPassword(), user.get().getPassword())) {
             return buildSuccessfulLoginResponse(user.get());
         }

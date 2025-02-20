@@ -34,8 +34,6 @@ public class UserController {
     private final TokenProvider tokenProvider;
 
 
-
-
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid  @RequestBody SignUpRequest signUpRequest){
         SignUpUserResponse registeredUser = userService.signUp(signUpRequest);
@@ -49,7 +47,6 @@ public class UserController {
         log.info("Incoming user payload: {}", registeredUser);
         return new ResponseEntity<>(registeredUser, HttpStatus.CREATED);
     }
-
 
 
     @GetMapping("/find-user/{email}")

@@ -45,6 +45,7 @@ public class ApplicationSecurityConfig{
                 });
 
 
+
         http.addFilterBefore(jwtAuthenticationFilterBean(), UsernamePasswordAuthenticationFilter.class);
         http.addFilterAfter(exceptionHandlerFilterBean(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
