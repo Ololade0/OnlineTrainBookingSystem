@@ -1,6 +1,7 @@
 package train.booking.train.booking.controller;
 
 
+import com.mashape.unirest.http.exceptions.UnirestException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,14 +36,14 @@ public class UserController {
 
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@Valid  @RequestBody SignUpRequest signUpRequest){
+    public ResponseEntity<?> registerUser(@Valid  @RequestBody SignUpRequest signUpRequest) throws UnirestException {
         SignUpUserResponse registeredUser = userService.signUp(signUpRequest);
         log.info("Incoming user payload: {}", registeredUser);
         return new ResponseEntity<>(registeredUser, HttpStatus.CREATED);
     }
 
     @PostMapping("/register-superadmin")
-    public ResponseEntity<?> superAdminSignUp(@Valid  @RequestBody SignUpRequest signUpRequest){
+    public ResponseEntity<?> superAdminSignUp(@Valid  @RequestBody SignUpRequest signUpRequest) throws UnirestException {
         SignUpUserResponse registeredUser = userService.superAdminSignUp(signUpRequest);
         log.info("Incoming user payload: {}", registeredUser);
         return new ResponseEntity<>(registeredUser, HttpStatus.CREATED);

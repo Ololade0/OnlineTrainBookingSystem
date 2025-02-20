@@ -1,5 +1,6 @@
 package train.booking.train.booking.service;
 
+import com.mashape.unirest.http.exceptions.UnirestException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.transaction.Transactional;
@@ -15,6 +16,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import train.booking.train.booking.dto.SignUpRequest;
+import train.booking.train.booking.dto.request.MailRequest;
 import train.booking.train.booking.dto.request.UserLoginRequest;
 import train.booking.train.booking.dto.response.SignUpUserResponse;
 import train.booking.train.booking.dto.response.UserLoginResponse;
@@ -38,14 +40,16 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleService roleService;
 
+    private final EmailService emailService;
+
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
-    public SignUpUserResponse superAdminSignUp(SignUpRequest signUpRequest) {
+    public SignUpUserResponse superAdminSignUp(SignUpRequest signUpRequest) throws UnirestException {
 
-//        validateUserInfo(signUpRequest);
-//        validateEmail(signUpRequest.getEmail());
-//        validatePasswordStrength(signUpRequest.getPassword());
+        validateUserInfo(signUpRequest);
+        validateEmail(signUpRequest.getEmail());
+        validatePasswordStrength(signUpRequest.getPassword());
                 User signupUser = User.builder()
                 .firstName(signUpRequest.getFirstName())
                 .lastName(signUpRequest.getLastName())
@@ -63,6 +67,7 @@ public class UserServiceImpl implements UserService {
         signupUser.getRoleHashSet().add(assignedRole);
 
         log.info("User Details: {}", signupUser);
+        sendMail(signUpRequest);
         userRepository.save(signupUser);
         return getSignUpUserResponse(signupUser);
     }
@@ -70,10 +75,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public SignUpUserResponse signUp(SignUpRequest signUpRequest) {
-//        validateUserInfo(signUpRequest);
-//        validateEmail(signUpRequest.getEmail());
-//        validatePasswordStrength(signUpRequest.getPassword());
+    public SignUpUserResponse signUp(SignUpRequest signUpRequest) throws UnirestException {
+        validateUserInfo(signUpRequest);
+        validateEmail(signUpRequest.getEmail());
+        validatePasswordStrength(signUpRequest.getPassword());
         RoleType requestedRoleType = signUpRequest.getRoleType() != null ? signUpRequest.getRoleType() : RoleType.USER_ROLE;
 
         log.info("Requested RoleType: {}", requestedRoleType);
@@ -114,6 +119,7 @@ public class UserServiceImpl implements UserService {
         signupUser.getRoleHashSet().add(assignedRole);
 
         log.info("User Roles Before Saving: {}", signupUser.getRoleHashSet());
+        sendMail(signUpRequest);
         userRepository.save(signupUser);
         return getSignUpUserResponse(signupUser);
     }
@@ -206,6 +212,19 @@ public class UserServiceImpl implements UserService {
                 .build();
 
     }
+
+
+    private void sendMail(SignUpRequest signUpRequest) throws UnirestException {
+        MailRequest mailRequest = MailRequest.builder()
+                .sender(System.getenv("SENDER"))
+                .receiver(signUpRequest.getEmail())
+                .subject("You are welcome")
+                .body("Hello " + signUpRequest.getFirstName() + ". Thank you for travelling  with us")
+                .build();
+        emailService.sendSimpleMail(mailRequest);
+
+    }
+
 
 
     @Override
