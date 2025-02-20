@@ -26,4 +26,6 @@ public interface UserService extends UserDetailsService {
    void disableUser(String email);
 
    void enableUser(String email);
+
+   void deleteUser(String email);
 }
