@@ -23,4 +23,10 @@ public interface UserService extends UserDetailsService {
     Optional<User> getUserById(Long userId);
 
    UserLoginResponse login(UserLoginRequest userLoginRequestModel);
+
+   void disableUser(String email);
+
+   void enableUser(String email);
+
+   void deleteUser(String email);
 }

@@ -204,6 +204,29 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    @Override
+    public void disableUser(String email) {
+        var user = userRepository.findUserByEmail(email)
+                .orElseThrow(() -> new UserCannotBeFoundException("User with email " + email + " not found"));
+        user.setEnabled(false);
+        userRepository.save(user);
+    }
+
+
+    public void enableUser(String email) {
+        var user = userRepository.findUserByEmail(email)
+                .orElseThrow(() -> new UserCannotBeFoundException("User with email " + email + " not found"));
+        user.setEnabled(true);
+        userRepository.save(user);
+    }
+
+    @Override
+    public void deleteUser(String email) {
+        var user = userRepository.findUserByEmail(email)
+                .orElseThrow(()-> new UserCannotBeFoundException("User with email " + email + " not found"));
+        userRepository.delete(user);
+    }
+
 
     private UserLoginResponse buildSuccessfulLoginResponse(User user) {
         return UserLoginResponse.builder()
@@ -230,11 +253,33 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findUserByEmail(username).orElse(null);
+
+        /*
+        TODO
+
+        if (!user.isEnabled()) {
+            throw new UserIsDisabledException("User account is disabled");
+        }
+        return new org.springframework.security.core.userdetails.User(
+                user.getEmail(),
+                user.getPassword(),
+                user.isEnabled(),
+                true,
+                true,
+                true,
+                Set.of(new SimpleGrantedAuthority((user.getRoleHashSet()).toString())));
+
+       }
+         */
+
         if (user != null) {
             return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), getAuthorities(user.getRoleHashSet()));
         }
+
         return null;
+
     }
+
 
     private Collection<? extends GrantedAuthority> getAuthorities(Set<Role> roleHashSet) {
         return roleHashSet.stream().map(role -> new SimpleGrantedAuthority(role.getRoleType().name())).collect(Collectors.toSet());
