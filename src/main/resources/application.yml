@@ -1,0 +1,29 @@
+spring:
+  profiles:
+    active: local
+  datasource:
+    initialize: true
+    hikari:
+      maximum-pool-size: 1
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect:
+  sql:
+    init:
+      mode: always
+train:
+  swagger:
+    title: Online Train Booking App 1.0.0
+    description: Online Train Booking App API documentation
+  logging:
+    enabled: true
+    excluded-paths: "/v3/api-docs, /v3/api-docs/*, /swagger-ui/*, /actuator/*"
+  common:
+    jwt:
+      secret-key: 404E635266556A586E3272357538782IJE12F4428472B4B6250645367566B5970
+      expiration: 7200000 # 2 hours
+      refresh-token:
+        expiration: 14000000 # 4 hours
