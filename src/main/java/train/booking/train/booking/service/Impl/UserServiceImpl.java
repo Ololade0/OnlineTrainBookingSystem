@@ -1,4 +1,4 @@
-package train.booking.train.booking.service;
+package train.booking.train.booking.service.Impl;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
 import jakarta.transaction.Transactional;
@@ -21,6 +21,9 @@ import train.booking.train.booking.model.Role;
 import train.booking.train.booking.model.User;
 import train.booking.train.booking.model.enums.RoleType;
 import train.booking.train.booking.repository.UserRepository;
+import train.booking.train.booking.service.NotificationService;
+import train.booking.train.booking.service.RoleService;
+import train.booking.train.booking.service.UserService;
 
 import javax.management.relation.RoleNotFoundException;
 import java.util.*;

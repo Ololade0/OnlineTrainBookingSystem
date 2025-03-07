@@ -1,4 +1,4 @@
-package train.booking.train.booking.service;
+package train.booking.train.booking.service.Impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -7,6 +7,7 @@ import train.booking.train.booking.exceptions.RoleException;
 import train.booking.train.booking.model.Role;
 import train.booking.train.booking.model.enums.RoleType;
 import train.booking.train.booking.repository.RoleRepository;
+import train.booking.train.booking.service.RoleService;
 
 import javax.management.relation.RoleNotFoundException;
 import java.util.Optional;
@@ -15,7 +16,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class RoleServiceImpl implements RoleService{
+public class RoleServiceImpl implements RoleService {
     private final RoleRepository roleRepository;
 
 
@@ -38,7 +39,6 @@ public class RoleServiceImpl implements RoleService{
 
     @Override
     public Optional<Role> findByRoleType(RoleType roleType) throws RoleNotFoundException {
-
         Role assignedRole = roleRepository.findByRoleType(roleType)
                 .orElseThrow(() -> new RoleNotFoundException("Role not found: " + roleType));
         return Optional.ofNullable(assignedRole);

@@ -1,4 +1,4 @@
-package train.booking.train.booking.service;
+package train.booking.train.booking.service.Impl;
 
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
@@ -9,6 +9,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import train.booking.train.booking.dto.request.MailRequest;
 import train.booking.train.booking.dto.response.MailResponse;
+import train.booking.train.booking.service.NotificationService;
 
 import java.util.concurrent.CompletableFuture;
 
