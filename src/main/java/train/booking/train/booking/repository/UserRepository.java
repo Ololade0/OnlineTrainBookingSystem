@@ -9,6 +9,7 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
+    Optional<User> findByActivationToken(String activationToken);
 
     boolean existsByEmail(String email);
 

@@ -37,13 +37,14 @@ public class User extends AuditBaseEntity{
     private String confirmPassword;
     @NotBlank(message = "phonenumber must not be blank")
     private String phoneNumber;
-    private LocalDate DateOfBirth;
+    private LocalDate dateOfBirth;
 //    @Size(min = 10, max = 15, message = "ID number must be between 10 and 15 characters")
     private String idNumber;
 //    @NotNull(message = "Kindly choose mode of identification")
     private IdentificationType identificationType;
 
-    private boolean enabled = true;
+    private boolean enabled = false;
+    private String activationToken;
 
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(

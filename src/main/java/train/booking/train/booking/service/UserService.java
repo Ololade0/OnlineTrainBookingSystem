@@ -7,12 +7,12 @@ import train.booking.train.booking.dto.request.UserLoginRequest;
 import train.booking.train.booking.dto.response.SignUpUserResponse;
 import train.booking.train.booking.dto.response.UserLoginResponse;
 import train.booking.train.booking.model.User;
-import train.booking.train.booking.model.enums.RoleType;
 
+import javax.management.relation.RoleNotFoundException;
 import java.util.Optional;
 
 public interface UserService extends UserDetailsService {
-   SignUpUserResponse signUp(SignUpRequest signUpRequest) throws UnirestException;
+   SignUpUserResponse signUp(SignUpRequest signUpRequest) throws UnirestException, RoleNotFoundException;
    SignUpUserResponse superAdminSignUp(SignUpRequest signUpRequest) throws UnirestException;
    User findUserByEmail(String email);
    User findUserById(Long userId);
@@ -26,7 +26,12 @@ public interface UserService extends UserDetailsService {
 
    void disableUser(String email);
 
-   void enableUser(String email);
-
    void deleteUser(String email);
+
+   Optional<User> findUserByActivationToken(String token);
+
+   String activateAccount(String token) throws UnirestException;
+
+
+   void enableUser(String email);
 }

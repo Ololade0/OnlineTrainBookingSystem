@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import train.booking.train.booking.model.Role;
-import train.booking.train.booking.model.User;
 import train.booking.train.booking.model.enums.GenderType;
 import train.booking.train.booking.model.enums.IdentificationType;
 import train.booking.train.booking.model.enums.RoleType;

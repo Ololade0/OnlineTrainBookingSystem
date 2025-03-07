@@ -1,12 +1,9 @@
 package train.booking.train.booking.service;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -16,19 +13,17 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import train.booking.train.booking.dto.SignUpRequest;
-import train.booking.train.booking.dto.request.MailRequest;
 import train.booking.train.booking.dto.request.UserLoginRequest;
 import train.booking.train.booking.dto.response.SignUpUserResponse;
 import train.booking.train.booking.dto.response.UserLoginResponse;
 import train.booking.train.booking.exceptions.*;
 import train.booking.train.booking.model.Role;
 import train.booking.train.booking.model.User;
-import train.booking.train.booking.model.enums.GenderType;
 import train.booking.train.booking.model.enums.RoleType;
 import train.booking.train.booking.repository.UserRepository;
 
+import javax.management.relation.RoleNotFoundException;
 import java.util.*;
-import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -40,46 +35,60 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final RoleService roleService;
 
-    private final EmailService emailService;
+    private final NotificationService notificationService;
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
     public SignUpUserResponse superAdminSignUp(SignUpRequest signUpRequest) throws UnirestException {
+        try{
 
         validateUserInfo(signUpRequest);
         validateEmail(signUpRequest.getEmail());
         validatePasswordStrength(signUpRequest.getPassword());
-                User signupUser = User.builder()
+        String activationToken = UUID.randomUUID().toString();
+
+        User signupUser = User.builder()
                 .firstName(signUpRequest.getFirstName())
                 .lastName(signUpRequest.getLastName())
                 .email(signUpRequest.getEmail())
                 .gender(signUpRequest.getGender())
-                .DateOfBirth(signUpRequest.getDateOfBirth())
+                .dateOfBirth(signUpRequest.getDateOfBirth())
                 .identificationType(signUpRequest.getIdentificationType())
                 .phoneNumber(signUpRequest.getPhoneNumber())
                 .password(bCryptPasswordEncoder.encode(signUpRequest.getPassword()))
+                .confirmPassword(bCryptPasswordEncoder.encode(signUpRequest.getPassword()))
                 .idNumber(signUpRequest.getIdNumber())
-                .confirmPassword(bCryptPasswordEncoder.encode(signUpRequest.getConfirmPassword()))
+                .enabled(false)
+                .activationToken(activationToken)
                 .roleHashSet(new HashSet<>())
                 .build();
-      Role assignedRole = roleService.save(new Role(RoleType.SUPERADMIN_ROLE));
-        signupUser.getRoleHashSet().add(assignedRole);
 
-        log.info("User Details: {}", signupUser);
-        sendMail(signUpRequest);
+        Role assignedRole = roleService.findByRoleType(RoleType.SUPERADMIN_ROLE).get();
+        signupUser.getRoleHashSet().add(assignedRole);
         userRepository.save(signupUser);
+        log.info("User Details: {}", signupUser);
+
+
+        notificationService.sendActivationEmail(signupUser.getEmail(), signupUser.getFirstName(), activationToken);
         return getSignUpUserResponse(signupUser);
+        } catch (Exception e) {
+            log.error("Error during super admin sign-up: {}", e.getMessage());
+            throw new RuntimeException("Sign-up failed due to an unexpected error.", e);
+        }
     }
 
 
     @Override
     @Transactional
-    public SignUpUserResponse signUp(SignUpRequest signUpRequest) throws UnirestException {
+    public SignUpUserResponse signUp(SignUpRequest signUpRequest) throws UnirestException, RoleNotFoundException {
+
         validateUserInfo(signUpRequest);
         validateEmail(signUpRequest.getEmail());
         validatePasswordStrength(signUpRequest.getPassword());
-        RoleType requestedRoleType = signUpRequest.getRoleType() != null ? signUpRequest.getRoleType() : RoleType.USER_ROLE;
+        String activationToken = UUID.randomUUID().toString();
+
+        RoleType requestedRoleType = Optional.ofNullable(signUpRequest.getRoleType()).orElse(RoleType.USER_ROLE);
 
         log.info("Requested RoleType: {}", requestedRoleType);
 
@@ -92,35 +101,30 @@ public class UserServiceImpl implements UserService {
             User currentUser = userRepository.findUserByEmail(authentication.getName())
                     .orElseThrow(() -> new UnAuthorizedException("Unauthorized"));
 
-            boolean isSuperAdmin = currentUser.getRoleHashSet().stream()
-                    .anyMatch(role -> role.getRoleType() == RoleType.SUPERADMIN_ROLE);
-
-            if (!isSuperAdmin) {
+            if (!currentUser.hasRole(RoleType.SUPERADMIN_ROLE)) {
                 throw new UnAuthorizedException("Only SUPERADMIN can assign roles other than USER_ROLE!");
             }
         }
-
-
         User signupUser = User.builder()
                 .firstName(signUpRequest.getFirstName())
                 .lastName(signUpRequest.getLastName())
                 .email(signUpRequest.getEmail())
                 .gender(signUpRequest.getGender())
-                .DateOfBirth(signUpRequest.getDateOfBirth())
+                .dateOfBirth(signUpRequest.getDateOfBirth())
                 .identificationType(signUpRequest.getIdentificationType())
                 .phoneNumber(signUpRequest.getPhoneNumber())
                 .password(bCryptPasswordEncoder.encode(signUpRequest.getPassword()))
                 .idNumber(signUpRequest.getIdNumber())
-                .confirmPassword(bCryptPasswordEncoder.encode(signUpRequest.getConfirmPassword()))
+                .enabled(false)
+                .activationToken(activationToken)
                 .roleHashSet(new HashSet<>())
                 .build();
-        Role assignedRole = roleService.findByRoleType(requestedRoleType)
-                .orElseThrow(() -> new RuntimeException("Role not found: " + requestedRoleType));
-        signupUser.getRoleHashSet().add(assignedRole);
+      Optional<Role> assignedRole =   roleService.findByRoleType(requestedRoleType);
+        signupUser.getRoleHashSet().add(assignedRole.get());
+        log.info("Assigning role {} to new user {}", requestedRoleType, signUpRequest.getEmail());
 
-        log.info("User Roles Before Saving: {}", signupUser.getRoleHashSet());
-        sendMail(signUpRequest);
         userRepository.save(signupUser);
+        notificationService.sendActivationEmail(signupUser.getEmail(), signupUser.getFirstName(), activationToken);
         return getSignUpUserResponse(signupUser);
     }
 
@@ -132,15 +136,13 @@ public class UserServiceImpl implements UserService {
                 .email(signupUser.getEmail())
                 .gender(signupUser.getGender())
                 .dateOfBirth(signupUser.getDateOfBirth())
-                .password(signupUser.getPassword())
-                .confirmPassword(signupUser.getConfirmPassword())
                 .idNumber(signupUser.getIdNumber())
                 .phoneNumber(signupUser.getPhoneNumber())
                 .message("Account successfully created")
                 .roles(signupUser.getRoleHashSet())
                 .build();
-
     }
+
 
 
     private void validateUserInfo(SignUpRequest signUpRequest) {
@@ -186,7 +188,7 @@ public class UserServiceImpl implements UserService {
 
     public User findUserByEmailOrNull(String email) {
         Optional<User> user = userRepository.findUserByEmail(email);
-        return user.orElse(null); // Return null if user is not found
+        return user.orElse(null);
     }
 
     @Override
@@ -227,6 +229,12 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(user);
     }
 
+    @Override
+    public Optional<User> findUserByActivationToken(String token) {
+       return Optional.ofNullable(userRepository.findByActivationToken(token)
+               .orElseThrow(() -> new UserCannotBeFoundException("User with token cannot be found ")));
+    }
+
 
     private UserLoginResponse buildSuccessfulLoginResponse(User user) {
         return UserLoginResponse.builder()
@@ -236,17 +244,20 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    public String activateAccount(String token) throws UnirestException {
+        User user = userRepository.findByActivationToken(token)
+                .orElseThrow(() -> new RuntimeException("Invalid or expired activation token"));
 
-    private void sendMail(SignUpRequest signUpRequest) throws UnirestException {
-        MailRequest mailRequest = MailRequest.builder()
-                .sender(System.getenv("SENDER"))
-                .receiver(signUpRequest.getEmail())
-                .subject("You are welcome")
-                .body("Hello " + signUpRequest.getFirstName() + ". Thank you for travelling  with us")
-                .build();
-        emailService.sendSimpleMail(mailRequest);
+        user.setEnabled(true);
+        user.setActivationToken(null);
+       userRepository.save(user);
+       notificationService.sendMail(user.getEmail(), user.getFirstName());
+       return "Account sucessfully activated";
 
     }
+
+
+
 
 
 

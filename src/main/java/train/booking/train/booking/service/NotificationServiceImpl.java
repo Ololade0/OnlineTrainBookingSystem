@@ -1,8 +1,7 @@
 package train.booking.train.booking.service;
 
-;
+import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
-
 import com.mashape.unirest.http.exceptions.UnirestException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,15 +10,14 @@ import org.springframework.stereotype.Service;
 import train.booking.train.booking.dto.request.MailRequest;
 import train.booking.train.booking.dto.response.MailResponse;
 
-import com.mashape.unirest.http.HttpResponse;
-
 import java.util.concurrent.CompletableFuture;
+
+;
 
 @Service
 @Slf4j
-public class EmailServicesImpl implements EmailService{
-//    private final String DOMAIN = System.getenv("DOMAIN");
-//    private final String PRIVATE_KEY = System.getenv("API_KEY");
+public class NotificationServiceImpl implements NotificationService {
+
 
     @Value("${mailgun.domain}")
     private String DOMAIN;
@@ -27,6 +25,11 @@ public class EmailServicesImpl implements EmailService{
     private String PRIVATE_KEY;
     @Value("${mailgun.api-url}")
     private String APU_URL;
+
+    @Value("${mail.gun.activation}")
+    private String ACTIVATION_URL;
+
+
     @Override
     @Async
     public CompletableFuture<MailResponse> sendSimpleMail(MailRequest mailRequest) throws UnirestException {
@@ -52,5 +55,31 @@ public class EmailServicesImpl implements EmailService{
             }
 
             }
+
+
+    public  String sendMail(String email, String name) throws UnirestException {
+        MailRequest mailRequest = MailRequest.builder()
+                .sender(System.getenv("SENDER"))
+                .receiver(email)
+                .subject("You are welcome")
+                .body("Hello " + name + ". Your account has been sucessfully activated !!!   Thank you for travelling  with us")
+                .build();
+            sendSimpleMail(mailRequest);
+            return "Email sucessfully sent";
+
+    }
+    public String sendActivationEmail(String email,String name,  String token) throws UnirestException {
+        String activationLink = ACTIVATION_URL + token;
+
+        MailRequest mailRequest = MailRequest.builder()
+                .sender("no-reply@yourdomain.com")
+                .receiver(email)
+                .subject("Activate Your Account")
+                .body("Dear " + name + " Click the link to activate your account: " + activationLink)
+                .build();
+
+        sendSimpleMail(mailRequest);
+        return "Activation Link sucessfully sent";
+    }
     }
 

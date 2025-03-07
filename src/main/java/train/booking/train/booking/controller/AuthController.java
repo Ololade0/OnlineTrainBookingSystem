@@ -40,7 +40,7 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         final String token = tokenProvider.generateJWTToken(authentication);
         User user = userService.findUserByEmail(loginRequest.getEmail());
-        return new ResponseEntity<>(new AuthToken(token, user.getId(), user), HttpStatus.OK);
+        return new ResponseEntity<>(new AuthToken(token, user.getId(), user.getEmail()), HttpStatus.OK);
     }
 }
 
