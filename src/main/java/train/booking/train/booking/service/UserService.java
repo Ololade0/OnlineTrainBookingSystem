@@ -3,6 +3,7 @@ package train.booking.train.booking.service;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import train.booking.train.booking.dto.SignUpRequest;
+import train.booking.train.booking.dto.request.UserDTO;
 import train.booking.train.booking.dto.request.UserLoginRequest;
 import train.booking.train.booking.dto.response.SignUpUserResponse;
 import train.booking.train.booking.dto.response.UserLoginResponse;
@@ -14,7 +15,7 @@ import java.util.Optional;
 public interface UserService extends UserDetailsService {
    SignUpUserResponse signUp(SignUpRequest signUpRequest) throws UnirestException, RoleNotFoundException;
    SignUpUserResponse superAdminSignUp(SignUpRequest signUpRequest) throws UnirestException;
-   User findUserByEmail(String email);
+   UserDTO findUserByEmail(String email);
    User findUserById(Long userId);
 
    User findUserByEmailOrNull(String email);

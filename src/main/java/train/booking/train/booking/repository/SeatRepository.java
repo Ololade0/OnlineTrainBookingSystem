@@ -12,12 +12,8 @@ import java.util.Optional;
 public interface SeatRepository extends JpaRepository<Seat, Long> {
 
 
-        Optional<Seat> findBySeatNumber(int seatNumber);
+    Optional<Seat> findBySeatNumber(int seatNumber);
 
-        @Query("SELECT s FROM seats s WHERE s.seatNumber = :seatNumber AND s.trainClass.trainClassName = :trainClassName")
-        Optional<Seat> findBySeatNumberAndTrainClassName(@Param("trainClassName") String trainClassName, @Param("seatNumber") int seatNumber);
-
-        Optional<Seat> findByTrainClass_TrainClassNameAndSeatNumber(String trainClassName, int seatNumber);
-    }
+}
 
 

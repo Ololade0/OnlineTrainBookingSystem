@@ -4,8 +4,6 @@ import train.booking.train.booking.model.Station;
 
 import java.util.List;
 import java.util.Optional;
-
-
 public interface StationService {
     Station createNewStation(Station newStation);
     Station findStation(String station);

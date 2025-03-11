@@ -13,6 +13,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import train.booking.train.booking.dto.SignUpRequest;
+import train.booking.train.booking.dto.request.UserDTO;
 import train.booking.train.booking.dto.response.SignUpUserResponse;
 import train.booking.train.booking.exceptions.UserCannotBeFoundException;
 import train.booking.train.booking.model.User;
@@ -46,7 +47,7 @@ public class UserController {
     @GetMapping("/find-user/{email}")
     public ResponseEntity<?> findUserByEmail(@PathVariable("email") String email) {
         try {
-            User foundUserByEmail = userService.findUserByEmail(email);
+            UserDTO foundUserByEmail = userService.findUserByEmail(email);
             return new ResponseEntity<>(foundUserByEmail, HttpStatus.OK);
         } catch (UserCannotBeFoundException ex) {
             return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);

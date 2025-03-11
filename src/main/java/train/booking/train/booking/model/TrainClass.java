@@ -1,61 +1,30 @@
 package train.booking.train.booking.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import jakarta.persistence.*;
-import lombok.*;
+public enum TrainClass {
+    ECONOMY(200.0, 300.0, 200),
+    VIP(300.0, 500.0, 400),
+    FIRST_CLASS(400.0, 700.0, 100);
 
-import java.util.ArrayList;
-import java.util.List;
+    private final double minorPrice;
+    private final double adultPrice;
+    private final int totalSeats;
 
-@Setter
-@Getter
-@Builder
-
-@Entity(name = "trainclass")
-@AllArgsConstructor
-@NoArgsConstructor
-public class TrainClass {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long trainClassId;
-    @Column(name = "train_class_name")
-    private String trainClassName;
-//
-    @Embedded
-    private Fare fare;
-
-
-    @JsonBackReference("train-trainClass")
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "train_id")
-    private Train train;
-
-    @JsonManagedReference("trainClass-seats")
-    @OneToMany(mappedBy = "trainClass", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-    private List<Seat> seats = new ArrayList<>();
-
-   @JsonBackReference("trainClass-bookings")
-//    @JsonIgnore
-    @OneToMany(mappedBy = "trainClass", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-    private List<Booking> bookings;
-
-
-    private int totalSeat;
-
-    public TrainClass(Long trainClassId, String trainClassName, Object o, int i) {
+    TrainClass(double minorPrice, double adultPrice, int totalSeats) {
+        this.minorPrice = minorPrice;
+        this.adultPrice = adultPrice;
+        this.totalSeats = totalSeats;
     }
 
-    @Override
-    public String toString() {
-        return "TrainClass{" +
-                "trainClassId=" + trainClassId +
-                ", className='" + trainClassName + '\'' +
-                ", fare=" + fare +
-                ", train=" + train +
-                ", seats=" + seats +
-                ", bookings=" + bookings +
-                ", totalSeat=" + totalSeat +
-                '}';
+    public double getMinorPrice() {
+
+        return minorPrice;
+    }
+
+    public double getAdultPrice() {
+        return adultPrice;
+    }
+
+    public int getTotalSeats() {
+        return totalSeats;
     }
 }

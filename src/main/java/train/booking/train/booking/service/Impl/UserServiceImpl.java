@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import train.booking.train.booking.dto.SignUpRequest;
+import train.booking.train.booking.dto.request.UserDTO;
 import train.booking.train.booking.dto.request.UserLoginRequest;
 import train.booking.train.booking.dto.response.SignUpUserResponse;
 import train.booking.train.booking.dto.response.UserLoginResponse;
@@ -177,11 +178,12 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    @Override
-    public User findUserByEmail(String email) {
-        Optional<User> user = userRepository.findUserByEmail(email);
-        return user.orElseThrow(() -> new UserCannotBeFoundException("User with email " + email + " not found"));
+    public UserDTO findUserByEmail(String email) {
+        User user = userRepository.findUserByEmail(email)
+                .orElseThrow(() -> new UserCannotBeFoundException("User with email " + email + " not found"));
+        return new UserDTO(user.getEmail(), user.getFirstName(), user.getLastName());
     }
+
 
     @Override
     public User findUserById(Long userId) {
