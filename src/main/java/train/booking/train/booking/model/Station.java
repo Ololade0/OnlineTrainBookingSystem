@@ -11,7 +11,7 @@ import java.util.List;@Setter
 @Builder
 @ToString
 @Entity(name = "stations")
-@AllArgsConstructor
+//@AllArgsConstructor
 @NoArgsConstructor
 public class Station extends AuditBaseEntity {
     @Id
@@ -25,10 +25,10 @@ public class Station extends AuditBaseEntity {
 
     private String stationTag;
 
-
-    @JsonBackReference
-    @ManyToMany(mappedBy = "stations")
-    private List<Schedule> schedules;
+//
+//    @JsonBackReference
+//    @ManyToMany(mappedBy = "stations")
+//    private List<Schedule> schedules;
 
     public Station(Long stationId, String stationName, String stationCode, String stationTag) {
         this.stationId = stationId;

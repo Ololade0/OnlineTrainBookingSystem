@@ -36,6 +36,7 @@ public class Schedule extends AuditBaseEntity {
     private LocalDate arrivalDate;
     @JsonSerialize(using = DurationSerializer.class)
     private Duration duration;
+
     private String distance;
 
     @Enumerated(EnumType.STRING)
@@ -44,27 +45,20 @@ public class Schedule extends AuditBaseEntity {
     @Enumerated(EnumType.STRING)
     private Route route;
 
-    @Embedded
-    private Fare fare;
+//    @Embedded
+//    private Fare fare;
 
 
     @JsonBackReference("scheduleBooking")
-
     @ManyToOne
     @JoinColumn(name = "train_id")
     private Train train;
 
-    @ManyToMany
-    @JoinTable(
-            name = "schedule_station",
-            joinColumns = @JoinColumn(name = "schedule_id"),
-            inverseJoinColumns = @JoinColumn(name = "station_id")
-    )
-    private List<Station> stations;
+    @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<PriceList> priceLists;
 
-    @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL)
-    @JsonBackReference
-    private List<Booking> bookings;
+
+
 
 }
 

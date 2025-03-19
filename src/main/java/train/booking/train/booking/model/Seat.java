@@ -22,7 +22,6 @@ public class Seat {
     private SeatStatus status;
 
 
-
     private String name;
 
 

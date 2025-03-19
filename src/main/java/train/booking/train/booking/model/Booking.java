@@ -28,7 +28,6 @@ public class Booking {
     private String passengerType;
     private String approvalUrl;
 
-
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -36,9 +35,6 @@ public class Booking {
     @Enumerated(EnumType.STRING)
     private TrainClass trainClass;
 
-
-    @ManyToOne
-    @JoinColumn(name = "schedule_id")
-    private Schedule schedule;
+    private Long scheduleId;
 
 }
