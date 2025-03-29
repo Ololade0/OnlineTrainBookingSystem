@@ -46,7 +46,7 @@ public class User extends AuditBaseEntity{
     private boolean enabled = false;
     private String activationToken;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(
             name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),

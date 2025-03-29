@@ -22,9 +22,8 @@ public class NotificationController {
     private final UserService userService;
 
     @GetMapping("/activate/{token}")
-    public ResponseEntity<String> activateAccount(@PathVariable String token) throws UnirestException {
-        String foundUser = userService.activateAccount(token);
-        return ResponseEntity.ok(foundUser);
+    public ResponseEntity<?> activateAccount(@PathVariable String token) throws UnirestException {
+        return ResponseEntity.ok(userService.activateAccount(token));
     }
 
 

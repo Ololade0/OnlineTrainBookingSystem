@@ -1,9 +1,7 @@
 package train.booking.train.booking.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.*;
 import train.booking.train.booking.model.Role;
 import train.booking.train.booking.model.enums.GenderType;
 import train.booking.train.booking.model.enums.IdentificationType;
@@ -12,11 +10,13 @@ import train.booking.train.booking.model.enums.RoleType;
 import java.time.LocalDate;
 import java.util.Set;
 
-@Data
-@Builder
-@NoArgsConstructor
+@Getter
+@Setter
 @AllArgsConstructor
-public class SignUpRequest {
+@NoArgsConstructor
+@Builder
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class UserDTO {
     private String firstName;
     private String lastName;
     private String email;
@@ -30,5 +30,12 @@ public class SignUpRequest {
     private String message;
     private Set<Role> roles;
     private RoleType roleType;
-//    private Long userId;
+
+    public UserDTO(String firstName, String lastName, String email) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+    }
+
+
 }

@@ -1,15 +1,15 @@
-package train.booking.train.booking.dto.response;
+package train.booking.train.booking.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Setter
 @Getter
-
-public class MailResponse {
-    private boolean isSuccessful;
+public class UserLoginDTO {
+    private String email;
+    private String password;
 }

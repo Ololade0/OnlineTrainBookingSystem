@@ -1,9 +1,8 @@
 package train.booking.train.booking.model;
 
 public enum TrainClass {
-    ECONOMY,
+    FIRST_CLASS,
     VIP,
-    FIRST_CLASS
-
-
+    ECONOMY,
+    BUSINESS_CLASS
 }

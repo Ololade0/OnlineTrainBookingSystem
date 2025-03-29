@@ -7,8 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import train.booking.train.booking.dto.request.MailRequest;
-import train.booking.train.booking.dto.response.MailResponse;
+import train.booking.train.booking.dto.MailDTO;
+import train.booking.train.booking.dto.response.BaseResponse;
+import train.booking.train.booking.dto.response.ResponseUtil;
 import train.booking.train.booking.service.NotificationService;
 
 import java.util.concurrent.CompletableFuture;
@@ -33,7 +34,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     @Async
-    public CompletableFuture<MailResponse> sendSimpleMail(MailRequest mailRequest) throws UnirestException {
+    public CompletableFuture<MailDTO> sendSimpleMail(MailDTO mailRequest) throws UnirestException {
             log.info("DOMAIN -> {}", DOMAIN);
             log.info("API KEY -> {}", PRIVATE_KEY);
             log.info(mailRequest.getBody());
@@ -45,34 +46,33 @@ public class NotificationServiceImpl implements NotificationService {
                     .queryString("subject", mailRequest.getSubject())
                     .queryString("text", mailRequest.getBody())
                     .asString();
-            MailResponse mailResponse = request.getStatus() == 200 ? new MailResponse(true) : new MailResponse(false);
+            MailDTO mailResponse = request.getStatus() == 200 ? new MailDTO(true) : new MailDTO(false);
             return CompletableFuture.completedFuture(mailResponse);
 
         }
 
             catch (UnirestException exception){
                 log.error("Error sending mail: ", exception);
-                return CompletableFuture.completedFuture(new MailResponse(false));
+                return CompletableFuture.completedFuture(new MailDTO(false));
             }
 
             }
 
 
-    public  String sendMail(String email, String name) throws UnirestException {
-        MailRequest mailRequest = MailRequest.builder()
+    public BaseResponse sendMail(String email, String name) throws UnirestException {
+        MailDTO mailRequest = MailDTO.builder()
                 .sender(System.getenv("SENDER"))
                 .receiver(email)
                 .subject("You are welcome")
                 .body("Hello " + name + ". Your account has been sucessfully activated !!!   Thank you for travelling  with us")
                 .build();
             sendSimpleMail(mailRequest);
-            return "Email sucessfully sent";
-
+            return ResponseUtil.success("Email sucessfully sent", null);
     }
-    public String sendActivationEmail(String email,String name,  String token) throws UnirestException {
+    public BaseResponse sendActivationEmail(String email,String name,  String token) throws UnirestException {
         String activationLink = ACTIVATION_URL + token;
 
-        MailRequest mailRequest = MailRequest.builder()
+        MailDTO mailRequest = MailDTO.builder()
                 .sender("no-reply@yourdomain.com")
                 .receiver(email)
                 .subject("Activate Your Account")
@@ -80,7 +80,8 @@ public class NotificationServiceImpl implements NotificationService {
                 .build();
 
         sendSimpleMail(mailRequest);
-        return "Activation Link sucessfully sent";
+        return ResponseUtil.success("Activation Link sucessfully sent", null);
+
     }
     }
 

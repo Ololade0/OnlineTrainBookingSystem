@@ -3,8 +3,11 @@ package train.booking.train.booking.service.Impl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import train.booking.train.booking.exceptions.StationAlreadyExistException;
-import train.booking.train.booking.exceptions.StationCannotBeFoundException;
+import train.booking.train.booking.dto.StationDto;
+import train.booking.train.booking.dto.response.BaseResponse;
+import train.booking.train.booking.dto.response.ResponseCodes;
+import train.booking.train.booking.dto.response.ResponseUtil;
+
 import train.booking.train.booking.model.Station;
 import train.booking.train.booking.repository.StationRepository;
 import train.booking.train.booking.service.StationService;
@@ -19,62 +22,33 @@ public class StationServiceImpl implements StationService {
     private final StationRepository stationRepository;
 
     @Override
-    public Station createNewStation(Station newStation) {
-        verifyStation(newStation.getStationName(), newStation.getStationCode());
+    public BaseResponse createNewStation(StationDto stationDto) {
+        verifyStation(stationDto.getStationCode(), stationDto.getStationName());
         Station station = Station.builder()
-                .stationCode(newStation.getStationCode())
-                .stationName(newStation.getStationName())
+                .stationCode(stationDto.getStationCode())
+                .stationName(stationDto.getStationName())
+                .stationTag(stationDto.getStationTag())
                 .build();
-        return stationRepository.save(station);
-    }
-
-    @Override
-    public Station findStation(String station) {
-        return null;
-    }
-
-    @Override
-    public Station findStationById(Long stationId) {
-        return stationRepository.findById(stationId)
-                .orElseThrow(() -> new StationCannotBeFoundException("Station with ID " + stationId + " cannot be found"));
-    }
-
-    @Override
-    public Optional<Station> findStationByName(String stationName) {
-        return Optional.ofNullable(stationRepository.findByStationName(stationName).orElseThrow(()
-                -> new StationCannotBeFoundException
-                ("Station with Name " + stationName + " cannot be found")));
+         stationRepository.save(station);
+         StationDto responseDto = StationDto
+                 .builder()
+                 .stationName(station.getStationName())
+                 .build();
+        return ResponseUtil.success("Station sucessfully created", responseDto);
     }
 
 
 
-    @Transactional
-    public Station updateStation(Station station, Long stationId) {
-        Optional<Station> foundStation = stationRepository.findById(stationId);
-        if (foundStation.isPresent()) {
-            Station existingStation = foundStation.get();
-            existingStation.setStationCode(station.getStationCode());
-            existingStation.setStationName(station.getStationName());
-            return stationRepository.save(existingStation);
-        }
-        throw new StationCannotBeFoundException("Station with ID " + stationId + " cannot be found");
-    }
-
-    @Override
-    public List<Station> findAllStation() {
-        return stationRepository.findAll();
-    }
-
-
-    private void verifyStation(String stationCode, String stationName) {
+    private BaseResponse verifyStation(String stationCode, String stationName) {
         if (stationRepository.existsByStationCode(stationCode)) {
-            throw new StationAlreadyExistException("Station with code " + stationCode + " already exists");
+            return ResponseUtil.inputAlreadyExist("Station with code '" + stationCode + "' already exists.");
         }
         if (stationRepository.existsByStationName(stationName)) {
-            throw new StationAlreadyExistException("Station with name " + stationName + " already exists");
+            return ResponseUtil.inputAlreadyExist("Station with name '" + stationName + "' already exists.");
         }
 
-
-
+        return ResponseUtil.success("Station verification passed", null);
     }
+
+
 }

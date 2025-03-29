@@ -21,6 +21,8 @@ public class Seat {
     @Enumerated(EnumType.STRING)
     private SeatStatus status;
 
+    @Enumerated(EnumType.STRING)
+    private TrainClass trainClass;
 
     private String name;
 

@@ -4,8 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import train.booking.train.booking.dto.request.UserDTO;
-import train.booking.train.booking.dto.request.UserLoginRequest;
+import train.booking.train.booking.dto.UserLoginDTO;
 import train.booking.train.booking.dto.response.UserLoginResponse;
 import train.booking.train.booking.model.User;
 import train.booking.train.booking.service.AuthTokenService;
@@ -20,7 +19,7 @@ public class AuthTokenServiceImpl implements AuthTokenService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
-    public UserLoginResponse login(UserLoginRequest userLoginRequestModel) {
+    public UserLoginResponse login(UserLoginDTO userLoginRequestModel) {
         User user = userService.findUserByEmailOrNull(userLoginRequestModel.getEmail());
         if (user != null && bCryptPasswordEncoder.matches(userLoginRequestModel.getPassword(), user.getPassword())) {
             return buildSuccessfulLoginResponse(user);

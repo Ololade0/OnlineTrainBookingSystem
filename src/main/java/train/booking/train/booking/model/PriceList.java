@@ -5,8 +5,6 @@ import jakarta.persistence.*;
 import train.booking.train.booking.model.enums.AgeRange;
 
 import java.math.BigDecimal;
-
-/** Entity to store price details for train bookings */
     @Entity
     @Table(name = "price_list")
     public class PriceList {
@@ -24,11 +22,7 @@ import java.math.BigDecimal;
 
         private BigDecimal price;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "schedule_id", nullable = false)
-//    private Schedule schedule;
-//        private Long scheduleId;
-@ManyToOne
-@JoinColumn(name = "schedule_id", nullable = false)
-private Schedule schedule;
+        @ManyToOne
+        @JoinColumn(name = "schedule_id", nullable = false)
+        private Schedule schedule;
 }

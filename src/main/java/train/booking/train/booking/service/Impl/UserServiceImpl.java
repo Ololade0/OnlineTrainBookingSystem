@@ -12,10 +12,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import train.booking.train.booking.dto.SignUpRequest;
-import train.booking.train.booking.dto.request.UserDTO;
-import train.booking.train.booking.dto.request.UserLoginRequest;
-import train.booking.train.booking.dto.response.SignUpUserResponse;
+
+import train.booking.train.booking.dto.UserDTO;
+import train.booking.train.booking.dto.UserLoginDTO;
+import train.booking.train.booking.dto.response.BaseResponse;
+import train.booking.train.booking.dto.response.ResponseCodes;
+import train.booking.train.booking.dto.response.ResponseUtil;
 import train.booking.train.booking.dto.response.UserLoginResponse;
 import train.booking.train.booking.exceptions.*;
 import train.booking.train.booking.model.Role;
@@ -44,122 +46,118 @@ public class UserServiceImpl implements UserService {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
-    public SignUpUserResponse superAdminSignUp(SignUpRequest signUpRequest) throws UnirestException {
+    public BaseResponse superAdminSignUp(UserDTO userDTO) throws UnirestException {
         try{
-
-        validateUserInfo(signUpRequest);
-        validateEmail(signUpRequest.getEmail());
-        validatePasswordStrength(signUpRequest.getPassword());
+//        validateUserInfo(userDTO);
+//        validateEmail(userDTO.getEmail());
+//        validatePasswordStrength(userDTO.getPassword());
         String activationToken = UUID.randomUUID().toString();
-
         User signupUser = User.builder()
-                .firstName(signUpRequest.getFirstName())
-                .lastName(signUpRequest.getLastName())
-                .email(signUpRequest.getEmail())
-                .gender(signUpRequest.getGender())
-                .dateOfBirth(signUpRequest.getDateOfBirth())
-                .identificationType(signUpRequest.getIdentificationType())
-                .phoneNumber(signUpRequest.getPhoneNumber())
-                .password(bCryptPasswordEncoder.encode(signUpRequest.getPassword()))
-                .confirmPassword(bCryptPasswordEncoder.encode(signUpRequest.getPassword()))
-                .idNumber(signUpRequest.getIdNumber())
+                .firstName(userDTO.getFirstName())
+                .lastName(userDTO.getLastName())
+                .email(userDTO.getEmail())
+                .gender(userDTO.getGender())
+                .dateOfBirth(userDTO.getDateOfBirth())
+                .identificationType(userDTO.getIdentificationType())
+                .phoneNumber(userDTO.getPhoneNumber())
+                .password(bCryptPasswordEncoder.encode(userDTO.getPassword()))
+                .idNumber(userDTO.getIdNumber())
                 .enabled(false)
                 .activationToken(activationToken)
                 .roleHashSet(new HashSet<>())
                 .build();
-
-        Role assignedRole = roleService.findByRoleType(RoleType.SUPERADMIN_ROLE).get();
+        Role assignedRole = roleService.findByRoleType(RoleType.SUPERADMIN_ROLE);
         signupUser.getRoleHashSet().add(assignedRole);
         userRepository.save(signupUser);
         log.info("User Details: {}", signupUser);
 
-
         notificationService.sendActivationEmail(signupUser.getEmail(), signupUser.getFirstName(), activationToken);
-        return getSignUpUserResponse(signupUser);
-        } catch (Exception e) {
-            log.error("Error during super admin sign-up: {}", e.getMessage());
-            throw new RuntimeException("Sign-up failed due to an unexpected error.", e);
+            UserDTO responseDto = UserDTO.builder()
+                    .firstName(signupUser.getFirstName())
+                    .lastName(signupUser.getLastName())
+                    .email(signupUser.getEmail())
+                    .roles(signupUser.getRoleHashSet())
+                    .build();
+            return ResponseUtil.success("Account sucessfully created", responseDto);
         }
+          catch (Exception e) {
+            log.error("Error during super admin sign-up: {}", e.getMessage());
+            return ResponseUtil.invalidOrNullInput("Sign-up failed due to an unexpected error.");
+        }
+
     }
 
 
     @Override
     @Transactional
-    public SignUpUserResponse signUp(SignUpRequest signUpRequest) throws UnirestException, RoleNotFoundException {
+    public BaseResponse signUp(UserDTO userDTO) throws UnirestException, RoleNotFoundException {
+        try {
 
-        validateUserInfo(signUpRequest);
-        validateEmail(signUpRequest.getEmail());
-        validatePasswordStrength(signUpRequest.getPassword());
-        String activationToken = UUID.randomUUID().toString();
+//        validateUserInfo(userDTO);
+//        validateEmail(userDTO.getEmail());
+//        validatePasswordStrength(userDTO.getPassword());
+            String activationToken = UUID.randomUUID().toString();
+            RoleType requestedRoleType = Optional.ofNullable(userDTO.getRoleType()).orElse(RoleType.USER_ROLE);
 
-        RoleType requestedRoleType = Optional.ofNullable(signUpRequest.getRoleType()).orElse(RoleType.USER_ROLE);
+            log.info("Requested RoleType: {}", requestedRoleType);
 
-        log.info("Requested RoleType: {}", requestedRoleType);
+            if (requestedRoleType != RoleType.USER_ROLE) {
+                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                if (authentication == null || !authentication.isAuthenticated()) {
+                    return ResponseUtil.response(ResponseCodes.ACCESS_DENIED, "Only SUPERADMIN can create accounts for roles other than USER_ROLE!", null);
+                }
 
-        if (requestedRoleType != RoleType.USER_ROLE) {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            if (authentication == null || !authentication.isAuthenticated()) {
-                throw new UnAuthorizedException("Only SUPERADMIN can create accounts for roles other than USER_ROLE!");
+                User currentUser = userRepository.findUserByEmail(authentication.getName())
+                        .orElseThrow(() -> new UnAuthorizedException("Unauthorized"));
+
+                if (!currentUser.hasRole(RoleType.SUPERADMIN_ROLE)) {
+                    return ResponseUtil.response(ResponseCodes.ACCESS_DENIED, "Only SUPERADMIN can create accounts for roles other than USER_ROLE!", null);
+                }
             }
-
-            User currentUser = userRepository.findUserByEmail(authentication.getName())
-                    .orElseThrow(() -> new UnAuthorizedException("Unauthorized"));
-
-            if (!currentUser.hasRole(RoleType.SUPERADMIN_ROLE)) {
-                throw new UnAuthorizedException("Only SUPERADMIN can assign roles other than USER_ROLE!");
-            }
+            User signupUser = User.builder()
+                    .firstName(userDTO.getFirstName())
+                    .lastName(userDTO.getLastName())
+                    .email(userDTO.getEmail())
+                    .gender(userDTO.getGender())
+                    .dateOfBirth(userDTO.getDateOfBirth())
+                    .identificationType(userDTO.getIdentificationType())
+                    .phoneNumber(userDTO.getPhoneNumber())
+                    .password(bCryptPasswordEncoder.encode(userDTO.getPassword()))
+                    .idNumber(userDTO.getIdNumber())
+                    .enabled(false)
+                    .activationToken(activationToken)
+                    .roleHashSet(new HashSet<>())
+                    .build();
+            Role assignedRole = roleService.findByRoleType(requestedRoleType);
+            signupUser.getRoleHashSet().add(assignedRole);
+            log.info("Assigning role {} to new user {}", requestedRoleType, userDTO.getEmail());
+            userRepository.save(signupUser);
+            notificationService.sendActivationEmail(signupUser.getEmail(), signupUser.getFirstName(), activationToken);
+            UserDTO responseDto = UserDTO.builder()
+                    .firstName(signupUser.getFirstName())
+                    .lastName(signupUser.getLastName())
+                    .email(signupUser.getEmail())
+                    .roles(signupUser.getRoleHashSet())
+                    .build();
+            return ResponseUtil.success("Account sucessfully created", responseDto);
+        } catch (Exception e) {
+            log.error("Error during super admin sign-up: {}", e.getMessage());
+            return ResponseUtil.invalidOrNullInput("Sign-up failed due to an unexpected error.");
         }
-        User signupUser = User.builder()
-                .firstName(signUpRequest.getFirstName())
-                .lastName(signUpRequest.getLastName())
-                .email(signUpRequest.getEmail())
-                .gender(signUpRequest.getGender())
-                .dateOfBirth(signUpRequest.getDateOfBirth())
-                .identificationType(signUpRequest.getIdentificationType())
-                .phoneNumber(signUpRequest.getPhoneNumber())
-                .password(bCryptPasswordEncoder.encode(signUpRequest.getPassword()))
-                .idNumber(signUpRequest.getIdNumber())
-                .enabled(false)
-                .activationToken(activationToken)
-                .roleHashSet(new HashSet<>())
-                .build();
-      Optional<Role> assignedRole =   roleService.findByRoleType(requestedRoleType);
-        signupUser.getRoleHashSet().add(assignedRole.get());
-        log.info("Assigning role {} to new user {}", requestedRoleType, signUpRequest.getEmail());
-
-        userRepository.save(signupUser);
-        notificationService.sendActivationEmail(signupUser.getEmail(), signupUser.getFirstName(), activationToken);
-        return getSignUpUserResponse(signupUser);
-    }
-
-    private static SignUpUserResponse getSignUpUserResponse(User signupUser) {
-        return SignUpUserResponse.builder()
-                .id(signupUser.getId())
-                .firstName(signupUser.getFirstName())
-                .lastName(signupUser.getLastName())
-                .email(signupUser.getEmail())
-                .gender(signupUser.getGender())
-                .dateOfBirth(signupUser.getDateOfBirth())
-                .idNumber(signupUser.getIdNumber())
-                .phoneNumber(signupUser.getPhoneNumber())
-                .message("Account successfully created")
-                .roles(signupUser.getRoleHashSet())
-                .build();
     }
 
 
-
-    private void validateUserInfo(SignUpRequest signUpRequest) {
-        if (!Objects.equals(signUpRequest.getPassword().trim(), signUpRequest.getConfirmPassword().trim())) {
+    private void validateUserInfo(UserDTO userDTO) {
+        if (!Objects.equals(userDTO.getPassword().trim(), userDTO.getConfirmPassword().trim())) {
             throw new PasswordDoesNotMatchException("The passwords you entered do not match. Please ensure both fields are identical.");
         }
-        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+        if (userRepository.existsByEmail(userDTO.getEmail())) {
             throw new UserAlreadyExistException("User with the email already Exist");
         }
-        if (signUpRequest.getIdNumber() == null || signUpRequest.getIdNumber().length() < 10 || signUpRequest.getIdNumber().length() > 15) {
+        if (userDTO.getIdNumber() == null || userDTO.getIdNumber().length() < 10 || userDTO.getIdNumber().length() > 15) {
             throw new InvalidIdNumber("IDss number must be between 10 and 15 characters.");
         }
-        if (userRepository.existsByIdNumber(signUpRequest.getIdNumber())) {
+        if (userRepository.existsByIdNumber(userDTO.getIdNumber())) {
             throw new IdNumberAlreadyExist("user identification number already exist");
 
         }
@@ -178,18 +176,15 @@ public class UserServiceImpl implements UserService {
     }
 
 
-    public UserDTO findUserByEmail(String email) {
+    public BaseResponse findUserByEmail(String email) {
         User user = userRepository.findUserByEmail(email)
                 .orElseThrow(() -> new UserCannotBeFoundException("User with email " + email + " not found"));
-        return new UserDTO(user.getEmail(), user.getFirstName(), user.getLastName());
+        UserDTO userDTO = new UserDTO(user.getEmail(), user.getFirstName(), user.getLastName());
+        return ResponseUtil.success("User found successfully", userDTO);
     }
 
 
-    @Override
-    public User findUserById(Long userId) {
-        Optional<User> user = userRepository.findById(userId);
-        return user.orElseThrow(() -> new UserCannotBeFoundException("User with id " + userId + " cannot be found"));
-    }
+
 
     public User findUserByEmailOrNull(String email) {
         Optional<User> user = userRepository.findUserByEmail(email);
@@ -197,12 +192,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Optional<User> getUserById(Long userId) {
-        return userRepository.findById(userId);
-    }
-
-    @Override
-    public UserLoginResponse login(UserLoginRequest userLoginRequestModel) {
+    public UserLoginResponse login(UserLoginDTO userLoginRequestModel) {
         var user = userRepository.findUserByEmail(userLoginRequestModel.getEmail());
         if (user.isPresent() && bCryptPasswordEncoder.matches(userLoginRequestModel.getPassword(), user.get().getPassword())) {
             return buildSuccessfulLoginResponse(user.get());
@@ -211,28 +201,10 @@ public class UserServiceImpl implements UserService {
 
     }
 
-    @Override
-    public void disableUser(String email) {
-        var user = userRepository.findUserByEmail(email)
-                .orElseThrow(() -> new UserCannotBeFoundException("User with email " + email + " not found"));
-        user.setEnabled(false);
-        userRepository.save(user);
-    }
 
 
-    public void enableUser(String email) {
-        var user = userRepository.findUserByEmail(email)
-                .orElseThrow(() -> new UserCannotBeFoundException("User with email " + email + " not found"));
-        user.setEnabled(true);
-        userRepository.save(user);
-    }
 
-    @Override
-    public void deleteUser(String email) {
-        var user = userRepository.findUserByEmail(email)
-                .orElseThrow(()-> new UserCannotBeFoundException("User with email " + email + " not found"));
-        userRepository.delete(user);
-    }
+
 
     @Override
     public Optional<User> findUserByActivationToken(String token) {
@@ -249,15 +221,14 @@ public class UserServiceImpl implements UserService {
 
     }
 
-    public String activateAccount(String token) throws UnirestException {
+    public BaseResponse activateAccount(String token) throws UnirestException {
         User user = userRepository.findByActivationToken(token)
                 .orElseThrow(() -> new RuntimeException("Invalid or expired activation token"));
-
         user.setEnabled(true);
         user.setActivationToken(null);
        userRepository.save(user);
        notificationService.sendMail(user.getEmail(), user.getFirstName());
-       return "Account sucessfully activated";
+       return ResponseUtil.success("Account as been sucessfully activated",null);
 
     }
 
