@@ -81,4 +81,5 @@ public class ResponseCodes {
     public static final int DATABASE_ERROR = 906;
     public static final int FIILESYSTEM_ERROR = 907;
 
+    public static final int ERROR = 501;
 }

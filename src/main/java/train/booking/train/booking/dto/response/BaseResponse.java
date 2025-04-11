@@ -78,4 +78,5 @@ public class BaseResponse<E> implements Serializable {
     return "BaseResponse{" + "status=" + status + ", entity=" + entity + '}';
   }
 
+
 }

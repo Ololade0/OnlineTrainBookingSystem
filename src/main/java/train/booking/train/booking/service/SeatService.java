@@ -14,7 +14,7 @@ Optional<Seat> findSeatById(Long seatId);
 void updateSeat(Seat seat);
 List<Seat> findAllSeat();
 
-//  Seat findSeats(String className, int seatNumber);
+
 
 
 

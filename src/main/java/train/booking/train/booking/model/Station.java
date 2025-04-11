@@ -4,31 +4,33 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import train.booking.train.booking.model.enums.StationType;
 
 import java.time.LocalDateTime;
-import java.util.List;@Setter
+import java.util.List;
+@Setter
 @Getter
 @Builder
 @ToString
 @Entity(name = "stations")
-//@AllArgsConstructor
+@AllArgsConstructor
 @NoArgsConstructor
 public class Station extends AuditBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long stationId;
     @NotBlank(message = "Station Name cannot be blank")
+    @Column(unique = true)
     private String stationName;
 
     @NotBlank(message = "Station Code cannot be blank")
     private String stationCode;
 
     private String stationTag;
+    @Enumerated(EnumType.STRING)
+    private StationType stationType;
 
-//
-//    @JsonBackReference
-//    @ManyToMany(mappedBy = "stations")
-//    private List<Schedule> schedules;
+
 
     public Station(Long stationId, String stationName, String stationCode, String stationTag) {
         this.stationId = stationId;

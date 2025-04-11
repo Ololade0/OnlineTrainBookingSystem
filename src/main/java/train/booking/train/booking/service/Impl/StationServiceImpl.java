@@ -8,6 +8,7 @@ import train.booking.train.booking.dto.response.BaseResponse;
 import train.booking.train.booking.dto.response.ResponseCodes;
 import train.booking.train.booking.dto.response.ResponseUtil;
 
+import train.booking.train.booking.exceptions.StationCannotBeFoundException;
 import train.booking.train.booking.model.Station;
 import train.booking.train.booking.repository.StationRepository;
 import train.booking.train.booking.service.StationService;
@@ -28,6 +29,7 @@ public class StationServiceImpl implements StationService {
                 .stationCode(stationDto.getStationCode())
                 .stationName(stationDto.getStationName())
                 .stationTag(stationDto.getStationTag())
+                .stationType(stationDto.getStationType())
                 .build();
          stationRepository.save(station);
          StationDto responseDto = StationDto
@@ -49,6 +51,21 @@ public class StationServiceImpl implements StationService {
 
         return ResponseUtil.success("Station verification passed", null);
     }
+
+    @Override
+    public Optional<Station> findStationByName(String stationName) {
+      Optional<Station> foundStation =  Optional.ofNullable(stationRepository.findByStationName(stationName).orElseThrow(()
+                -> new StationCannotBeFoundException
+                ("Station with Name " + stationName + " cannot be found")));
+        return foundStation;
+    }
+
+    @Override
+    public  Station findStationById(Long stationId) {
+        return stationRepository.findById(stationId)
+                .orElseThrow(() -> new StationCannotBeFoundException("Station not found"));
+    }
+
 
 
 }

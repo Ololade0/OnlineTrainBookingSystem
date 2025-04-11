@@ -9,14 +9,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
+import train.booking.train.booking.dto.PriceListDTO;
+import train.booking.train.booking.dto.TrainDto;
 import train.booking.train.booking.dto.UserDTO;
 import train.booking.train.booking.dto.response.BaseResponse;
 import train.booking.train.booking.repository.UserRepository;
 import train.booking.train.booking.security.jwt.TokenProvider;
+import train.booking.train.booking.service.PriceListService;
 import train.booking.train.booking.service.SeatService;
+import train.booking.train.booking.service.TrainService;
 import train.booking.train.booking.service.UserService;
 
 import javax.management.relation.RoleNotFoundException;
+import java.util.List;
 
 @RestController
 @Slf4j
@@ -29,6 +34,8 @@ public class UserController {
     private final AuthenticationManager authenticationManager;
     private final TokenProvider tokenProvider;
     private final SeatService seatService;
+    private final TrainService trainService;
+    private final PriceListService priceListService;
 
 
     @PostMapping("/register")
@@ -40,6 +47,8 @@ public class UserController {
        BaseResponse foundUser = userService.findUserByEmail(email);
         return  ResponseEntity.ok(foundUser);
     }
+
+
 
 
 

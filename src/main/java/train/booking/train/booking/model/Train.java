@@ -7,7 +7,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Setter
 @Getter
@@ -24,15 +26,8 @@ public class Train extends AuditBaseEntity {
     private String trainName;
     private String trainCode;
 
-    @OneToMany(mappedBy = "train", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Schedule> schedules;
-
-
-   @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
-    private List<TrainClass> trainClasses = new ArrayList<>();
+    private Set<TrainClass> trainClasses = new HashSet<>();
 
-    public void addTrainClass(TrainClass trainClass) {
-        this.trainClasses.add(trainClass);
-    }
 }

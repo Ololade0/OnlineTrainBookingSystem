@@ -82,7 +82,7 @@ public class UserServiceImpl implements UserService {
         }
           catch (Exception e) {
             log.error("Error during super admin sign-up: {}", e.getMessage());
-            return ResponseUtil.invalidOrNullInput("Sign-up failed due to an unexpected error.");
+            return ResponseUtil.failed("Sign-up failed due to an unexpected error.", e);
         }
 
     }

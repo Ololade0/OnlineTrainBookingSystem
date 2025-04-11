@@ -33,7 +33,15 @@ public class ResponseUtil {
     BaseResponse baseResponse = new BaseResponse(ResponseCodes.RECORD_ALREADY_EXISTS, description);
     return baseResponse;
   }
-  public static BaseResponse DoesNotExist() {
-    return new BaseResponse(ResponseCodes.ALREADY_EXISTS, "User with the supplied user name or email exist");
+  public static BaseResponse DoesNotExist(String description) {
+    return new BaseResponse(ResponseCodes.ACCOUNT_DOES_NOT_EXIST, description);
   }
+
+  public static BaseResponse badInput(String description) {
+    return new BaseResponse(ResponseCodes.BAD_INPUT_PARAM, description);
+  }
+
+    public static BaseResponse failed(String description, Exception e) {
+      return new BaseResponse(ResponseCodes.ERROR, description, e);
+    }
 }
