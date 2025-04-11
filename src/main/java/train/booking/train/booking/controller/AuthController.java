@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import train.booking.train.booking.dto.request.UserLoginRequest;
+import train.booking.train.booking.dto.UserLoginDTO;
 import train.booking.train.booking.exceptions.UserCannotBeFoundException;
 import train.booking.train.booking.model.AuthToken;
 import train.booking.train.booking.model.User;
@@ -31,7 +31,7 @@ public class AuthController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserLoginRequest loginRequest) throws UserCannotBeFoundException {
+    public ResponseEntity<?> login(@RequestBody UserLoginDTO loginRequest) throws UserCannotBeFoundException {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),
                         loginRequest.getPassword())
@@ -39,8 +39,8 @@ public class AuthController {
         authTokenService.login(loginRequest);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         final String token = tokenProvider.generateJWTToken(authentication);
-        User user = userService.findUserByEmail(loginRequest.getEmail());
-        return new ResponseEntity<>(new AuthToken(token, user.getId(), user.getEmail()), HttpStatus.OK);
+        User user = userService.findUserByEmailOrNull(loginRequest.getEmail());
+        return new ResponseEntity<>(new AuthToken(token, user.getFirstName(), user.getEmail()), HttpStatus.OK);
     }
 }
 

@@ -29,17 +29,16 @@ public class OtherPassenger {
         private String idNumber;
         private String passengerType;
         private int seatNumber;
-        private IdentificationType identificationType;
-//        private
 
-        @JsonIgnore
-        @ManyToOne
-        @JoinColumn(name = "user_id")
-        private User user;
-        @JsonIgnore
+
+        @Enumerated(EnumType.STRING)
+        private IdentificationType identificationType;
+
         @ManyToOne
         @JoinColumn(name = "booking_id", nullable = false)
         private Booking booking;
+
+
 
 
 

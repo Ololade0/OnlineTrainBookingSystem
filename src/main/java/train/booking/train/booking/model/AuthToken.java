@@ -11,7 +11,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class AuthToken {
     private String token;
-    private Long id;
+    private String name;
     private String email;
 
 

@@ -40,13 +40,13 @@ public class User extends AuditBaseEntity{
     private LocalDate dateOfBirth;
 //    @Size(min = 10, max = 15, message = "ID number must be between 10 and 15 characters")
     private String idNumber;
-//    @NotNull(message = "Kindly choose mode of identification")
+
     private IdentificationType identificationType;
 
     private boolean enabled = false;
     private String activationToken;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinTable(
             name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -58,13 +58,6 @@ public class User extends AuditBaseEntity{
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Booking> bookings;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Notification> notifications;
-
-
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OtherPassenger> otherPassengers = new ArrayList<>();
 
     public boolean hasRole(RoleType roleType) {
         return this.roleHashSet.stream().anyMatch(role -> role.getRoleType() == roleType);

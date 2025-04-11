@@ -7,20 +7,21 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import train.booking.train.booking.dto.SignUpRequest;
-import train.booking.train.booking.dto.response.SignUpUserResponse;
-import train.booking.train.booking.exceptions.UserCannotBeFoundException;
-import train.booking.train.booking.model.User;
+import train.booking.train.booking.dto.PriceListDTO;
+import train.booking.train.booking.dto.TrainDto;
+import train.booking.train.booking.dto.UserDTO;
+import train.booking.train.booking.dto.response.BaseResponse;
 import train.booking.train.booking.repository.UserRepository;
 import train.booking.train.booking.security.jwt.TokenProvider;
+import train.booking.train.booking.service.PriceListService;
+import train.booking.train.booking.service.SeatService;
+import train.booking.train.booking.service.TrainService;
 import train.booking.train.booking.service.UserService;
 
 import javax.management.relation.RoleNotFoundException;
+import java.util.List;
 
 @RestController
 @Slf4j
@@ -32,32 +33,25 @@ public class UserController {
     private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
     private final TokenProvider tokenProvider;
+    private final SeatService seatService;
+    private final TrainService trainService;
+    private final PriceListService priceListService;
 
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@Valid  @RequestBody SignUpRequest signUpRequest) throws UnirestException, RoleNotFoundException {
-        SignUpUserResponse registeredUser = userService.signUp(signUpRequest);
-        log.info("Incoming user payload: {}", registeredUser);
-        return new ResponseEntity<>(registeredUser, HttpStatus.CREATED);
+    public ResponseEntity<?> registerUser(@Valid  @RequestBody UserDTO signUpRequest) throws UnirestException, RoleNotFoundException {
+        return new ResponseEntity<>(userService.signUp(signUpRequest), HttpStatus.CREATED);
+    }
+    @PostMapping("/{email}")
+    public ResponseEntity<?> registerUser(@PathVariable  String email){
+       BaseResponse foundUser = userService.findUserByEmail(email);
+        return  ResponseEntity.ok(foundUser);
     }
 
 
 
-    @GetMapping("/find-user/{email}")
-    public ResponseEntity<?> findUserByEmail(@PathVariable("email") String email) {
-        try {
-            User foundUserByEmail = userService.findUserByEmail(email);
-            return new ResponseEntity<>(foundUserByEmail, HttpStatus.OK);
-        } catch (UserCannotBeFoundException ex) {
-            return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
-        }
-    }
 
-    @DeleteMapping("/delete-user")
-    public ResponseEntity<String> deleteUser(@AuthenticationPrincipal UserDetails userDetails){
-        String email = userDetails.getUsername();
-        userService.deleteUser(email);
-        return ResponseEntity.ok("User account deleted");
-    }
+
+
 
 }

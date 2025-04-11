@@ -6,11 +6,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import train.booking.train.booking.dto.SignUpRequest;
-import train.booking.train.booking.dto.response.SignUpUserResponse;
+
+import train.booking.train.booking.dto.UserDTO;
+
 import train.booking.train.booking.service.UserService;
+
+import javax.management.relation.RoleNotFoundException;
 
 @RestController
 @Slf4j
@@ -22,22 +24,10 @@ public class AdminController {
 
 
     @PostMapping("/register-superadmin")
-    public ResponseEntity<?> superAdminSignUp(@Valid @RequestBody SignUpRequest signUpRequest) throws UnirestException {
-        SignUpUserResponse registeredUser = userService.superAdminSignUp(signUpRequest);
-        log.info("Incoming user payload: {}", registeredUser);
-        return new ResponseEntity<>(registeredUser, HttpStatus.CREATED);
-    }
-
-    @PutMapping("/users/disable")
-    public ResponseEntity<String> disableUser(@RequestParam String email){
-        userService.disableUser(email);
-        return ResponseEntity.ok("User disabled");
+    public ResponseEntity<?> superAdminSignUp(@Valid @RequestBody UserDTO signUpRequest) throws UnirestException, RoleNotFoundException {;
+        return new ResponseEntity<>(userService.superAdminSignUp(signUpRequest), HttpStatus.CREATED);
     }
 
 
-    @PutMapping("/users/enable")
-    public ResponseEntity<String> enableUser(@RequestParam String email) {
-        userService.enableUser(email);
-        return ResponseEntity.ok("User enabled successfully");
-    }
+
 }
