@@ -21,8 +21,8 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ScheduleDTO {
 
-    private String arrivalStationName;
-    private String departureStationName;
+    private Long arrivalStationId;
+    private Long departureStationId;
 
 
     private LocalTime departureTime;
@@ -39,7 +39,6 @@ public class ScheduleDTO {
     private String distance;
 
     private Long trainId;
-    public Long stationId;
 
 
 }

@@ -2,7 +2,6 @@ package train.booking.train.booking.service.Impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import train.booking.train.booking.dto.TrainDto;
@@ -10,12 +9,8 @@ import train.booking.train.booking.dto.response.BaseResponse;
 import train.booking.train.booking.dto.response.ResponseUtil;
 import train.booking.train.booking.exceptions.TrainCannotBeFoundException;
 import train.booking.train.booking.model.Train;
-import train.booking.train.booking.model.TrainClass;
 import train.booking.train.booking.repository.TrainRepository;
-import train.booking.train.booking.service.PriceListService;
 import train.booking.train.booking.service.TrainService;
-
-import java.util.Optional;
 
 
 @Service

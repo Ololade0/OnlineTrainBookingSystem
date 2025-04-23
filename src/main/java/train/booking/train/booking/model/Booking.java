@@ -4,16 +4,14 @@ package train.booking.train.booking.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import train.booking.train.booking.model.enums.TrainClass;
 
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Setter
 @Getter
 @Builder
-//@ToString(exclude = {"seats", "BookingPayment"})
 @Entity(name = "bookings")
 @AllArgsConstructor
 public class Booking {

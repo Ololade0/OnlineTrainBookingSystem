@@ -25,4 +25,6 @@ public interface UserService extends UserDetailsService {
 
    BaseResponse activateAccount(String token) throws UnirestException;
 
+   BaseResponse updateUserProfile(UserDTO userDTO, Long userId);
+
 }

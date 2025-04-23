@@ -27,10 +27,9 @@ public class Station extends AuditBaseEntity {
     private String stationCode;
 
     private String stationTag;
+
     @Enumerated(EnumType.STRING)
     private StationType stationType;
-
-
 
     public Station(Long stationId, String stationName, String stationCode, String stationTag) {
         this.stationId = stationId;

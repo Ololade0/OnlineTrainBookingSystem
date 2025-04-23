@@ -14,9 +14,7 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+
 
 @Setter
 @Getter
@@ -29,8 +27,6 @@ public class Schedule extends AuditBaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-
 
     @JsonFormat(pattern = "HH:mm:ss")
     @Column(nullable = false)
@@ -60,23 +56,14 @@ public class Schedule extends AuditBaseEntity {
 
     @Column(name = "train_id", nullable = false)
     private Long trainId;
+    @Column(name = "arrival-station_id", nullable = false)
 
-    @Column(name = "departure_station_name", nullable = false)
-    private String departureStationName;
-
-    @Column(name = "arrival_station_name", nullable = false)
-    private String arrivalStationName;
+    private Long arrivalStationId;
+    @Column(name = "departure-station-id", nullable = false)
+    private Long departureStationId;
 
 
-    @ManyToMany
-    @JoinTable(
-            name = "schedule_stations",
-            joinColumns = @JoinColumn(name = "schedule_id"),
-            inverseJoinColumns = @JoinColumn(name = "station_id"),
-            uniqueConstraints = @UniqueConstraint(columnNames = {"schedule_id", "station_id"})
-    )
-    @OrderColumn(name = "station_order")
-    private List<Station> stations;
+
 
 
 }

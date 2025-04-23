@@ -12,13 +12,9 @@ public interface ScheduleService{
     BaseResponse newSchedule(ScheduleDTO scheduleDto);
 
 
-    BaseResponse findScheduleById(Long scheduleId);
-
-//    List<Schedule> findScheduleByStations(String to, String from, Date date);
-
     Schedule findSchedulesById(Long scheduleId);
 
-    public ScheduleResponse findSchedule(ScheduleDTO findScheduleDTO);
+    ScheduleResponse findSchedule(ScheduleDTO findScheduleDTO);
 
 
 

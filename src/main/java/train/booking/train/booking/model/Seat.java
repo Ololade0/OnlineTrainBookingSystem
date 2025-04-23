@@ -4,6 +4,7 @@ package train.booking.train.booking.model;
 import jakarta.persistence.*;
 import lombok.*;
 import train.booking.train.booking.model.enums.SeatStatus;
+import train.booking.train.booking.model.enums.TrainClass;
 
 @Setter
 @Getter

@@ -4,6 +4,7 @@ package train.booking.train.booking.model;
 import jakarta.persistence.*;
 import lombok.*;
 import train.booking.train.booking.model.enums.AgeRange;
+import train.booking.train.booking.model.enums.TrainClass;
 
 import java.math.BigDecimal;
     @Entity
@@ -27,10 +28,6 @@ import java.math.BigDecimal;
 
         private AgeRange ageRange;
 
-
-//        @ManyToOne
-//        @JoinColumn(name = "schedule_id", nullable = false)
-//        private Schedule schedule;
         private Long scheduleId;
 
 

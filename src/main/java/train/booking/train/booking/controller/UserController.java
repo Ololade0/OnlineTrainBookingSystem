@@ -47,6 +47,11 @@ public class UserController {
        BaseResponse foundUser = userService.findUserByEmail(email);
         return  ResponseEntity.ok(foundUser);
     }
+    @PutMapping("update-user-profile/{userId}")
+    public ResponseEntity<?> updateUserProfile(@RequestBody UserDTO userDTO, @PathVariable Long userId){      ;
+        return ResponseEntity.ok(userService.updateUserProfile(userDTO, userId));
+
+    }
 
 
 

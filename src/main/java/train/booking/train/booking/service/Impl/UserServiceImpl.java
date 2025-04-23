@@ -29,6 +29,7 @@ import train.booking.train.booking.service.RoleService;
 import train.booking.train.booking.service.UserService;
 
 import javax.management.relation.RoleNotFoundException;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -202,10 +203,6 @@ public class UserServiceImpl implements UserService {
     }
 
 
-
-
-
-
     @Override
     public Optional<User> findUserByActivationToken(String token) {
        return Optional.ofNullable(userRepository.findByActivationToken(token)
@@ -232,6 +229,68 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    @Override
+    public BaseResponse updateUserProfile(UserDTO userDTO, Long userId) {
+        Optional<User> foundUser = userRepository.findById(userId);
+
+        if (foundUser.isPresent()) {
+            User savedUser = foundUser.get();
+
+            if (userDTO.getFirstName() != null && !userDTO.getFirstName().isBlank()) {
+                savedUser.setFirstName(userDTO.getFirstName());
+            }
+
+            if (userDTO.getLastName() != null && !userDTO.getLastName().isBlank()) {
+                savedUser.setLastName(userDTO.getLastName());
+            }
+
+            if (userDTO.getEmail() != null && userDTO.getEmail().matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
+                savedUser.setEmail(userDTO.getEmail());
+            }
+
+            if (userDTO.getGender() != null) {
+                savedUser.setGender(userDTO.getGender());
+            }
+
+            if (userDTO.getDateOfBirth() != null) {
+                savedUser.setDateOfBirth(userDTO.getDateOfBirth());
+            }
+
+            if (userDTO.getIdentificationType() != null) {
+                savedUser.setIdentificationType(userDTO.getIdentificationType());
+            }
+
+            if (userDTO.getPhoneNumber() != null && userDTO.getPhoneNumber().length() >= 10) {
+                savedUser.setPhoneNumber(userDTO.getPhoneNumber());
+            }
+
+            if (userDTO.getIdNumber() != null && !userDTO.getIdNumber().isBlank()) {
+                savedUser.setIdNumber(userDTO.getIdNumber());
+            }
+
+            savedUser.setUpdatedAt(LocalDateTime.now());
+
+            userRepository.save(savedUser);
+            return response(savedUser);
+        }
+
+        return ResponseUtil.failed("User not found", null);
+    }
+
+
+
+            private BaseResponse response (User savedUser){
+                UserDTO updatedDto = new UserDTO();
+                updatedDto.setFirstName(savedUser.getFirstName());
+                updatedDto.setLastName(savedUser.getLastName());
+                updatedDto.setEmail(savedUser.getEmail());
+                updatedDto.setGender(savedUser.getGender());
+                updatedDto.setDateOfBirth(savedUser.getDateOfBirth());
+                updatedDto.setIdentificationType(savedUser.getIdentificationType());
+                updatedDto.setPhoneNumber(savedUser.getPhoneNumber());
+                updatedDto.setIdNumber(savedUser.getIdNumber());
+                return ResponseUtil.success("User updated successfully", null);
+            }
 
 
 

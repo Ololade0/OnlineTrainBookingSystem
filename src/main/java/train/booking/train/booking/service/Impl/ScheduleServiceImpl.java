@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import train.booking.train.booking.dto.ScheduleDTO;
+import train.booking.train.booking.dto.ScheduleDetailsDTO;
 import train.booking.train.booking.dto.ScheduleResponse;
 import train.booking.train.booking.dto.response.BaseResponse;
 import train.booking.train.booking.dto.response.ResponseUtil;
@@ -37,13 +38,13 @@ public class ScheduleServiceImpl implements ScheduleService {
        validateScheduleDetails(scheduleDto);
         try {
            Train train = trainService.findTrainById(scheduleDto.getTrainId());
-           Optional<Station> arrivalStationName = stationService.findStationByName(scheduleDto.getDepartureStationName());
-            Optional<Station> departureName = stationService.findStationByName(scheduleDto.getArrivalStationName());
+           Station arrivalStationId = stationService.findStationById(scheduleDto.getArrivalStationId());
+            Station departureStationId = stationService.findStationById(scheduleDto.getDepartureStationId());
 
             Schedule schedule = Schedule.builder()
                     .trainId(train.getId())
-                    .arrivalStationName(String.valueOf(arrivalStationName))
-                    .departureStationName(String.valueOf(departureName))
+                    .departureStationId(departureStationId.getStationId())
+                    .arrivalStationId(arrivalStationId.getStationId())
                     .departureTime(scheduleDto.getDepartureTime())
                     .arrivalTime(scheduleDto.getArrivalTime())
                     .departureDate(scheduleDto.getDepartureDate())
@@ -56,7 +57,7 @@ public class ScheduleServiceImpl implements ScheduleService {
             Schedule savedSchedule = scheduleRepository.save(schedule);
             log.info("SAVED SCHEDULES: {}", savedSchedule);
 
-            scheduleRepository.save(savedSchedule);
+//            scheduleRepository.save(savedSchedule);
             return mapToResponseDTO(savedSchedule, "Schedule successfully created");
         } catch (Exception e) {
             log.error("Error creating schedule: {}", e.getMessage(), e);
@@ -70,8 +71,6 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     private static BaseResponse mapToResponseDTO(Schedule savedSchedule, String message) {
         ScheduleDTO response = new ScheduleDTO();
-//        response.setTrainId(savedSchedule.getTrainId());
-//        response.setStops(savedSchedule.getStops());
         response.setDepartureTime(savedSchedule.getDepartureTime());
         response.setArrivalTime(savedSchedule.getArrivalTime());
         response.setDepartureDate(savedSchedule.getDepartureDate());
@@ -87,7 +86,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     public void validateScheduleDetails(ScheduleDTO scheduleDTO) {
         // Ensure all required fields are provided
-        if (scheduleDTO.getDepartureStationName() == null || scheduleDTO.getArrivalStationName() == null ||
+        if (scheduleDTO.getDepartureStationId() == null || scheduleDTO.getArrivalStationId() == null ||
                 scheduleDTO.getScheduleType() == null || scheduleDTO.getDepartureDate() == null ||
                 scheduleDTO.getDepartureTime() == null) {
             throw new ScheduleDetailsException("All parameters must be provided and cannot be null.");
@@ -98,25 +97,12 @@ public class ScheduleServiceImpl implements ScheduleService {
             throw new ScheduleDetailsException("Arrival time cannot be before departure time.");
         }
 
-
-        LocalDate currentDate = LocalDate.now();
-        LocalDate minScheduleDate = currentDate.plusDays(2);
-        LocalDate maxScheduleDate = currentDate.plusDays(2);
-
-//        // Ensure the schedule is created at least 2 days ahead and not more than 2 days in advance
-//        if (scheduleDTO.getDepartureDate().isBefore(minScheduleDate)) {
-//            throw new ScheduleDetailsException("Schedules can only be created for at least 2 days in advance.");
-//        }
-
-//        if (scheduleDTO.getDepartureDate().isAfter(maxScheduleDate)) {
-//            throw new ScheduleDetailsException("Schedules can only be created for up to 2 days in advance.");
-//        }
         if(scheduleDTO.getDepartureTime().equals(scheduleDTO.getArrivalTime())){
             throw new ScheduleDetailsException("Departure and arrival time must be different.");
         }
 
         // Ensure departure and arrival stations are different
-        if (scheduleDTO.getDepartureStationName().equals(scheduleDTO.getArrivalStationName())) {
+        if (scheduleDTO.getDepartureStationId().equals(scheduleDTO.getArrivalStationId())) {
             throw new ScheduleDetailsException("Departure and arrival stations must be different.");
         }
         if((scheduleDTO.getRoute() == Route.IBADAN_LAGOS_AFTERNOON_TRAIN ||
@@ -136,15 +122,15 @@ public class ScheduleServiceImpl implements ScheduleService {
 
 
 
-
-    @Override
-    public BaseResponse findScheduleById(Long scheduleId) {
-        log.info("Fetching schedule with ID: {}", scheduleId);
-        Schedule foundSchedule = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new ScheduleCannotBeFoundException("Schedule not found"));
-                            log.error("Schedule not found for ID: {}", scheduleId);
-        return mapToResponseDTO(foundSchedule, "Schedule successfully retrieved");
-    }
+//
+//    @Override
+//    public BaseResponse findScheduleById(Long scheduleId) {
+//        log.info("Fetching schedule with ID: {}", scheduleId);
+//        Schedule foundSchedule = scheduleRepository.findById(scheduleId)
+//                .orElseThrow(() -> new ScheduleCannotBeFoundException("Schedule not found"));
+//                            log.error("Schedule not found for ID: {}", scheduleId);
+//        return mapToResponseDTO(foundSchedule, "Schedule successfully retrieved");
+//    }
 
 
 
@@ -158,16 +144,16 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     public ScheduleResponse findSchedule(ScheduleDTO findScheduleDTO) {
-        Optional<Station> arrivalStation = stationService.findStationByName(findScheduleDTO.getArrivalStationName());
-        Optional<Station> departureStation = stationService.findStationByName(findScheduleDTO.getDepartureStationName());
+        Station arrivalStation = stationService.findStationById(findScheduleDTO.getArrivalStationId());
+        Station departureStation = stationService.findStationById(findScheduleDTO.getDepartureStationId());
 
-        if (arrivalStation.isEmpty() || departureStation.isEmpty()) {
+        if (arrivalStation == null || departureStation== null) {
             throw new ScheduleCannotBeFoundException("Invalid station names provided.");
         }
 
-        List<Schedule> schedules = scheduleRepository.findSchedulesByDepartureAndArrivalStationAndDate(
-                arrivalStation.get().getStationName(),
-                departureStation.get().getStationName(),
+        List<ScheduleDetailsDTO> schedules = scheduleRepository.findScheduleDetailsByParams(
+                departureStation.getStationId(),
+                arrivalStation.getStationId(),
                 findScheduleDTO.getDepartureDate()
         );
 
@@ -178,10 +164,15 @@ public class ScheduleServiceImpl implements ScheduleService {
         return scheduleResponses(schedules);
     }
 
-    private ScheduleResponse scheduleResponses(List<Schedule> scheduleList){
-        return new ScheduleResponse(scheduleList);
 
+
+
+    private ScheduleResponse scheduleResponses(List<ScheduleDetailsDTO> schedules) {
+        return new ScheduleResponse(schedules);
     }
+
+
+
 
 
 

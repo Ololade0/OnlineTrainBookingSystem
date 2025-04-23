@@ -1,25 +1,16 @@
 package train.booking.train.booking.controller;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import train.booking.train.booking.dto.ScheduleDTO;
 import train.booking.train.booking.dto.ScheduleResponse;
 import train.booking.train.booking.dto.response.BaseResponse;
 import train.booking.train.booking.exceptions.ScheduleCannotBeFoundException;
-import train.booking.train.booking.model.PriceList;
 import train.booking.train.booking.model.Schedule;
-import train.booking.train.booking.model.TrainClass;
-import train.booking.train.booking.model.enums.AgeRange;
-import train.booking.train.booking.service.PriceListService;
 import train.booking.train.booking.service.ScheduleService;
-
-import java.math.BigDecimal;
 
 @RestController
 @Slf4j
@@ -43,13 +34,13 @@ public class ScheduleController {
        return ResponseEntity.ok(foundSchedule);
 
     }
-
-    @GetMapping("find-schedules/{scheduleId}")
-    public ResponseEntity<?> findSchedules(@PathVariable Long scheduleId){
-        BaseResponse foundSchedule = scheduleService.findScheduleById(scheduleId);
-        return ResponseEntity.ok(foundSchedule);
-
-    }
+//
+//    @GetMapping("find-schedules/{scheduleId}")
+//    public ResponseEntity<?> findSchedules(@PathVariable Long scheduleId){
+//        BaseResponse foundSchedule = scheduleService.findScheduleById(scheduleId);
+//        return ResponseEntity.ok(foundSchedule);
+//
+//    }
 
 
 
