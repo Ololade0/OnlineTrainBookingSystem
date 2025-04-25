@@ -1,8 +1,11 @@
 package train.booking.train.booking.dto;
 
+import train.booking.train.booking.model.enums.AgeRange;
 import train.booking.train.booking.model.enums.Route;
 import train.booking.train.booking.model.enums.ScheduleType;
+import train.booking.train.booking.model.enums.TrainClass;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -18,9 +21,9 @@ public interface ScheduleDetailsDTO {
     String getDistance();
     ScheduleType getScheduleType();
     Route getRoute();
-    String getDepartureStation();
-    String getArrivalStation();
-    String getTrainClass();
-    Double getPrice();
-    String getAgeRange();
+    Long getDepartureStation();
+    Long getArrivalStation();
+    TrainClass getTrainClass();
+    BigDecimal getPrice();
+    AgeRange getAgeRange();
 }

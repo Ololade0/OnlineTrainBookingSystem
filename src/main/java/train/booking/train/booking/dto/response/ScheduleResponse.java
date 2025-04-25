@@ -1,10 +1,11 @@
-package train.booking.train.booking.dto;
+package train.booking.train.booking.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import train.booking.train.booking.model.Schedule;
+import train.booking.train.booking.dto.ScheduleDTO;
+
 
 import java.util.List;
 
@@ -13,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ScheduleResponse {
-    private List<ScheduleDetailsDTO> schedules;
+    private List<ScheduleDTO> schedules;
 
 
 }
