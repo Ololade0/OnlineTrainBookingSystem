@@ -2,6 +2,7 @@ package train.booking.train.booking.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,13 +31,13 @@ public class ScheduleController {
         BaseResponse response = scheduleService.newSchedule(scheduleDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
     @GetMapping("find-schedule/{scheduleId}")
-    public ResponseEntity<?> findSchedule(@PathVariable Long scheduleId){
+    public ResponseEntity<?> findScheduleById(@PathVariable Long scheduleId){
        Schedule foundSchedule = scheduleService.findSchedulesById(scheduleId);
        return ResponseEntity.ok(foundSchedule);
 
     }
-
 
 
     @GetMapping("/find-schedule")
@@ -49,6 +50,15 @@ public class ScheduleController {
         } catch (ScheduleCannotBeFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
+    }
+
+    @GetMapping("find-all-schedules")
+    public ResponseEntity<?>findAllSchedules(@RequestParam(defaultValue = "0") int page,
+                                             @RequestParam(defaultValue = "10") int size){
+        Page<Schedule>schedulePage = scheduleService.findAllSchedules(page, size);
+       return ResponseEntity.ok(schedulePage);
+
+
     }
 
 

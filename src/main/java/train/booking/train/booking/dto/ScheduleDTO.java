@@ -2,15 +2,11 @@ package train.booking.train.booking.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
-import train.booking.train.booking.model.Station;
 import train.booking.train.booking.model.enums.Route;
 import train.booking.train.booking.model.enums.ScheduleType;
 
-import java.math.BigDecimal;
-import java.time.Duration;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -32,15 +28,15 @@ public class ScheduleDTO {
 
     private LocalTime arrivalTime;
 
-    private LocalDate departureDate;
+    private LocalDateTime departureDate;
 
-    private LocalDate arrivalDate;
-    private Duration duration;
+    private LocalDateTime arrivalDate;
+    private String duration;
     private ScheduleType scheduleType;
 
     private Route route;
     private String distance;
-        private List<PriceListDTO> prices;
+    private List<PriceListDTO> prices;
 
 
 }

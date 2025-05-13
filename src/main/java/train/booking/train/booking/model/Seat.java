@@ -20,7 +20,7 @@ public class Seat {
 
     private int seatNumber;
     @Enumerated(EnumType.STRING)
-    private SeatStatus status;
+    private SeatStatus seatStatus;
 
     @Enumerated(EnumType.STRING)
     private TrainClass trainClass;

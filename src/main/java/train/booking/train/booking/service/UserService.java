@@ -18,6 +18,7 @@ public interface UserService extends UserDetailsService {
    BaseResponse findUserByEmail(String email);
 
    User findUserByEmailOrNull(String email);
+   User findUserById(Long userId);
 
    UserLoginResponse login(UserLoginDTO userLoginRequestModel);
 

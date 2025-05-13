@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import train.booking.train.booking.dto.PriceListDTO;
+import train.booking.train.booking.dto.UpdatePriceDTO;
 import train.booking.train.booking.model.PriceList;
 import train.booking.train.booking.service.PriceListService;
 
@@ -23,6 +24,12 @@ public class PriceListController {
     public ResponseEntity<?> createPrice(@RequestBody List<PriceListDTO> priceListDTO, @PathVariable Long scheduleId, @PathVariable Long stationId) {
        List<PriceList> response =  priceListService.createPrice(priceListDTO, scheduleId, stationId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    public ResponseEntity<?>updatePrice(@PathVariable Long priceId, UpdatePriceDTO updatePriceDTO){
+      PriceList updatedPriceList =   priceListService.updatePriceList(priceId, updatePriceDTO);
+      return  ResponseEntity.ok(updatedPriceList);
+
     }
 
 }

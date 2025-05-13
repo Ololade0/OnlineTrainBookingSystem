@@ -17,7 +17,7 @@ public interface ScheduleDetailsDTO {
     LocalTime getArrivalTime();
     LocalDate getDepartureDate();
     LocalDate getArrivalDate();
-    Duration getDuration();
+    String getDuration();
     String getDistance();
     ScheduleType getScheduleType();
     Route getRoute();

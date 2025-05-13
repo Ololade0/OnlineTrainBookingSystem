@@ -3,9 +3,13 @@ package train.booking.train.booking.service.Impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import train.booking.train.booking.dto.*;
+import train.booking.train.booking.dto.PriceListDTO;
+import train.booking.train.booking.dto.ScheduleDTO;
+import train.booking.train.booking.dto.ScheduleDetailsDTO;
 import train.booking.train.booking.dto.response.BaseResponse;
 import train.booking.train.booking.dto.response.ResponseUtil;
 import train.booking.train.booking.dto.response.ScheduleResponse;
@@ -16,10 +20,17 @@ import train.booking.train.booking.model.Station;
 import train.booking.train.booking.model.Train;
 import train.booking.train.booking.model.enums.Route;
 import train.booking.train.booking.repository.ScheduleRepository;
-import train.booking.train.booking.service.*;
+import train.booking.train.booking.service.DistanceCalculatorService;
+import train.booking.train.booking.service.ScheduleService;
+import train.booking.train.booking.service.StationService;
+import train.booking.train.booking.service.TrainService;
 
+import java.time.Duration;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -30,7 +41,8 @@ public class ScheduleServiceImpl implements ScheduleService {
     private final DistanceCalculatorService distanceCalculatorService;
     private final TrainService trainService;
     private final StationService stationService;
-//    private final StopService stopService;
+    String durationString;
+
 @Transactional
     public BaseResponse newSchedule(ScheduleDTO scheduleDto) {
        validateScheduleDetails(scheduleDto);
@@ -38,7 +50,8 @@ public class ScheduleServiceImpl implements ScheduleService {
            Train train = trainService.findTrainById(scheduleDto.getTrainId());
            Station arrivalStationId = stationService.findStationById(scheduleDto.getArrivalStationId());
             Station departureStationId = stationService.findStationById(scheduleDto.getDepartureStationId());
-
+            Duration duration =  Duration.between(scheduleDto.getDepartureTime(), scheduleDto.getArrivalTime());
+            durationString = formatDurationToString(duration);
             Schedule schedule = Schedule.builder()
                     .trainId(train.getId())
                     .departureStationId(departureStationId.getStationId())
@@ -47,13 +60,13 @@ public class ScheduleServiceImpl implements ScheduleService {
                     .arrivalTime(scheduleDto.getArrivalTime())
                     .departureDate(scheduleDto.getDepartureDate())
                     .arrivalDate(scheduleDto.getArrivalDate())
-                    .duration(scheduleDto.getDuration())
+                    .duration(durationString)
                     .scheduleType(scheduleDto.getScheduleType())
                     .route(scheduleDto.getRoute())
                     .distance(distanceCalculatorService.calculateDistance())
                     .build();
             Schedule savedSchedule = scheduleRepository.save(schedule);
-            log.info("SAVED SCHEDULES: {}", savedSchedule);
+
             return mapToResponseDTO(savedSchedule, "Schedule successfully created");
         } catch (Exception e) {
             log.error("Error creating schedule: {}", e.getMessage(), e);
@@ -62,8 +75,24 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
 
+    private String formatDurationToString(Duration duration) {
+        long hours = duration.toHours();
+        long minutes = duration.toMinutes() % 60;
 
+        StringBuilder formattedDuration = new StringBuilder();
 
+        if (hours > 0) {
+            formattedDuration.append(hours).append("h ");
+        }
+
+        if (minutes > 0) {
+            formattedDuration.append(minutes).append("m");
+        } else if (hours == 0) {
+            formattedDuration.append("0m");
+        }
+
+        return formattedDuration.toString();
+    }
 
     private static BaseResponse mapToResponseDTO(Schedule savedSchedule, String message) {
         ScheduleDTO response = new ScheduleDTO();
@@ -108,52 +137,81 @@ public class ScheduleServiceImpl implements ScheduleService {
                         && !scheduleDTO.getDepartureDate().equals(scheduleDTO.getArrivalDate())){
             throw new ScheduleDetailsException("Departure Date must not be different.");
 
-
         }
 
     }
 
     @Override
-    public  Schedule findSchedulesById(Long scheduleId) {
+    public Schedule findSchedulesById(Long scheduleId) {
         log.info("Fetching schedule with ID: {}", scheduleId);
-        Schedule foundSchedule = scheduleRepository.findById(scheduleId)
-                .orElseThrow(() -> new ScheduleCannotBeFoundException("Schedule not found"));
-        log.error("Schedule not found for ID: {}", scheduleId);
-        return foundSchedule;
+        return scheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> {
+                    log.error("Schedule not found for ID: {}", scheduleId);
+                    return new ScheduleCannotBeFoundException("Schedule not found");
+                });
     }
 
 
+    @Override
+    public Page<Schedule> findAllSchedules(int page, int size) {
+        return scheduleRepository.findAll(PageRequest.of(page, size));
+    }
+
+
+
+    @Override
     public ScheduleResponse findSchedule(Long departureId,
                                          Long arrivalStationId,
                                          LocalDate departureDate) {
-        Station arrivalStation = stationService.findStationById(arrivalStationId);
-        Station departureStation = stationService.findStationById(departureId);
+        try {
+            Station arrivalStation   = stationService.findStationById(arrivalStationId);
+            Station departureStation = stationService.findStationById(departureId);
 
-        if (arrivalStation == null || departureStation == null) {
-            throw new ScheduleCannotBeFoundException("Invalid station names provided.");
+            if (arrivalStation == null || departureStation == null) {
+                throw new ScheduleCannotBeFoundException("Invalid station names provided.");
+            }
+
+            List<ScheduleDetailsDTO> scheduleDetails = scheduleRepository
+                    .findScheduleDetailsByParams(
+                            departureStation.getStationId(),
+                            arrivalStation.getStationId(),
+                            departureDate
+                    );
+
+            if (scheduleDetails.isEmpty()) {
+                throw new ScheduleCannotBeFoundException("No schedules found for the given criteria.");
+            }
+
+            // Group flat details into per-schedule DTOs
+            Map<Long, ScheduleDTO> groupedSchedules = groupBySchedule_IdAndPrice(scheduleDetails);
+
+            // Extract the first schedule DTO and its ID
+            List<ScheduleDTO> scheduleList = new ArrayList<>(groupedSchedules.values());
+            Long scheduleId = scheduleList.get(0).getScheduleId();
+
+            return scheduleResponses(scheduleId, scheduleList);
+
+        } catch (ScheduleCannotBeFoundException e) {
+            // Propagate not-found exceptions as is
+            throw e;
+        } catch (Exception e) {
+            log.error("Error fetching schedule", e);
+            throw new ScheduleDetailsException("Error fetching schedule details");
         }
-
-        List<ScheduleDetailsDTO> scheduleDetails = scheduleRepository.findScheduleDetailsByParams(
-                departureStation.getStationId(),
-                arrivalStation.getStationId(),
-               departureDate
-        );
-
-        if (scheduleDetails.isEmpty()) {
-            throw new ScheduleCannotBeFoundException("No schedules found for the given criteria.");
-        }
-
-        // Group by scheduleId
-        Map<Long, ScheduleDTO> groupedSchedules = groupBySchedule_IdAndPrice(scheduleDetails);
-        return scheduleResponses(new ArrayList<>(groupedSchedules.values()));
     }
 
+
+    // Helper to construct the response DTO
+    private ScheduleResponse scheduleResponses(Long id, List<ScheduleDTO> schedules) {
+        return new ScheduleResponse(id, schedules);
+    }
+
+    // Groups a flat list of ScheduleDetailsDTO into ScheduleDTOs keyed by scheduleId
     private static Map<Long, ScheduleDTO> groupBySchedule_IdAndPrice(List<ScheduleDetailsDTO> flatList) {
         Map<Long, ScheduleDTO> groupedSchedules = new LinkedHashMap<>();
 
         for (ScheduleDetailsDTO dto : flatList) {
             ScheduleDTO grouped = groupedSchedules.get(dto.getScheduleId());
-
             if (grouped == null) {
                 grouped = new ScheduleDTO();
                 grouped.setScheduleId(dto.getScheduleId());
@@ -171,19 +229,14 @@ public class ScheduleServiceImpl implements ScheduleService {
                 grouped.setPrices(new ArrayList<>());
                 groupedSchedules.put(dto.getScheduleId(), grouped);
             }
-
             if (dto.getTrainClass() != null && dto.getAgeRange() != null && dto.getPrice() != null) {
-                grouped.getPrices().add(new PriceListDTO(dto.getTrainClass(), dto.getAgeRange(), dto.getPrice()));
+                grouped.getPrices()
+                        .add(new PriceListDTO(dto.getTrainClass(), dto.getAgeRange(), dto.getPrice()));
             }
         }
+
         return groupedSchedules;
     }
-
-
-    private ScheduleResponse scheduleResponses(List<ScheduleDTO> schedules) {
-        return new ScheduleResponse(schedules);
-    }
-
 
 
 

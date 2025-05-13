@@ -14,6 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ScheduleResponse {
+    private Long scheduleId;
     private List<ScheduleDTO> schedules;
 
 

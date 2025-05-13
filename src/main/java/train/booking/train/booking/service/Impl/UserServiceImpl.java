@@ -63,7 +63,7 @@ public class UserServiceImpl implements UserService {
                 .phoneNumber(userDTO.getPhoneNumber())
                 .password(bCryptPasswordEncoder.encode(userDTO.getPassword()))
                 .idNumber(userDTO.getIdNumber())
-                .enabled(false)
+                .isVerified(false)
                 .activationToken(activationToken)
                 .roleHashSet(new HashSet<>())
                 .build();
@@ -125,7 +125,7 @@ public class UserServiceImpl implements UserService {
                     .phoneNumber(userDTO.getPhoneNumber())
                     .password(bCryptPasswordEncoder.encode(userDTO.getPassword()))
                     .idNumber(userDTO.getIdNumber())
-                    .enabled(false)
+                    .isVerified(false)
                     .activationToken(activationToken)
                     .roleHashSet(new HashSet<>())
                     .build();
@@ -193,6 +193,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User findUserById(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserCannotBeFoundException("User with id " + userId + " not found"));
+   return user;
+    }
+
+    @Override
     public UserLoginResponse login(UserLoginDTO userLoginRequestModel) {
         var user = userRepository.findUserByEmail(userLoginRequestModel.getEmail());
         if (user.isPresent() && bCryptPasswordEncoder.matches(userLoginRequestModel.getPassword(), user.get().getPassword())) {
@@ -221,7 +228,7 @@ public class UserServiceImpl implements UserService {
     public BaseResponse activateAccount(String token) throws UnirestException {
         User user = userRepository.findByActivationToken(token)
                 .orElseThrow(() -> new RuntimeException("Invalid or expired activation token"));
-        user.setEnabled(true);
+        user.setVerified(true);
         user.setActivationToken(null);
        userRepository.save(user);
        notificationService.sendMail(user.getEmail(), user.getFirstName());
@@ -267,7 +274,6 @@ public class UserServiceImpl implements UserService {
             if (userDTO.getIdNumber() != null && !userDTO.getIdNumber().isBlank()) {
                 savedUser.setIdNumber(userDTO.getIdNumber());
             }
-
             savedUser.setUpdatedAt(LocalDateTime.now());
 
             userRepository.save(savedUser);

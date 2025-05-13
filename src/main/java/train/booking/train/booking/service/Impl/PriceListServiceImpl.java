@@ -6,9 +6,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import train.booking.train.booking.dto.PriceListDTO;
 
+import train.booking.train.booking.dto.UpdatePriceDTO;
 import train.booking.train.booking.dto.response.BaseResponse;
 import train.booking.train.booking.dto.response.ResponseUtil;
 import train.booking.train.booking.exceptions.PriceAlreadyExist;
+import train.booking.train.booking.exceptions.PriceListException;
+import train.booking.train.booking.exceptions.ScheduleCannotBeFoundException;
 import train.booking.train.booking.model.*;
 import train.booking.train.booking.model.enums.AgeRange;
 
@@ -70,9 +73,23 @@ public class PriceListServiceImpl implements PriceListService {
         return savedPrice;
     }
 
+    @Override
+    public PriceList updatePriceList(Long priceId, UpdatePriceDTO updatePriceDTO) {
+        Schedule foundSchedule = scheduleService.findSchedulesById(updatePriceDTO.getScheduleId());
+     PriceList foundPriceList =   priceListServiceRepository.findById(priceId).orElseThrow(()
+             -> new PriceListException("PriceList cannot be found"));
+     if(foundPriceList != null) {
+         if (foundSchedule != null) {
+             foundPriceList.setPrice(updatePriceDTO.getPrice());
+             foundPriceList.setTrainClass(updatePriceDTO.getTrainClass());
+             foundPriceList.setAgeRange(updatePriceDTO.getAgeRange());
+             return priceListServiceRepository.save(foundPriceList);
 
+         }
+         throw new PriceListException("PriceList cannot be found");
+     }
+       throw new PriceListException("PriceList cannot be found");
+     }
+    }
 
-
-
-}
 

@@ -10,7 +10,6 @@ import train.booking.train.booking.model.enums.IdentificationType;
 import train.booking.train.booking.model.enums.RoleType;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -43,7 +42,7 @@ public class User extends AuditBaseEntity{
 
     private IdentificationType identificationType;
 
-    private boolean enabled = false;
+    private boolean isVerified = false;
     private String activationToken;
 
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
