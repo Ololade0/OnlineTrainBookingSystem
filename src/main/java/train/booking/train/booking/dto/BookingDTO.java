@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import train.booking.train.booking.model.enums.BookingStatus;
 import train.booking.train.booking.model.enums.TrainClass;
 
 import java.time.LocalDateTime;
@@ -17,8 +18,10 @@ import java.time.LocalDateTime;
 public class BookingDTO {
 
 
+
     private LocalDateTime bookingDate;
-    private String passengerNameRecord;
+    private Long bookingId;
+    private String bookingNameRecord;
     private LocalDateTime travelDate;
     private Double totalFareAmount;
     private String passengerType;
@@ -30,4 +33,5 @@ public class BookingDTO {
     private TrainClass trainClass;
 
     private Long scheduleId;
+    private BookingStatus bookingStatus;
 }

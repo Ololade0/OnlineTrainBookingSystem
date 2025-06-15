@@ -56,6 +56,22 @@
 			<artifactId>jackson-databind</artifactId>
 		</dependency>
 
+<!--		&lt;!&ndash; https://mvnrepository.com/artifact/org.apache.activemq/activemq-core &ndash;&gt;-->
+<!--		<dependency>-->
+<!--			<groupId>org.apache.activemq</groupId>-->
+<!--			<artifactId>activemq-core</artifactId>-->
+<!--			<version>5.5.1</version>-->
+<!--		</dependency>-->
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-activemq</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.paypal.sdk</groupId>
+			<artifactId>rest-api-sdk</artifactId>
+			<version>1.4.2</version>
+		</dependency>
 
 
 
@@ -120,6 +136,12 @@
 <!--			<artifactId>mysql-connector-java</artifactId>-->
 <!--			<version>8.0.16</version> &lt;!&ndash; or latest version &ndash;&gt;-->
 <!--		</dependency>-->
+
+		<dependency>
+			<groupId>com.paypal.sdk</groupId>
+			<artifactId>rest-api-sdk</artifactId>
+			<version>1.4.2</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

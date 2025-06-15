@@ -6,8 +6,7 @@ import train.booking.train.booking.model.enums.ScheduleType;
 import train.booking.train.booking.model.enums.TrainClass;
 
 import java.math.BigDecimal;
-import java.time.Duration;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 public interface ScheduleDetailsDTO {
@@ -15,8 +14,8 @@ public interface ScheduleDetailsDTO {
     Long getTrainId();
     LocalTime getDepartureTime();
     LocalTime getArrivalTime();
-    LocalDate getDepartureDate();
-    LocalDate getArrivalDate();
+    LocalDateTime getDepartureDate();
+    LocalDateTime getArrivalDate();
     String getDuration();
     String getDistance();
     ScheduleType getScheduleType();

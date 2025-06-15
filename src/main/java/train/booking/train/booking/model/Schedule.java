@@ -7,7 +7,6 @@ import train.booking.train.booking.model.enums.Route;
 import train.booking.train.booking.model.enums.ScheduleType;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 
 @Setter
@@ -22,13 +21,7 @@ public class Schedule extends AuditBaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JsonFormat(pattern = "HH:mm:ss")
-    @Column(nullable = false)
-    private LocalTime departureTime;
 
-    @JsonFormat(pattern = "HH:mm:ss")
-    @Column(nullable = false)
-    private LocalTime arrivalTime;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Column(nullable = false)

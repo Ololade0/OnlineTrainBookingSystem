@@ -2,7 +2,7 @@ package train.booking.train.booking.model.enums;
 
 public enum PaymentMethod{
 
-    paypal,
+    PAYPAL,
     STRIPE,
     PAYSTACK,
     BANK_TRANSFER

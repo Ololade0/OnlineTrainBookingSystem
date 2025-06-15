@@ -29,17 +29,16 @@ public class BookingPayment {
     private String transactionReference;
     private LocalDateTime paymentDate;
     private String currency;
-//    private String intent;
-//    private String description;
     private String cancelUrl;
     private String successUrl;
 
 
 
 
-    @OneToOne
-    @JoinColumn(name = "booking_id")
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "booking_id", referencedColumnName = "bookingId")
     private Booking booking;
+
 
     @ManyToOne
     @JoinColumn(name = "user_id")
