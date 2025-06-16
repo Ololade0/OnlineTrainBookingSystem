@@ -5,7 +5,8 @@ import lombok.*;
 import train.booking.train.booking.model.enums.Route;
 import train.booking.train.booking.model.enums.ScheduleType;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Getter
@@ -22,14 +23,15 @@ public class ScheduleDTO {
     private Long arrivalStationId;
     private Long departureStationId;
 
-//
-//    private LocalTime departureTime;
-//
-//    private LocalTime arrivalTime;
 
-    private LocalDateTime departureDate;
+    private LocalDate departureDate;
 
-    private LocalDateTime arrivalDate;
+    private LocalDate arrivalDate;
+
+    private LocalTime departureTime;
+    private LocalTime arrivalTime;
+
+
     private String duration;
     private ScheduleType scheduleType;
 

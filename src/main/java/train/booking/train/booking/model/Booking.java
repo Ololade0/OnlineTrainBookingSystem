@@ -11,7 +11,10 @@ import lombok.Setter;
 import train.booking.train.booking.model.enums.*;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Setter
 @Getter
@@ -26,14 +29,15 @@ public class Booking implements Serializable {
 
     private LocalDateTime bookingDate;
     private String bookingNumber;
-    private String bookingNameRecord;
-    private LocalDateTime travelDate;
-    private Double totalFareAmount;
-    private String passengerType;
+    private LocalDate travelDate;
+    private LocalTime travelTime;
+    private BigDecimal totalFareAmount;
+    @Enumerated(EnumType.STRING)
+    private AgeRange passengerType;
     private int seatNumber;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     @JsonManagedReference
     private User user ;
 
@@ -52,9 +56,9 @@ public class Booking implements Serializable {
     private PaymentMethod paymentMethod;
 
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "seat_status", length = 20)
-    private SeatStatus seatStatus;
+//    @Enumerated(EnumType.STRING)
+//    @Column(name = "seat_status", length = 20)
+//    private SeatStatus seatStatus;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_Status",  length = 20)

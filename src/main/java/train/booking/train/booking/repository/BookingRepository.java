@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 import train.booking.train.booking.model.Booking;
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
-    boolean existsByBookingNameRecord(String passengerNameRecord);
+    boolean existsByBookingNumber(String bookingNumber);
 }

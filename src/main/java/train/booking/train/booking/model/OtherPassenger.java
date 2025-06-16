@@ -1,8 +1,8 @@
 package train.booking.train.booking.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import train.booking.train.booking.model.enums.AgeRange;
 import train.booking.train.booking.model.enums.GenderType;
 import train.booking.train.booking.model.enums.IdentificationType;
 
@@ -27,7 +27,7 @@ public class OtherPassenger {
 
         private String phoneNumber;
         private String idNumber;
-        private String passengerType;
+        private AgeRange passengerType;
         private int seatNumber;
 
 

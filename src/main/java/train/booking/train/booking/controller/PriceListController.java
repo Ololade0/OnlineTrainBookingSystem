@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import train.booking.train.booking.dto.PriceListDTO;
 import train.booking.train.booking.dto.UpdatePriceDTO;
 import train.booking.train.booking.model.PriceList;
+import train.booking.train.booking.model.enums.TrainClass;
 import train.booking.train.booking.service.PriceListService;
 
 import java.util.List;
@@ -20,9 +21,9 @@ public class PriceListController {
 
     private final PriceListService priceListService;
 
-    @PostMapping("create-price/{scheduleId}/{stationId}")
-    public ResponseEntity<?> createPrice(@RequestBody List<PriceListDTO> priceListDTO, @PathVariable Long scheduleId, @PathVariable Long stationId) {
-       List<PriceList> response =  priceListService.createPrice(priceListDTO, scheduleId, stationId);
+    @PostMapping("create-price/{scheduleId}")
+    public ResponseEntity<?> createPrice(@RequestBody List<PriceListDTO> priceListDTO, @PathVariable Long scheduleId) {
+       List<PriceList> response =  priceListService.createPrice(priceListDTO, scheduleId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
@@ -32,4 +33,26 @@ public class PriceListController {
 
     }
 
-}
+
+
+        @GetMapping("/list")
+        public ResponseEntity<List<PriceList>> getPrices(
+                @RequestParam Long scheduleId,
+                @RequestParam Long stationId
+        ) {
+            return ResponseEntity.ok(priceListService.getPriceListByScheduleAndStation(scheduleId, stationId));
+        }
+
+        @GetMapping("/detail")
+        public ResponseEntity<PriceList> getSpecificPrice(
+                @RequestParam Long scheduleId,
+                @RequestParam Long stationId,
+                @RequestParam TrainClass trainClass,
+                @RequestParam String ageRange
+        ) {
+            return ResponseEntity.ok(priceListService.getSpecificPrice(scheduleId, stationId, trainClass, ageRange));
+        }
+    }
+
+
+

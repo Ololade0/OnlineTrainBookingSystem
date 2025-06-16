@@ -45,19 +45,19 @@ public class ScheduleServiceImpl implements ScheduleService {
 
 @Transactional
     public BaseResponse newSchedule(ScheduleDTO scheduleDto) {
-       validateScheduleDetails(scheduleDto);
+//       validateScheduleDetails(scheduleDto);
         try {
            Train train = trainService.findTrainById(scheduleDto.getTrainId());
            Station arrivalStationId = stationService.findStationById(scheduleDto.getArrivalStationId());
             Station departureStationId = stationService.findStationById(scheduleDto.getDepartureStationId());
-            Duration duration =  Duration.between(scheduleDto.getDepartureDate(), scheduleDto.getArrivalDate());
+            Duration duration =  Duration.between(scheduleDto.getDepartureTime(), scheduleDto.getArrivalTime());
             durationString = formatDurationToString(duration);
             Schedule schedule = Schedule.builder()
                     .trainId(train.getId())
                     .departureStationId(departureStationId.getStationId())
                     .arrivalStationId(arrivalStationId.getStationId())
-//                    .departureTime(scheduleDto.getDepartureTime())
-//                    .arrivalTime(scheduleDto.getArrivalTime())
+                    .departureTime(scheduleDto.getDepartureTime())
+                   .arrivalTime(scheduleDto.getArrivalTime())
                     .departureDate(scheduleDto.getDepartureDate())
                     .arrivalDate(scheduleDto.getArrivalDate())
                     .duration(durationString)
@@ -66,7 +66,6 @@ public class ScheduleServiceImpl implements ScheduleService {
                     .distance(distanceCalculatorService.calculateDistance())
                     .build();
             Schedule savedSchedule = scheduleRepository.save(schedule);
-
             return mapToResponseDTO(savedSchedule, "Schedule successfully created");
         } catch (Exception e) {
             log.error("Error creating schedule: {}", e.getMessage(), e);
@@ -96,8 +95,8 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     private static BaseResponse mapToResponseDTO(Schedule savedSchedule, String message) {
         ScheduleDTO response = new ScheduleDTO();
-//        response.setDepartureTime(savedSchedule.getDepartureTime());
-//        response.setArrivalTime(savedSchedule.getArrivalTime());
+        response.setDepartureTime(savedSchedule.getDepartureTime());
+        response.setArrivalTime(savedSchedule.getArrivalTime());
         response.setDepartureDate(savedSchedule.getDepartureDate());
         response.setArrivalDate(savedSchedule.getArrivalDate());
         response.setDuration(savedSchedule.getDuration());
@@ -110,13 +109,13 @@ public class ScheduleServiceImpl implements ScheduleService {
 
 
     public void validateScheduleDetails(ScheduleDTO scheduleDTO) {
-        // Ensure all required fields are provided
-        if (scheduleDTO.getDepartureStationId() == null || scheduleDTO.getArrivalStationId() == null ||
-                scheduleDTO.getScheduleType() == null || scheduleDTO.getDepartureDate() == null)
-//                scheduleDTO.getDepartureTime() == null)
-        {
-            throw new ScheduleDetailsException("All parameters must be provided and cannot be null.");
-        }
+//        // Ensure all required fields are provided
+//        if (scheduleDTO.getDepartureStationId() == null || scheduleDTO.getArrivalStationId() == null ||
+//                scheduleDTO.getScheduleType() == null || scheduleDTO.getDepartureDate() == null)
+////                scheduleDTO.getDepartureTime() == null)
+//        {
+//            throw new ScheduleDetailsException("All parameters must be provided and cannot be null.");
+//        }
 
 //        // Ensure arrival time is not before departure time
 //        if (scheduleDTO.getArrivalTime().isBefore(scheduleDTO.getDepartureTime())) {
@@ -225,8 +224,8 @@ public class ScheduleServiceImpl implements ScheduleService {
                 grouped.setDuration(dto.getDuration());
                 grouped.setDepartureDate(dto.getDepartureDate());
                 grouped.setArrivalDate(dto.getArrivalDate());
-//                grouped.setDepartureTime(dto.getDepartureTime());
-//                grouped.setArrivalTime(dto.getArrivalTime());
+                grouped.setDepartureTime(dto.getDepartureTime());
+                grouped.setArrivalTime(dto.getArrivalTime());
                 grouped.setPrices(new ArrayList<>());
                 groupedSchedules.put(dto.getScheduleId(), grouped);
             }

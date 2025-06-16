@@ -2,8 +2,8 @@ package train.booking.train.booking.service;
 
 import org.springframework.data.domain.Page;
 import train.booking.train.booking.dto.ScheduleDTO;
-import train.booking.train.booking.dto.response.ScheduleResponse;
 import train.booking.train.booking.dto.response.BaseResponse;
+import train.booking.train.booking.dto.response.ScheduleResponse;
 import train.booking.train.booking.model.Schedule;
 
 import java.time.LocalDate;

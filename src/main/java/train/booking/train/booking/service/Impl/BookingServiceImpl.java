@@ -8,18 +8,24 @@ import org.springframework.stereotype.Service;
 import train.booking.train.booking.dto.BookingQueueDTO;
 import train.booking.train.booking.dto.BookingRequestDTO;
 import train.booking.train.booking.dto.PaymentRequest;
+import train.booking.train.booking.dto.PriceListDTO;
+import train.booking.train.booking.dto.response.ScheduleResponse;
 import train.booking.train.booking.exceptions.BookingCannotBeFoundException;
-import train.booking.train.booking.exceptions.ScheduleCannotBeFoundException;
 import train.booking.train.booking.model.Booking;
 import train.booking.train.booking.model.Schedule;
 import train.booking.train.booking.model.User;
+import train.booking.train.booking.model.enums.AgeRange;
 import train.booking.train.booking.model.enums.BookingStatus;
+import train.booking.train.booking.model.enums.PaymentStatus;
+import train.booking.train.booking.model.enums.TrainClass;
 import train.booking.train.booking.repository.BookingRepository;
 import train.booking.train.booking.service.BookingService;
 import train.booking.train.booking.service.ScheduleService;
 import train.booking.train.booking.service.UserService;
 import train.booking.train.booking.utils.PnrCodeGenerator;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -28,57 +34,90 @@ public class BookingServiceImpl implements BookingService {
         private final BookingRepository bookingRepository;
         private final UserService userService;
         private final ScheduleService scheduleService;
-          private final PnrCodeGenerator pnrCodeGenerator;
-
+        private final PnrCodeGenerator pnrCodeGenerator;
         private final JmsTemplate jmsTemplate;
         private final ObjectMapper objectMapper;
 
 
+@Override
     public void createBooking(BookingRequestDTO bookingDTO) {
-        if (bookingDTO.getUserId() == null || bookingDTO.getScheduleId() == null) {
-            throw new IllegalArgumentException("User ID and Schedule ID must not be null");
-        }
+        User user = userService.findUserById(bookingDTO.getUserId());
+        ScheduleResponse scheduleResponse = scheduleService.findSchedule(
+                bookingDTO.getDepartureStationId(),
+                bookingDTO.getArrivalStationId(),
+                bookingDTO.getDepartureDate()
+        );
 
-        User foundUser = userService.findUserById(bookingDTO.getUserId());
-        Schedule foundSchedule = scheduleService.findSchedulesById(bookingDTO.getScheduleId());
-
-        if (foundSchedule == null) {
-            throw new ScheduleCannotBeFoundException("Schedule cannot be found");
-        }
-
+        // Extract price
+        BigDecimal totalFare = extractFare(scheduleResponse, bookingDTO.getTrainClass(), bookingDTO.getPassengerType());
         String pnrCode = pnrCodeGenerator.generateUniquePnrCodes();
-
-        BookingQueueDTO queueDTO = BookingQueueDTO.builder()
-                .userId(foundUser.getId())
-                .scheduleId(foundSchedule.getId())
-                .travelDate(foundSchedule.getDepartureDate())
-                .trainClass(bookingDTO.getTrainClass())
-                .seatNumber(bookingDTO.getSeatNumber())
-                .bookingNameRecord(pnrCode)
-                .build();
+        BookingQueueDTO bookingQueueDTO = buildBookingQueueDTO(bookingDTO, user.getId(), scheduleResponse, pnrCode, totalFare);
 
         try {
-            String jsonPayload = objectMapper.writeValueAsString(queueDTO);
+            String jsonPayload = objectMapper.writeValueAsString(bookingQueueDTO);
             jmsTemplate.convertAndSend("bookingQueue", jsonPayload);
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Failed to serialize BookingQueueDTO", e);
         }
     }
 
-//    @Override
-//    public void createBooking(BookingDTO bookingDTO) {
-//        User foundUser = userService.findUserById(bookingDTO.getUserId());
-//        Schedule foundSchedule = scheduleService.findSchedulesById(bookingDTO.getScheduleId());
-//
-//        if (foundSchedule == null) {
-//            throw new ScheduleCannotBeFoundException("Schedule cannot be found");
-//        }
-//
-//        bookingDTO.setTravelDate(foundSchedule.getDepartureDate());
-//        bookingDTO.setBookingNameRecord(pnrCodeGenerator.generateUniquePnrCodes());
-//
-//        jmsTemplate.convertAndSend("bookingQueue", bookingDTO);
-//    }
+
+
+    private BigDecimal extractFare(ScheduleResponse scheduleResponse, TrainClass trainClass, AgeRange ageRange) {
+        return scheduleResponse.getSchedules().stream()
+                .filter(schedule -> schedule.getScheduleId().equals(scheduleResponse.getScheduleId()))
+                .flatMap(schedule -> schedule.getPrices().stream())
+                .filter(price -> price.getTrainClass().equals(trainClass)
+                        && price.getAgeRange().equals(ageRange))
+                .map(PriceListDTO::getPrice)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("No price found for selected train class and age range"));
+    }
+
+    private BookingQueueDTO buildBookingQueueDTO(
+            BookingRequestDTO bookingDTO,
+            Long userId,
+            ScheduleResponse scheduleResponse,
+            String bookingNumber,
+            BigDecimal totalFare
+    ) {
+        return BookingQueueDTO.builder()
+                .userId(userId)
+                .scheduleId(scheduleResponse.getScheduleId())
+                .travelDate(scheduleResponse.getDepartureDate())
+                .travelTime(scheduleResponse.getDepartureTime())
+                .trainClass(bookingDTO.getTrainClass())
+                .seatNumber(bookingDTO.getSeatNumber())
+                .bookingNumber(bookingNumber)
+                .passengerType(bookingDTO.getPassengerType())
+                .totalFare(totalFare)
+                .build();
+    }
+
+
+
+
+    public Booking saveBooking(BookingQueueDTO dto) {
+        User user = userService.findUserById(dto.getUserId());
+        Schedule schedule = scheduleService.findSchedulesById(dto.getScheduleId());
+
+        Booking booking = Booking.builder()
+                .bookingDate(LocalDateTime.now())
+                .user(user)
+                .paymentStatus(PaymentStatus.PENDING)
+                .scheduleId(schedule.getId())
+                .passengerType(dto.getPassengerType())
+                .travelDate(dto.getTravelDate())
+                .travelTime(dto.getTravelTime())
+                .trainClass(dto.getTrainClass())
+                .seatNumber(dto.getSeatNumber())
+                .bookingStatus(BookingStatus.PENDING)
+                .totalFareAmount(dto.getTotalFare())
+                .bookingNumber(dto.getBookingNumber())
+                .build();
+        return bookingRepository.save(booking);
+    }
+
 
 
 
@@ -88,16 +127,6 @@ public class BookingServiceImpl implements BookingService {
           paymentRequest.setBookingId(reservedBooking.get().getBookingId());
             jmsTemplate.convertAndSend("payment-queue", paymentRequest);
         }
-
-
-    public Booking updateBookingStatus(Long bookingId, BookingStatus status) {
-        Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new BookingCannotBeFoundException("Booking not found with ID: " + bookingId));
-
-        booking.setBookingStatus(status);
-        return bookingRepository.save(booking);
-    }
-
 
 
 
@@ -111,43 +140,12 @@ public class BookingServiceImpl implements BookingService {
           );
         }
 
-        @Override
-        public Booking saveBooking(Booking bookingDTO) {
-
-//            User foundUser = userService.findUserById(bookingDTO.get);
-            existsByBookingNameRecord(bookingDTO.getBookingNameRecord());
-            Booking booking = new Booking();
-            booking.setBookingDate(bookingDTO.getBookingDate());
-//           booking.setUser(foundUser);
-            booking.setScheduleId(bookingDTO.getScheduleId());
-            booking.setTravelDate(bookingDTO.getTravelDate());
-            booking.setTrainClass(bookingDTO.getTrainClass());
-            booking.setSeatNumber(bookingDTO.getSeatNumber());
-            booking.setBookingStatus(BookingStatus.PENDING);
-            booking.setBookingNameRecord(booking.getBookingNameRecord());
-
-            // Save the Booking entity to the repository
-            Booking savedBooking = bookingRepository.save(booking);
-
-            // Convert saved Booking entity back to BookingDTO
-//            BookingDTO savedBookingDTO = new BookingDTO();
-//            savedBookingDTO.setBookingId(savedBooking.getBookingId());
-//            savedBookingDTO.setUserId(savedBooking.getUser().getId());
-//            savedBookingDTO.setScheduleId(savedBooking.getScheduleId());
-//            savedBookingDTO.setTravelDate(savedBooking.getTravelDate());
-//            savedBookingDTO.setTrainClass(savedBooking.getTrainClass());
-//            savedBookingDTO.setSeatNumber(savedBooking.getSeatNumber());
-//            savedBookingDTO.setBookingStatus(savedBooking.getBookingStatus());
-//            savedBookingDTO.setBookingNameRecord(savedBooking.getBookingNameRecord());
-            return savedBooking;
-        }
-
-        @Override
-        public boolean existsByBookingNameRecord(String bookingNameRecord) {
-            if (bookingNameRecord == null) {
+    @Override
+        public boolean existsByBookingNameRecord(String bookingNumber) {
+            if (bookingNumber == null) {
                 return false;
             }
-            return bookingRepository.existsByBookingNameRecord(bookingNameRecord);
+            return bookingRepository.existsByBookingNumber(bookingNumber);
         }
 
         @Override
@@ -156,22 +154,6 @@ public class BookingServiceImpl implements BookingService {
         }
 
 
-
-
-
-    //    public void sendPaymentRequest(PaymentRequest paymentRequestDTO) {
-    //        jmsTemplate.convertAndSend("payment-queue", paymentRequestDTO);
-    //    }
-
-
-    //
-    //    @Override
-    //    public Booking bookingWithPayment(Long bookingId, PaymentRequest paymentRequest) {
-    //      Optional<Booking> reservedBooking  = bookingRepository.findById(bookingId);
-    //      paymentRequest.setBookingId(reservedBooking.get().getBookingId());
-    //      paymentService.sendPaymentMessage(paymentRequest);
-    //      return reservedBooking.get();
-    //    }
 
 
 }

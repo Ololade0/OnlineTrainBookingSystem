@@ -143,7 +143,7 @@ public class PayPalServiceImpl implements PayPalService {
 
             Booking booking = bookingPayment.getBooking();
             booking.setBookingStatus(BookingStatus.BOOKED);
-            bookingService.updateBookingStatus(booking.getBookingId(),BookingStatus.BOOKED );
+//            bookingService.updateBookingStatus(booking.getBookingId(),BookingStatus.BOOKED );
 
 //            // Book seat
 //            Seat bookedSeat = seatService.bookSeat(

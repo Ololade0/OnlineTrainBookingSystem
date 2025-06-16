@@ -6,7 +6,8 @@ import lombok.*;
 import train.booking.train.booking.model.enums.Route;
 import train.booking.train.booking.model.enums.ScheduleType;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 
 @Setter
@@ -25,10 +26,17 @@ public class Schedule extends AuditBaseEntity {
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Column(nullable = false)
-    private LocalDateTime departureDate;
+    private LocalDate departureDate;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDateTime arrivalDate;
+    private LocalDate arrivalDate;
+
+    @JsonFormat(pattern = "hh-mm-ss")
+    @Column(nullable = false)
+    private LocalTime departureTime;
+
+    @JsonFormat(pattern = "hh-mm-ss")
+    private LocalTime arrivalTime;
 
     @Column(nullable = false)
     private String duration;
