@@ -14,4 +14,5 @@ public interface BookingService {
    Booking findByTransactionId(String transactionId);
 
 
+   Booking updateBookingStatus(Long bookingId);
 }

@@ -1,29 +1,27 @@
 package train.booking.train.booking.service.Impl;//package OnlineBookingSystem.OnlineBookingSystem.service.Impl;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import train.booking.train.booking.dto.BookSeatDTO;
 import train.booking.train.booking.dto.SeatDto;
-import train.booking.train.booking.dto.TrainClassAvailabilityDTO;
 import train.booking.train.booking.dto.response.BaseResponse;
 import train.booking.train.booking.dto.response.ResponseUtil;
 import train.booking.train.booking.exceptions.InvalidSeatNumberException;
 import train.booking.train.booking.exceptions.SeatAlreadyBookedException;
 import train.booking.train.booking.exceptions.SeatCannotBeFoundException;
-import train.booking.train.booking.model.Schedule;
 import train.booking.train.booking.model.Seat;
 import train.booking.train.booking.model.enums.SeatStatus;
-import train.booking.train.booking.model.enums.TrainClass;
 import train.booking.train.booking.repository.ScheduleRepository;
 import train.booking.train.booking.repository.SeatRepository;
 import train.booking.train.booking.service.SeatService;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -80,11 +78,6 @@ private final ScheduleRepository scheduleRepository;
                 new SeatCannotBeFoundException("Seat cannot be found")));
     }
 
-
-
-    public void updateSeat(Seat seat) {
-        seatRepository.save(seat);
-    }
 
     public Seat bookSeat(BookSeatDTO bookSeatDTO) {
         try {

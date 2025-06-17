@@ -1,52 +1,54 @@
-//package train.booking.train.booking.controller;
-//
-//import lombok.RequiredArgsConstructor;
-//import org.springframework.http.ResponseEntity;
-//import org.springframework.jms.core.JmsTemplate;
-//import org.springframework.web.bind.annotation.*;
-//import train.booking.train.booking.dto.PaymentRequest;
-//import train.booking.train.booking.dto.response.PaymentVerificationResponse;
-//import train.booking.train.booking.model.Booking;
-//import train.booking.train.booking.model.enums.BookingStatus;
-//import train.booking.train.booking.model.enums.PaymentMethod;
-//import train.booking.train.booking.service.BookingService;
-//import train.booking.train.booking.service.PaymentService;
-//import train.booking.train.booking.service.PaymentServiceImpl;
-//
-//@RestController
-//@RequiredArgsConstructor
-//@RequestMapping("/api/payments")
-//public class PaymentController {
-//
-//    private final PaymentServiceImpl paymentServiceFactory;
-//    private final BookingService bookingService;
-//    private final JmsTemplate jmsTemplate;
-//
-//    @PostMapping("/initiate")
-//    public ResponseEntity<String> initiatePayment(@RequestBody PaymentRequest request) {
-//        Booking booking = bookingService.findBookingById(request.getBookingId());
-//        if (booking == null || booking.getBookingStatus() != BookingStatus.PENDING) {
-//            return ResponseEntity.badRequest().body("Invalid booking")
-//
-//        }
-//
-////        PaymentService service = paymentServiceFactory.getService(request.getPaymentMethod());
-////        String redirectUrl = service.initiatePayment(request);
-////
-////        return ResponseEntity.ok(redirectUrl);
-//    }
-////
-////    @GetMapping("/verify")
-////    public ResponseEntity<String> verifyPayment(@RequestParam String transactionId,
-////                                                @RequestParam PaymentMethod channel) {
-////        PaymentService service = paymentServiceFactory.getService(channel);
-////        PaymentVerificationResponse response = service.verifyPayment(transactionId);
-////
-////        if (!response.isSuccess()) return ResponseEntity.status(400).body("Payment failed");
-////
-////        jmsTemplate.convertAndSend("paymentQueue", response);
-////        return ResponseEntity.ok("Payment verified, booking will be confirmed");
-////    }
-//    }
-//
-//}
+package train.booking.train.booking.controller;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import train.booking.train.booking.dto.PaymentRequest;
+import train.booking.train.booking.service.PayPalService;
+import train.booking.train.booking.service.PaymentService;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/v1/auth/payments")
+public class PaymentController {
+
+    private final PayPalService payPalService;
+
+    private final PaymentService paymentService;
+
+
+    @PostMapping("/payment")
+    public ResponseEntity<String> processPayment(@RequestBody PaymentRequest paymentRequest) {
+        String paymentRedirectUrl = paymentService.paymentProcessing(paymentRequest);
+        return ResponseEntity.ok(paymentRedirectUrl);
+    }
+
+    @GetMapping("/paypal/execute")
+    public ResponseEntity<String> executePaypalPayment(@RequestParam String paymentId, @RequestParam String payerId) {
+        payPalService.executePaypalPayment(paymentId, payerId);
+        return ResponseEntity.ok("Payment executed successfully.");
+    }
+
+    @GetMapping("/success")
+    public ResponseEntity<String> success(
+            @RequestParam("paymentId") String paymentId,
+            @RequestParam("PayerID") String payerId
+    ) {
+        try {
+            payPalService.executePaypalPayment(paymentId, payerId);
+            return ResponseEntity.ok("Payment success! Booking will be confirmed shortly.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payment failed: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/cancel")
+    public ResponseEntity<String> cancel() {
+        return ResponseEntity.ok("Payment was cancelled by the user.");
+    }
+
+
+}
+
+

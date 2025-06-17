@@ -7,7 +7,6 @@ import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 import train.booking.train.booking.dto.BookingQueueDTO;
 import train.booking.train.booking.dto.BookingRequestDTO;
-import train.booking.train.booking.dto.PaymentRequest;
 import train.booking.train.booking.dto.PriceListDTO;
 import train.booking.train.booking.dto.response.ScheduleResponse;
 import train.booking.train.booking.exceptions.BookingCannotBeFoundException;
@@ -26,7 +25,6 @@ import train.booking.train.booking.utils.PnrCodeGenerator;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -47,7 +45,6 @@ public class BookingServiceImpl implements BookingService {
                 bookingDTO.getArrivalStationId(),
                 bookingDTO.getDepartureDate()
         );
-
         // Extract price
         BigDecimal totalFare = extractFare(scheduleResponse, bookingDTO.getTrainClass(), bookingDTO.getPassengerType());
         String pnrCode = pnrCodeGenerator.generateUniquePnrCodes();
@@ -100,7 +97,6 @@ public class BookingServiceImpl implements BookingService {
     public Booking saveBooking(BookingQueueDTO dto) {
         User user = userService.findUserById(dto.getUserId());
         Schedule schedule = scheduleService.findSchedulesById(dto.getScheduleId());
-
         Booking booking = Booking.builder()
                 .bookingDate(LocalDateTime.now())
                 .user(user)
@@ -120,13 +116,13 @@ public class BookingServiceImpl implements BookingService {
 
 
 
-
-    //    @Override
-        public void bookingWithPayment(Long bookingId, PaymentRequest paymentRequest) {
-          Optional<Booking> reservedBooking  = bookingRepository.findById(bookingId);
-          paymentRequest.setBookingId(reservedBooking.get().getBookingId());
-            jmsTemplate.convertAndSend("payment-queue", paymentRequest);
-        }
+//
+//    //    @Override
+//        public void bookingWithPayment(Long bookingId, PaymentRequest paymentRequest) {
+//          Optional<Booking> reservedBooking  = bookingRepository.findById(bookingId);
+//          paymentRequest.setBookingId(reservedBooking.get().getBookingId());
+//            jmsTemplate.convertAndSend("payment-queue", paymentRequest);
+//        }
 
 
 
@@ -153,6 +149,13 @@ public class BookingServiceImpl implements BookingService {
             return null;
         }
 
+
+    @Override
+    public Booking updateBookingStatus(Long bookingId) {
+        Booking booking = findBookingById(bookingId);
+        booking.setBookingStatus(BookingStatus.BOOKED);
+        return bookingRepository.save(booking);
+    }
 
 
 
