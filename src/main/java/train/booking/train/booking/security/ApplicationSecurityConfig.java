@@ -33,6 +33,7 @@ public class ApplicationSecurityConfig{
                         authorize.requestMatchers("/**/api/v1/auth/**").permitAll()
                                 .requestMatchers("/customError").permitAll()
                                 .requestMatchers("/access-denied").permitAll()
+                                .requestMatchers("/**/api/v1/auth/payments/**").permitAll()
                                 .anyRequest().authenticated()
                                 .and()
                                 .exceptionHandling().authenticationEntryPoint(unAuthorizedEntryPoint)

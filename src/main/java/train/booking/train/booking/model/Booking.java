@@ -35,6 +35,9 @@ public class Booking implements Serializable {
     @Enumerated(EnumType.STRING)
     private AgeRange passengerType;
     private int seatNumber;
+//    @Column(name = "expiration_time")
+//    private LocalDateTime expirationTime;
+
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

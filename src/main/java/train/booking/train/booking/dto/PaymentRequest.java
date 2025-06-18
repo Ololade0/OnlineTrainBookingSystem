@@ -20,6 +20,7 @@ public class PaymentRequest {
     private String cancelUrl;
     private String successUrl;
     private String intent;
+    private String pnrCode;
 
     private PaymentMethod paymentMethod;
 

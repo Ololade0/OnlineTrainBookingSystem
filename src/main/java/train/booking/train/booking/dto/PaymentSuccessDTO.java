@@ -12,4 +12,5 @@ public class PaymentSuccessDTO {
 
     private Long bookingId;
     private String paymentId;
+    private String pnrCode;
 }

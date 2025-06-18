@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 import train.booking.train.booking.dto.BookingQueueDTO;
 import train.booking.train.booking.service.BookingService;
 
+import java.time.LocalDateTime;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -28,6 +30,7 @@ public class BookingListener {
                     log.info("Received booking message: {}", payload);
 
                     BookingQueueDTO dto = objectMapper.readValue(payload, BookingQueueDTO.class);
+                    dto.setExpirationTime(LocalDateTime.now().plusMinutes(10));
                     bookingService.saveBooking(dto);
 
                     log.info("Booking successfully saved for PNR: {}", dto.getBookingNumber());

@@ -5,9 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
-import train.booking.train.booking.dto.BookingQueueDTO;
-import train.booking.train.booking.dto.BookingRequestDTO;
-import train.booking.train.booking.dto.PriceListDTO;
+import train.booking.train.booking.dto.*;
 import train.booking.train.booking.dto.response.ScheduleResponse;
 import train.booking.train.booking.exceptions.BookingCannotBeFoundException;
 import train.booking.train.booking.model.Booking;
@@ -25,6 +23,7 @@ import train.booking.train.booking.utils.PnrCodeGenerator;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -38,7 +37,7 @@ public class BookingServiceImpl implements BookingService {
 
 
 @Override
-    public void createBooking(BookingRequestDTO bookingDTO) {
+    public BookingResponse createBooking(BookingRequestDTO bookingDTO) {
         User user = userService.findUserById(bookingDTO.getUserId());
         ScheduleResponse scheduleResponse = scheduleService.findSchedule(
                 bookingDTO.getDepartureStationId(),
@@ -48,14 +47,20 @@ public class BookingServiceImpl implements BookingService {
         // Extract price
         BigDecimal totalFare = extractFare(scheduleResponse, bookingDTO.getTrainClass(), bookingDTO.getPassengerType());
         String pnrCode = pnrCodeGenerator.generateUniquePnrCodes();
-        BookingQueueDTO bookingQueueDTO = buildBookingQueueDTO(bookingDTO, user.getId(), scheduleResponse, pnrCode, totalFare);
-
+    BookingQueueDTO bookingQueueDTO = buildBookingQueueDTO(bookingDTO, user.getId(), scheduleResponse, pnrCode, totalFare);
         try {
             String jsonPayload = objectMapper.writeValueAsString(bookingQueueDTO);
             jmsTemplate.convertAndSend("bookingQueue", jsonPayload);
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Failed to serialize BookingQueueDTO", e);
         }
+
+        return BookingResponse.builder()
+                .pnrCode(pnrCode)
+                .totalFare(totalFare)
+                .message("Your seat has been reserved for 10 minutes.")
+                .build();
+
     }
 
 
@@ -116,18 +121,6 @@ public class BookingServiceImpl implements BookingService {
 
 
 
-//
-//    //    @Override
-//        public void bookingWithPayment(Long bookingId, PaymentRequest paymentRequest) {
-//          Optional<Booking> reservedBooking  = bookingRepository.findById(bookingId);
-//          paymentRequest.setBookingId(reservedBooking.get().getBookingId());
-//            jmsTemplate.convertAndSend("payment-queue", paymentRequest);
-//        }
-
-
-
-
-
     @Override
         public Booking findBookingById(Long bookingId) {
           return bookingRepository.findById(bookingId).orElseThrow(()->
@@ -135,18 +128,20 @@ public class BookingServiceImpl implements BookingService {
 
           );
         }
-
     @Override
-        public boolean existsByBookingNameRecord(String bookingNumber) {
-            if (bookingNumber == null) {
-                return false;
-            }
-            return bookingRepository.existsByBookingNumber(bookingNumber);
+        public Optional<Booking> findBookingByBookingNumber(String bookingNumber){
+   Booking foundBooking = bookingRepository.findByBookingNumber(bookingNumber);
+   if(foundBooking == null){
+       throw new BookingCannotBeFoundException("Booking with pnr " + bookingNumber + "cannot be found");
+   }
+   return Optional.of(foundBooking);
         }
+
 
         @Override
         public Booking findByTransactionId(String transactionId) {
-            return null;
+
+    return null;
         }
 
 
@@ -157,6 +152,10 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.save(booking);
     }
 
+    @Override
+    public Booking updateBooking(Booking booking) {
+        return bookingRepository.save(booking);
+    }
 
 
 }
