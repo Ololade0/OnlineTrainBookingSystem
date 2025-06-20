@@ -12,6 +12,8 @@ import train.booking.train.booking.model.enums.TrainClass;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class BookSeatDTO {
     private int seatNumber;
+    private Long bookingId;
+    private Long scheduleId;
     private TrainClass trainClass;
 
 }

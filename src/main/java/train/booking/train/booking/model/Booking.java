@@ -35,8 +35,7 @@ public class Booking implements Serializable {
     @Enumerated(EnumType.STRING)
     private AgeRange passengerType;
     private int seatNumber;
-//    @Column(name = "expiration_time")
-//    private LocalDateTime expirationTime;
+
 
 
     @ManyToOne
@@ -59,13 +58,8 @@ public class Booking implements Serializable {
     private PaymentMethod paymentMethod;
 
 
-//    @Enumerated(EnumType.STRING)
-//    @Column(name = "seat_status", length = 20)
-//    private SeatStatus seatStatus;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "payment_Status",  length = 20)
-    private PaymentStatus paymentStatus;
+    @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private BookingPayment bookingPayment;
 
 
     private Long scheduleId;
@@ -73,4 +67,5 @@ public class Booking implements Serializable {
     public Booking() {
 
     }
+
 }

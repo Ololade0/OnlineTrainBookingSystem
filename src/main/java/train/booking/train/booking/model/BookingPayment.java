@@ -5,6 +5,7 @@ import lombok.*;
 import train.booking.train.booking.model.enums.PaymentMethod;
 import train.booking.train.booking.model.enums.PaymentStatus;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Setter
@@ -18,7 +19,7 @@ public class BookingPayment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Double totalPrice;
+    private BigDecimal totalPrice;
 
     @Enumerated(value = EnumType.STRING)
     private PaymentStatus paymentStatus;

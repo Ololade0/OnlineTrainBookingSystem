@@ -9,8 +9,7 @@ import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
 import train.booking.train.booking.dto.BookingQueueDTO;
 import train.booking.train.booking.service.BookingService;
-
-import java.time.LocalDateTime;
+import train.booking.train.booking.service.SeatService;
 
 @Slf4j
 @Component
@@ -19,6 +18,7 @@ public class BookingListener {
 
     private final ObjectMapper objectMapper;
     private final BookingService bookingService;
+    private final SeatService seatService;
 
 
 
@@ -30,7 +30,7 @@ public class BookingListener {
                     log.info("Received booking message: {}", payload);
 
                     BookingQueueDTO dto = objectMapper.readValue(payload, BookingQueueDTO.class);
-                    dto.setExpirationTime(LocalDateTime.now().plusMinutes(10));
+                    seatService.lockSeatTemporarilyForPayment(dto.getSeatNumber(), dto.getScheduleId(), dto.getTrainClass());
                     bookingService.saveBooking(dto);
 
                     log.info("Booking successfully saved for PNR: {}", dto.getBookingNumber());

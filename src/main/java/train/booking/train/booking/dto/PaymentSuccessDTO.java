@@ -11,6 +11,7 @@ import lombok.*;
 public class PaymentSuccessDTO {
 
     private Long bookingId;
+    private Long scheduleId;
     private String paymentId;
     private String pnrCode;
 }

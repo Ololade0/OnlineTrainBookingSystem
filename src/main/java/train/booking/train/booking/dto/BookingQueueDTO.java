@@ -7,7 +7,6 @@ import train.booking.train.booking.model.enums.TrainClass;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Data
@@ -23,8 +22,6 @@ public class BookingQueueDTO {
     private int seatNumber;
     private BigDecimal totalFare;
     private String bookingNumber;
-//    @Column(name = "expiration_time")
-    private LocalDateTime expirationTime;
 
 
 

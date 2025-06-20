@@ -1,10 +1,13 @@
 
 package train.booking.train.booking.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import train.booking.train.booking.model.enums.SeatStatus;
 import train.booking.train.booking.model.enums.TrainClass;
+
+import java.time.LocalDateTime;
 
 @Setter
 @Getter
@@ -18,19 +21,27 @@ public class Seat {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+//    @Column(unique = true)
     private int seatNumber;
     @Enumerated(EnumType.STRING)
     private SeatStatus seatStatus;
 
-    @Enumerated(EnumType.STRING)
-    private TrainClass trainClass;
+    private LocalDateTime lockTime;
+
+
 
     private String name;
 
+    @Enumerated(EnumType.STRING)
+    private TrainClass trainClass;
 
-    @ManyToOne
-    @JoinColumn(name = "booking_id", nullable = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "booking_id")
+    @JsonIgnore
     private Booking booking;
+
+
+    private Long scheduleId;
 
 
 }

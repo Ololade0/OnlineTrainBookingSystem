@@ -46,10 +46,18 @@ public class ScheduleServiceImpl implements ScheduleService {
 @Transactional
     public BaseResponse newSchedule(ScheduleDTO scheduleDto) {
 //       validateScheduleDetails(scheduleDto);
-        try {
+
+    if (scheduleDto == null) {
+        throw new IllegalArgumentException("ScheduleDto cannot be null.");
+    }
+
+    try {
            Train train = trainService.findTrainById(scheduleDto.getTrainId());
            Station arrivalStationId = stationService.findStationById(scheduleDto.getArrivalStationId());
             Station departureStationId = stationService.findStationById(scheduleDto.getDepartureStationId());
+            if (scheduleDto.getDepartureTime() == null || scheduleDto.getArrivalTime() == null) {
+                throw new IllegalArgumentException("Departure time and arrival time must not be null.");
+            }
             Duration duration =  Duration.between(scheduleDto.getDepartureTime(), scheduleDto.getArrivalTime());
             durationString = formatDurationToString(duration);
             Schedule schedule = Schedule.builder()

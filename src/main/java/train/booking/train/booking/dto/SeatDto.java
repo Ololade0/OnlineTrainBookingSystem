@@ -12,6 +12,7 @@ import train.booking.train.booking.model.enums.SeatStatus;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SeatDto {
+    private Long scheduleId;
     private int startSeat;
     private int endSeat;
     private SeatStatus seatStatus;
@@ -19,9 +20,12 @@ public class SeatDto {
     private TrainClass trainClass;
 
 
+
     public void setSeatNumber(int seatNumber) {
     }
 
     public void setStatus(SeatStatus status) {
     }
+
+
 }
