@@ -29,7 +29,7 @@ public class BookingPayment {
 
     private String transactionReference;
     private LocalDateTime paymentDate;
-    private String currency;
+//    private Currency currency;
     private String cancelUrl;
     private String successUrl;
 

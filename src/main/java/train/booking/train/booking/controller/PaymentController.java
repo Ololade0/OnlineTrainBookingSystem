@@ -8,6 +8,8 @@ import train.booking.train.booking.dto.PaymentRequest;
 import train.booking.train.booking.service.PayPalService;
 import train.booking.train.booking.service.PaymentService;
 
+import java.io.IOException;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/auth/payments")
@@ -20,7 +22,7 @@ public class PaymentController {
 
 
     @PostMapping("/payment")
-    public ResponseEntity<String> processPayment(@RequestBody PaymentRequest paymentRequest) {
+    public ResponseEntity<String> processPayment(@RequestBody PaymentRequest paymentRequest) throws IOException, InterruptedException {
         String paymentRedirectUrl = paymentService.paymentProcessing(paymentRequest);
         return ResponseEntity.ok(paymentRedirectUrl);
     }

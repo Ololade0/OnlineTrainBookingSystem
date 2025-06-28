@@ -13,7 +13,7 @@ import train.booking.train.booking.model.enums.IdentificationType;
 @NoArgsConstructor
 @Getter
 @Setter
-@Entity(name = "other")
+@Entity(name = "otherpassenger")
 public class OtherPassenger {
 
         @Id
@@ -28,7 +28,10 @@ public class OtherPassenger {
         private String phoneNumber;
         private String idNumber;
         private AgeRange passengerType;
-        private int seatNumber;
+        private Integer seatNumber;
+
+        private Long userId;
+
 
 
         @Enumerated(EnumType.STRING)

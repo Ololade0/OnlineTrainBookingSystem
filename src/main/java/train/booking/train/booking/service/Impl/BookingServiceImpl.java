@@ -13,16 +13,14 @@ import train.booking.train.booking.dto.PriceListDTO;
 import train.booking.train.booking.dto.response.ScheduleResponse;
 import train.booking.train.booking.exceptions.BookingCannotBeFoundException;
 import train.booking.train.booking.model.Booking;
+import train.booking.train.booking.model.OtherPassenger;
 import train.booking.train.booking.model.Schedule;
 import train.booking.train.booking.model.User;
 import train.booking.train.booking.model.enums.AgeRange;
 import train.booking.train.booking.model.enums.BookingStatus;
 import train.booking.train.booking.model.enums.TrainClass;
 import train.booking.train.booking.repository.BookingRepository;
-import train.booking.train.booking.service.BookingService;
-import train.booking.train.booking.service.ScheduleService;
-import train.booking.train.booking.service.SeatService;
-import train.booking.train.booking.service.UserService;
+import train.booking.train.booking.service.*;
 import train.booking.train.booking.utils.PnrCodeGenerator;
 
 import java.math.BigDecimal;
@@ -39,6 +37,7 @@ public class BookingServiceImpl implements BookingService {
         private final PnrCodeGenerator pnrCodeGenerator;
         private final JmsTemplate jmsTemplate;
         private final ObjectMapper objectMapper;
+//        private final OtherPassengerService otherPassengerService;
 
 @Transactional
 @Override
@@ -49,9 +48,9 @@ public class BookingServiceImpl implements BookingService {
                 bookingDTO.getArrivalStationId(),
                 bookingDTO.getDepartureDate()
         );
-       seatService.checkSeatAvailability(bookingDTO.getSeatNumber(), scheduleResponse.getScheduleId(), bookingDTO.getTrainClass());
-        BigDecimal totalFare = extractFare(scheduleResponse, bookingDTO.getTrainClass(), bookingDTO.getPassengerType());
-        String pnrCode = pnrCodeGenerator.generateUniquePnrCodes();
+        seatService.checkSeatAvailability(bookingDTO.getSeatNumber(), scheduleResponse.getScheduleId(), bookingDTO.getTrainClass());
+   BigDecimal totalFare = calculateTotalFare(bookingDTO, scheduleResponse);
+    String pnrCode = pnrCodeGenerator.generateUniquePnrCodes();
         BookingQueueDTO bookingQueueDTO = buildBookingQueueDTO(bookingDTO, user.getId(), scheduleResponse, pnrCode, totalFare);
         try {
             String jsonPayload = objectMapper.writeValueAsString(bookingQueueDTO);
@@ -66,6 +65,23 @@ public class BookingServiceImpl implements BookingService {
                 .message("Your seat has been reserved for 10 minutes.")
                 .build();
 
+    }
+
+    private BigDecimal calculateTotalFare(BookingRequestDTO bookingDTO, ScheduleResponse scheduleResponse) {
+        BigDecimal convenienceCharge = BigDecimal.valueOf(200);
+        BigDecimal totalFare = BigDecimal.ZERO;
+
+        BigDecimal mainFare = extractFare(scheduleResponse, bookingDTO.getTrainClass(), bookingDTO.getPassengerType());
+        totalFare = totalFare.add(mainFare).add(convenienceCharge);
+
+        if (bookingDTO.getAdditionalPassenger() != null) {
+            for (OtherPassenger additional : bookingDTO.getAdditionalPassenger()) {
+                BigDecimal additionalFare = extractFare(scheduleResponse, bookingDTO.getTrainClass(), additional.getPassengerType());
+                totalFare = totalFare.add(additionalFare).add(convenienceCharge);
+            }
+        }
+
+        return totalFare;
     }
 
 
@@ -97,6 +113,7 @@ public class BookingServiceImpl implements BookingService {
                 .seatNumber(bookingDTO.getSeatNumber())
                 .bookingNumber(bookingNumber)
                 .passengerType(bookingDTO.getPassengerType())
+                .bookingRequestDTO(bookingDTO)
                 .totalFare(totalFare)
                 .build();
     }
@@ -117,6 +134,7 @@ public class BookingServiceImpl implements BookingService {
                 .totalFareAmount(dto.getTotalFare())
                 .bookingNumber(dto.getBookingNumber())
                 .build();
+
         return bookingRepository.save(booking);
     }
 
@@ -152,6 +170,7 @@ public class BookingServiceImpl implements BookingService {
         booking.setBookingStatus(BookingStatus.BOOKED);
         return bookingRepository.save(booking);
     }
+
 
 
 

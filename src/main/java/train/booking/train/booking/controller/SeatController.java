@@ -10,6 +10,7 @@ import train.booking.train.booking.dto.BookSeatDTO;
 import train.booking.train.booking.dto.SeatDto;
 import train.booking.train.booking.dto.response.BaseResponse;
 import train.booking.train.booking.exceptions.SeatAlreadyReservedException;
+import train.booking.train.booking.model.Booking;
 import train.booking.train.booking.model.Seat;
 import train.booking.train.booking.model.enums.TrainClass;
 import train.booking.train.booking.service.SeatService;
@@ -45,8 +46,8 @@ public class SeatController {
 
     }
     @GetMapping("lock-seat/{seatNumber}")
-    public ResponseEntity<?>lockSeatTemporarilyForPayment(@PathVariable  int seatNumber, @RequestParam long scheduleId,  @RequestBody TrainClass trainClass) throws SeatAlreadyReservedException {
-        String validatedSeat = seatService.lockSeatTemporarilyForPayment(seatNumber, scheduleId, trainClass);
+    public ResponseEntity<?>lockSeatTemporarilyForPayment(@PathVariable  int seatNumber, @RequestParam long scheduleId,  @RequestBody TrainClass trainClass, Booking booking) throws SeatAlreadyReservedException {
+        String validatedSeat = seatService.lockSeatTemporarilyForPayment(seatNumber, scheduleId, trainClass, booking);
         return ResponseEntity.ok("Seat has been temporarily reserved for 10 minutes. Please proceed to payment.");
     }
     @GetMapping("release-lock-seat")

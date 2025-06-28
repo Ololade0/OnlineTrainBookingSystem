@@ -24,7 +24,6 @@ import train.booking.train.booking.model.enums.PaymentStatus;
 import train.booking.train.booking.repository.PaymentRepository;
 import train.booking.train.booking.service.BookingService;
 import train.booking.train.booking.service.PayPalService;
-import train.booking.train.booking.service.SeatService;
 import train.booking.train.booking.service.UserService;
 
 import java.math.BigDecimal;
@@ -41,7 +40,7 @@ public class PayPalServiceImpl implements PayPalService {
     private final APIContext apiContext;
     private final PaymentRepository paymentRepository;
     private final BookingService bookingService;
-    private final SeatService seatService;
+//    private final SeatService seatService;
     private final UserService userService;
     private final JmsTemplate jmsTemplate;
 
@@ -63,9 +62,7 @@ public class PayPalServiceImpl implements PayPalService {
             }
 
             BigDecimal totalFare = booking.getTotalFareAmount();
-
             Payment payment = createPaypalPayment(request.getPaymentMethod(), totalFare);
-
             String approvalUrl = payment.getLinks().stream()
                     .filter(link -> "approval_url".equals(link.getRel()))
                     .findFirst()
@@ -89,7 +86,7 @@ public class PayPalServiceImpl implements PayPalService {
                 .booking(booking)
                 .user(user)
                 .totalPrice(totalFare)
-                .currency(Currency.USD.name())
+//                .currency(Currency.valueOf(Currency.USD.name()))
                 .transactionReference(transactionReference)
                 .paymentMethod(PaymentMethod.PAYPAL)
                 .paymentStatus(PaymentStatus.PENDING)
@@ -154,8 +151,6 @@ public class PayPalServiceImpl implements PayPalService {
             }
 
             bookingPayment.setPaymentStatus(PaymentStatus.COMPLETED);
-            bookingPayment.setSuccessUrl(successUrl);
-            bookingPayment.setCancelUrl(cancelUrl);
             bookingPayment.setPaymentDate(LocalDateTime.now());
             paymentRepository.save(bookingPayment);
             PaymentSuccessDTO dto = PaymentSuccessDTO.builder()

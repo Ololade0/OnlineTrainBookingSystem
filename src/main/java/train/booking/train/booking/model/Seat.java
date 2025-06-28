@@ -27,18 +27,20 @@ public class Seat {
     private SeatStatus seatStatus;
 
     private LocalDateTime lockTime;
-
-
-
-    private String name;
+//
+//
+//
+//    private String name;
 
     @Enumerated(EnumType.STRING)
     private TrainClass trainClass;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "booking_id")
     @JsonIgnore
-    private Booking booking;
+    private Booking booking ;
+
+
 
 
     private Long scheduleId;

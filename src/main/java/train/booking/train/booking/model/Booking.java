@@ -2,31 +2,34 @@
 
 package train.booking.train.booking.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import train.booking.train.booking.model.enums.*;
+import train.booking.train.booking.model.enums.AgeRange;
+import train.booking.train.booking.model.enums.BookingStatus;
+import train.booking.train.booking.model.enums.PaymentMethod;
+import train.booking.train.booking.model.enums.TrainClass;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Setter
 @Getter
 @Builder
 @Entity(name = "bookings")
 @AllArgsConstructor
-public class Booking implements Serializable {
+public class Booking {
     private static final long  serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long bookingId;
-
     private LocalDateTime bookingDate;
     private String bookingNumber;
     private LocalDate travelDate;
@@ -40,7 +43,7 @@ public class Booking implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonManagedReference
+    @JsonBackReference
     private User user ;
 
 
@@ -61,11 +64,16 @@ public class Booking implements Serializable {
     @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private BookingPayment bookingPayment;
 
+    @OneToMany(mappedBy = "booking")
+    private List<OtherPassenger> otherPassengers = new ArrayList<>();
+
 
     private Long scheduleId;
 
     public Booking() {
 
     }
+
+
 
 }

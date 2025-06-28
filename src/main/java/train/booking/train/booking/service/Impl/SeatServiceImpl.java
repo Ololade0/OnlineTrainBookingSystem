@@ -13,6 +13,7 @@ import train.booking.train.booking.dto.SeatDto;
 import train.booking.train.booking.dto.response.BaseResponse;
 import train.booking.train.booking.dto.response.ResponseUtil;
 import train.booking.train.booking.exceptions.*;
+import train.booking.train.booking.model.Booking;
 import train.booking.train.booking.model.Schedule;
 import train.booking.train.booking.model.Seat;
 import train.booking.train.booking.model.enums.SeatStatus;
@@ -72,16 +73,34 @@ private final ScheduleService scheduleService;
         }
     }
 
-    @Override
-    public String lockSeatTemporarilyForPayment(int seatNumber, Long scheduleId, TrainClass trainClass) {
-        Seat seat = seatRepository.findBySeatNumberAndScheduleIdAndTrainClass(seatNumber, scheduleId, trainClass)
-                .orElseThrow(() -> new SeatCannotBeFoundException("Seat not found for this schedule"));
+
+
+    @Transactional
+    public String   lockSeatTemporarilyForPayment(int seatNumber, Long scheduleId, TrainClass trainClass, Booking booking) {
+        if (booking == null || booking.getBookingId() == null) {
+            throw new IllegalStateException("Booking must be saved before locking the seat.");
+        }
+
+        Seat seat = seatRepository.findBySeatNumberAndTrainClass(seatNumber, trainClass);
+        if (seat == null) {
+            throw new InvalidSeatNumberException("Seat not found");
+        }
+
+        if (seat.getSeatStatus() == SeatStatus.BOOKED) {
+            throw new SeatAlreadyBookedException("Seat already booked");
+        }
+
         seat.setSeatStatus(SeatStatus.RESERVED);
         seat.setLockTime(LocalDateTime.now());
-        seatRepository.save(seat);
-        return "Seat has been temporarily reserved for 10 minutes. Please proceed to payment.";
+        seat.setBooking(booking);  // ✅ Set full Booking object for FK
 
+        seatRepository.save(seat);
+
+        log.info("Locked seat {} for bookingId={}", seatNumber, booking.getBookingId());
+
+        return "Seat has been locked for 10 mins ";
     }
+
     @Override
     public void checkSeatAvailability(int seatNumber, Long scheduleId, TrainClass trainClass) {
     Seat seat = seatRepository.findBySeatNumberAndScheduleIdAndTrainClass(seatNumber, scheduleId, trainClass)
@@ -127,55 +146,140 @@ private final ScheduleService scheduleService;
                 new SeatCannotBeFoundException("Seat cannot be found")));
     }
 
-
-
-@Transactional
-    public Seat bookSeat(BookSeatDTO bookSeatDTO) {
-//        b
-        try {
-            Seat foundSeat = seatRepository.findBySeatNumberAndTrainClass(bookSeatDTO.getSeatNumber(), bookSeatDTO.getTrainClass());
-            if (foundSeat == null) {
-                throw new InvalidSeatNumberException("Seat Number cannot be found");
-
-            }
-            if (foundSeat.getSeatStatus() == SeatStatus.BOOKED) {
-                throw new SeatAlreadyBookedException("Seat Number : " + bookSeatDTO.getSeatNumber() + "is already booked");
-            }
-
-            if (foundSeat.getSeatStatus() != SeatStatus.RESERVED) {
-                throw new SeatAlreadyReservedException("Seat is not available for booking");
-            }
-
-//            if (foundSeat.getSeatStatus() == SeatStatus.RESERVED &&
-//                    foundSeat.getLockTime() != null &&
-//                    foundSeat.getLockTime().isAfter(LocalDateTime.now().minusMinutes(10))){
-////                    && !foundSeat.getBooking().getBookingId().equals(
-////                            bookSeatDTO.getBookingId()))
-//
-//                 log.info("Booking ID on seat: {}",
-//                         foundSeat.getBooking() != null ? foundSeat.getBooking().getBookingId() : "null");
-//                 log.info("Booking ID from request: {}", bookSeatDTO.getBookingId());
-//
-//                 throw new SeatAlreadyReservedException("Seat is temporarily locked by another user. Try again later");
-//            }
-            foundSeat.setBooking(foundSeat.getBooking());
-            foundSeat.setSeatStatus(SeatStatus.BOOKED);
-            foundSeat.setLockTime(null);
-            return seatRepository.save(foundSeat);
-
-        }
-        catch (Exception e){
-            log.error("Error booking seats", e);
-            throw new InvalidSeatNumberException("Error booking Seat");
-        }
-
+    @Override
+    public void updateSeat(Seat bookedSeat) {
+        seatRepository.save(bookedSeat);
     }
+
+
+//    @Transactional
+//    public Seat bookSeat(BookSeatDTO bookSeatDTO) {
+////
+//        try {
+//            Optional<Seat> foundSeat = Optional.ofNullable(seatRepository.findBySeatNumberAndTrainClass(bookSeatDTO.getSeatNumber(), bookSeatDTO.getTrainClass()));
+//            if (foundSeat.isEmpty()) {
+//                throw new InvalidSeatNumberException("Seat Number cannot be found");
+//
+//            }
+//            if (foundSeat.get().getSeatStatus() == SeatStatus.BOOKED) {
+//                throw new SeatAlreadyBookedException("Seat Number : " + bookSeatDTO.getSeatNumber() + "is already booked");
+//            }
+//
+//            if (foundSeat.get().getSeatStatus() != SeatStatus.RESERVED) {
+//                throw new SeatAlreadyReservedException("Seat is not available for booking");
+//            }
+//
+////            if (foundSeat.getSeatStatus() == SeatStatus.RESERVED &&
+////                    foundSeat.getLockTime() != null &&
+////                    foundSeat.getLockTime().isAfter(LocalDateTime.now().minusMinutes(10))){
+//////                    && !foundSeat.getBooking().getBookingId().equals(
+//////                            bookSeatDTO.getBookingId()))
+////
+////                 log.info("Booking ID on seat: {}",
+////                         foundSeat.getBooking() != null ? foundSeat.getBooking().getBookingId() : "null");
+////                 log.info("Booking ID from request: {}", bookSeatDTO.getBookingId());
+////
+////                 throw new SeatAlreadyReservedException("Seat is temporarily locked by another user. Try again later");
+////            }
+////            foundSeat.setBooking(foundSeat.getBooking());
+//            foundSeat.get().setSeatStatus(SeatStatus.BOOKED);
+//            foundSeat.get().setLockTime(null);
+//            return seatRepository.save(foundSeat.get());
+//
+//        }
+//        catch (Exception e){
+//            log.error("Error booking seats", e);
+//            throw new InvalidSeatNumberException("Error booking Seat");
+//        }
+//
+//    }
 
     @Override
     public Page<Seat> findAllSeat(int page, int size) {
         Page foundSeat = seatRepository.findAll(PageRequest.of(page, size));
         return foundSeat;
     }
+
+//    @Transactional
+//    public Seat bookSeat(BookSeatDTO bookSeatDTO) {
+//        try {
+//            Optional<Seat> foundSeat = Optional.ofNullable(
+//                    seatRepository.findBySeatNumberAndTrainClass(bookSeatDTO.getSeatNumber(), bookSeatDTO.getTrainClass())
+//            );
+//
+//            if (foundSeat.isEmpty()) {
+//                throw new InvalidSeatNumberException("Seat Number cannot be found");
+//            }
+//
+//            Seat seat = foundSeat.get();
+//
+//            if (seat.getSeatStatus() == SeatStatus.BOOKED) {
+//                throw new SeatAlreadyBookedException("Seat Number : " + seat.getSeatNumber() + " is already booked");
+//            }
+//
+//            // 🔧 Allow only the same booking to finalize the RESERVED seat
+//            if (seat.getSeatStatus() == SeatStatus.RESERVED &&
+//                    seat.getLockTime() != null &&
+//                    seat.getLockTime().isAfter(LocalDateTime.now().minusMinutes(10))) {
+//                    throw new SeatAlreadyReservedException("Seat is temporarily locked by another user.");
+//            }
+//
+//            if (seat.getBookingId() == null || !seat.getBookingId().equals(bookSeatDTO.getBookingId())) {
+//                log.info("BOOKIND ID: {}", seat.getBookingId());
+//                log.info("BOOK SEAT: {}", bookSeatDTO.getBookingId());
+//                throw new BookingCannotBeFoundException("Booking Id cannot be found" + seat.getBookingId());
+//            }
+//
+//            // 🔧 Update to BOOKED
+//            seat.setSeatStatus(SeatStatus.BOOKED);
+//           seat.setBookingId(bookSeatDTO.getBookingId());
+//            seat.setLockTime(null);
+//            return seatRepository.save(seat);
+//
+//        } catch (Exception e) {
+//            log.error("Error booking seat", e);
+//            throw new InvalidSeatNumberException("Error booking Seat");
+//        }
+@Transactional
+public Seat bookSeat(BookSeatDTO bookSeatDTO) {
+    try {
+        Seat seat = seatRepository.findBySeatNumberAndTrainClass(
+                bookSeatDTO.getSeatNumber(), bookSeatDTO.getTrainClass());
+
+        if (seat == null) {
+            throw new InvalidSeatNumberException("Seat Number cannot be found");
+        }
+
+//        if (seat.getSeatStatus() == SeatStatus.BOOKED) {
+//            throw new SeatAlreadyBookedException("Seat Number : " + seat.getSeatNumber() + " is already booked");
+//        }
+
+        if (seat.getSeatStatus() == SeatStatus.RESERVED &&
+                seat.getLockTime() != null &&
+                seat.getLockTime().isAfter(LocalDateTime.now().minusMinutes(10))) {
+
+            if (seat.getBooking().getBookingId() == null || !seat.getBooking().getBookingId().equals(bookSeatDTO.getBookingId())) {
+                log.warn("Seat {} is locked by bookingId={}, not matching {}",
+                        seat.getSeatNumber(), seat.getBooking().getBookingId(), bookSeatDTO.getBookingId());
+                throw new SeatAlreadyReservedException("Seat is temporarily locked by another user.");
+            }
+        }
+
+        if (seat.getBooking().getBookingId() == null || !seat.getBooking().getBookingId().equals(bookSeatDTO.getBookingId())) {
+            throw new BookingCannotBeFoundException("Booking Id cannot be found or doesn't match: " + seat.getBooking().getBookingId());
+        }
+
+        seat.setSeatStatus(SeatStatus.BOOKED);
+        seat.setLockTime(null);
+        return seatRepository.save(seat);
+
+    } catch (Exception e) {
+        log.error("Error booking seat", e);
+        throw new InvalidSeatNumberException("Error booking Seat");
+    }
+}
+
+
 
 
 

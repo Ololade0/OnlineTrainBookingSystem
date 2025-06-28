@@ -1,7 +1,7 @@
 package train.booking.train.booking.model;
 
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -53,7 +53,7 @@ public class User extends AuditBaseEntity{
     )
     private Set<Role> roleHashSet = new HashSet<>();
 
-    @JsonBackReference
+    @JsonManagedReference
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Booking> bookings;
 
