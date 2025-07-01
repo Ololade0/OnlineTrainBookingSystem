@@ -2,20 +2,21 @@ package train.booking.train.booking.service.Impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.PdfWriter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import train.booking.train.booking.dto.BookingQueueDTO;
-import train.booking.train.booking.dto.BookingRequestDTO;
-import train.booking.train.booking.dto.BookingResponse;
-import train.booking.train.booking.dto.PriceListDTO;
+import train.booking.train.booking.dto.*;
 import train.booking.train.booking.dto.response.ScheduleResponse;
 import train.booking.train.booking.exceptions.BookingCannotBeFoundException;
-import train.booking.train.booking.model.Booking;
-import train.booking.train.booking.model.OtherPassenger;
-import train.booking.train.booking.model.Schedule;
-import train.booking.train.booking.model.User;
+import train.booking.train.booking.model.*;
 import train.booking.train.booking.model.enums.AgeRange;
 import train.booking.train.booking.model.enums.BookingStatus;
 import train.booking.train.booking.model.enums.TrainClass;
@@ -23,9 +24,13 @@ import train.booking.train.booking.repository.BookingRepository;
 import train.booking.train.booking.service.*;
 import train.booking.train.booking.utils.PnrCodeGenerator;
 
+import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,7 +42,11 @@ public class BookingServiceImpl implements BookingService {
         private final PnrCodeGenerator pnrCodeGenerator;
         private final JmsTemplate jmsTemplate;
         private final ObjectMapper objectMapper;
-//        private final OtherPassengerService otherPassengerService;
+        private final TrainService trainService;
+        private final StationService stationService;
+
+        @Value("${qrbase.Url}")
+        private String qrbaseUrl;
 
 @Transactional
 @Override
@@ -85,7 +94,6 @@ public class BookingServiceImpl implements BookingService {
     }
 
 
-
     private BigDecimal extractFare(ScheduleResponse scheduleResponse, TrainClass trainClass, AgeRange ageRange) {
         return scheduleResponse.getSchedules().stream()
                 .filter(schedule -> schedule.getScheduleId().equals(scheduleResponse.getScheduleId()))
@@ -117,7 +125,7 @@ public class BookingServiceImpl implements BookingService {
                 .totalFare(totalFare)
                 .build();
     }
-
+    @Transactional(rollbackFor = Exception.class)
     public Booking saveBooking(BookingQueueDTO dto) {
         User user = userService.findUserById(dto.getUserId());
         Schedule schedule = scheduleService.findSchedulesById(dto.getScheduleId());
@@ -151,17 +159,13 @@ public class BookingServiceImpl implements BookingService {
         public Optional<Booking> findBookingByBookingNumber(String bookingNumber){
    Booking foundBooking = bookingRepository.findByBookingNumber(bookingNumber);
    if(foundBooking == null){
-       throw new BookingCannotBeFoundException("Booking with pnr " + bookingNumber + "cannot be found");
+       throw new BookingCannotBeFoundException("Booking with pnr " + bookingNumber + " cannot be found");
    }
    return Optional.of(foundBooking);
         }
 
 
-        @Override
-        public Booking findByTransactionId(String transactionId) {
 
-    return null;
-        }
 
 
     @Override
@@ -172,6 +176,152 @@ public class BookingServiceImpl implements BookingService {
     }
 
 
+
+    @Override
+    public BookingTicketDTO generateBookingReceipt(Long bookingId) {
+        Booking booking = findBookingById(bookingId);
+        Schedule schedule = scheduleService.findSchedulesById(booking.getScheduleId());
+        Train train = trainService.findTrainById(schedule.getTrainId());
+        Station departureStation = stationService.findStationById(schedule.getDepartureStationId());
+        Station arrivalStation = stationService.findStationById(schedule.getArrivalStationId());
+        BookingPayment foundPayment = booking.getBookingPayment();
+
+        return mapBookingTicket(booking, schedule, train, departureStation, arrivalStation, foundPayment);
+    }
+
+    private static BookingTicketDTO mapBookingTicket(Booking booking, Schedule schedule, Train train, Station departureStation, Station arrivalStation, BookingPayment foundPayment) {
+        BookingTicketDTO ticket = new BookingTicketDTO();
+        ticket.setTrainName(train.getTrainName());
+        ticket.setTrainCode(train.getTrainCode());
+        ticket.setTravelDate(booking.getTravelDate());
+        ticket.setBookingNumber(booking.getBookingNumber());
+        ticket.setBookingStatus(booking.getBookingStatus());
+        ticket.setSourceStation(departureStation.getStationName());
+        ticket.setDestinationStation(arrivalStation.getStationName());
+        ticket.setDepartureTime(schedule.getDepartureTime());
+        ticket.setArrivalTime(schedule.getArrivalTime());
+        ticket.setTrainClass(booking.getTrainClass());
+        ticket.setPaymentMethod(foundPayment.getPaymentMethod());
+        ticket.setTotalFare(booking.getTotalFareAmount());
+        ticket.setFirstName(booking.getUser().getFirstName());
+        ticket.setAgeRange(booking.getPassengerType());
+        ticket.setSeatNumber(booking.getSeatNumber());
+        ticket.setIdentificationType(booking.getUser().getIdentificationType());
+        ticket.setIdNumber(booking.getUser().getIdNumber());
+
+        // Convert OtherPassenger to DTOs
+        List<OtherPassenger> otherPassengerDTOList = new ArrayList<>();
+        if (booking.getOtherPassengers() != null) {
+            for (OtherPassenger passenger : booking.getOtherPassengers()) {
+                OtherPassenger dto = new OtherPassenger();
+                dto.setName(passenger.getName());
+                dto.setEmail(passenger.getEmail());
+                dto.setSeatNumber(passenger.getSeatNumber());
+                dto.setIdNumber(passenger.getIdNumber());
+                dto.setIdentificationType(passenger.getIdentificationType());
+                dto.setPassengerType(passenger.getPassengerType());
+                otherPassengerDTOList.add(dto);
+            }
+        }
+        ticket.setOtherPassengers(otherPassengerDTOList);
+        return ticket;
+    }
+
+
+
+    public byte[] downloadBookingReceipt(Long bookingId) throws Exception {
+        BookingTicketDTO ticket = generateBookingReceipt(bookingId);
+
+        Document document = new Document();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        PdfWriter.getInstance(document, baos);
+        document.open();
+        Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18);
+        Paragraph title = new Paragraph("Train Ticket Receipt", titleFont);
+        title.setAlignment(Element.ALIGN_CENTER);
+        document.add(title);
+        document.add(new Paragraph(" "));
+
+        // Booking Info
+        document.add(new Paragraph("Booking Number: " + ticket.getBookingNumber()));
+        document.add(new Paragraph("Status: " + ticket.getBookingStatus()));
+        document.add(new Paragraph("Passenger: " + ticket.getFirstName()));
+        document.add(new Paragraph("Travel Date: " + ticket.getTravelDate()));
+        document.add(new Paragraph("From: " + ticket.getSourceStation()));
+        document.add(new Paragraph("To: " + ticket.getDestinationStation()));
+        document.add(new Paragraph("Departure Time: " + ticket.getDepartureTime()));
+        document.add(new Paragraph("Arrival Time: " + ticket.getArrivalTime()));
+        document.add(new Paragraph("Train: " + ticket.getTrainName() + " (" + ticket.getMapBookingTicketDTO() + ")"));
+        document.add(new Paragraph("Seat Number: " + ticket.getSeatNumber()));
+        document.add(new Paragraph("Class: " + ticket.getTrainClass()));
+        document.add(new Paragraph("Passenger Type: " + ticket.getAgeRange()));
+        document.add(new Paragraph("Fare: " + ticket.getTotalFare()));
+        document.add(new Paragraph("Payment Method: " + ticket.getPaymentMethod()));
+        document.add(new Paragraph("ID Type: " + ticket.getIdentificationType()));
+        document.add(new Paragraph("ID Number: " + ticket.getIdNumber()));
+        document.add(new Paragraph(" "));
+
+        // Other Passengers (if any)
+        List<OtherPassenger> others = ticket.getOtherPassengers();
+        if (others != null && !others.isEmpty()) {
+            document.add(new Paragraph("Other Passengers:"));
+            for (OtherPassenger p : others) {
+                document.add(new Paragraph(" - " + p.getName() + ", " + p.getPassengerType() + ", Seat: " + p.getSeatNumber()));
+            }
+        }
+
+        document.add(new Paragraph(" ")); // spacing
+
+        String qrContent = qrbaseUrl + ticket.getBookingNumber();
+        Image qrImage = generateQRCodeImage(qrContent);
+        qrImage.scaleToFit(150, 150);
+        document.add(new Paragraph("QR Code:"));
+        document.add(qrImage);
+
+        document.close();
+        return baos.toByteArray();
+    }
+
+
+
+    public Image generateQRCodeImage(String text) throws Exception {
+        int width = 200;
+        int height = 200;
+        QRCodeWriter qrCodeWriter = new QRCodeWriter();
+        BitMatrix bitMatrix = qrCodeWriter.encode(text, BarcodeFormat.QR_CODE, width, height);
+
+        ByteArrayOutputStream pngOutputStream = new ByteArrayOutputStream();
+        MatrixToImageWriter.writeToStream(bitMatrix, "PNG", pngOutputStream);
+        byte[] pngData = pngOutputStream.toByteArray();
+
+        return Image.getInstance(pngData);
+    }
+
+
+
+    @Override
+    public BookingTicketDTO scanQRBookingCode(String bookingNumber) {
+      Optional<Booking> foundBooking= findBookingByBookingNumber(bookingNumber);
+        return mapToBookingTicketDTO(foundBooking.get());
+    }
+
+    private BookingTicketDTO mapToBookingTicketDTO(Booking booking) {
+        BookingTicketDTO dto = new BookingTicketDTO();
+        dto.setBookingNumber(booking.getBookingNumber());
+        dto.setBookingStatus(booking.getBookingStatus());
+        dto.setFirstName(booking.getUser().getFirstName());
+        dto.setTravelDate(booking.getTravelDate());
+         dto.setSeatNumber(booking.getSeatNumber());
+        dto.setTrainClass(booking.getTrainClass());
+        dto.setTotalFare(booking.getTotalFareAmount());
+        dto.setIdNumber(booking.getUser().getIdNumber());
+        // Other Passengers
+        List<OtherPassenger> passengers = booking.getOtherPassengers().stream()
+                .map(p -> new OtherPassenger(p.getName(), p.getPassengerType(), p.getSeatNumber()))
+                .collect(Collectors.toList());
+        dto.setOtherPassengers(passengers);
+        return dto;
+    }
 
 
 }

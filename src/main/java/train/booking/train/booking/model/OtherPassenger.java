@@ -41,15 +41,11 @@ public class OtherPassenger {
         @JoinColumn(name = "booking_id", nullable = false)
         private Booking booking;
 
-
-
-
-
-
-
-
-
-
+        public OtherPassenger(String name, AgeRange passengerType, Integer seatNumber) {
+                this.name = name;
+                this.passengerType = passengerType;
+                this.seatNumber = seatNumber;
+        }
 }
 
 

@@ -38,6 +38,7 @@ public class BookingPayment {
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "booking_id", referencedColumnName = "bookingId")
+//    @JsonIgnore
     private Booking booking;
 
 

@@ -62,6 +62,7 @@ public class Booking {
 
 
     @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//    @JsonIgnore
     private BookingPayment bookingPayment;
 
     @OneToMany(mappedBy = "booking")

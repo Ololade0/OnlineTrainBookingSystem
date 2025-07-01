@@ -25,7 +25,7 @@ import java.util.List;
 public class PaymentQueueConsumer {
 
     private final BookingService bookingService;
-    private final SeatService seatService;
+   private final SeatService seatService;
     private final OtherPassengerService otherPassengerService;
     @Transactional
     @JmsListener(destination = "payment-queue")
@@ -72,7 +72,9 @@ public class PaymentQueueConsumer {
         }
     }
 
-            }
+    }
+
+
 
 
 @JmsListener(destination = "payment-failure-queue")
