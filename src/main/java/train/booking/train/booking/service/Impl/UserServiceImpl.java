@@ -12,7 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
+import org.thymeleaf.TemplateEngine;
 import train.booking.train.booking.dto.UserDTO;
 import train.booking.train.booking.dto.UserLoginDTO;
 import train.booking.train.booking.dto.response.BaseResponse;
@@ -44,6 +44,8 @@ public class UserServiceImpl implements UserService {
 
     private final NotificationService notificationService;
 
+    private final TemplateEngine templateEngine;
+
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
@@ -71,8 +73,7 @@ public class UserServiceImpl implements UserService {
         signupUser.getRoleHashSet().add(assignedRole);
         userRepository.save(signupUser);
         log.info("User Details: {}", signupUser);
-
-        notificationService.sendActivationEmail(signupUser.getEmail(), signupUser.getFirstName(), activationToken);
+            notificationService.sendActivationEmail(signupUser.getEmail(), signupUser.getFirstName(), "ACTIVATION LINK", activationToken);
             UserDTO responseDto = UserDTO.builder()
                     .firstName(signupUser.getFirstName())
                     .lastName(signupUser.getLastName())
@@ -133,7 +134,7 @@ public class UserServiceImpl implements UserService {
             signupUser.getRoleHashSet().add(assignedRole);
             log.info("Assigning role {} to new user {}", requestedRoleType, userDTO.getEmail());
             userRepository.save(signupUser);
-            notificationService.sendActivationEmail(signupUser.getEmail(), signupUser.getFirstName(), activationToken);
+            notificationService.sendActivationEmail(signupUser.getEmail(), signupUser.getFirstName(), "ACTIVATION LINK", activationToken);
             UserDTO responseDto = UserDTO.builder()
                     .firstName(signupUser.getFirstName())
                     .lastName(signupUser.getLastName())

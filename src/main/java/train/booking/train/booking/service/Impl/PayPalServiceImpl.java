@@ -40,7 +40,7 @@ public class PayPalServiceImpl implements PayPalService {
     private final APIContext apiContext;
     private final PaymentRepository paymentRepository;
     private final BookingService bookingService;
-//    private final SeatService seatService;
+    //    private final SeatService seatService;
     private final UserService userService;
     private final JmsTemplate jmsTemplate;
 
@@ -49,7 +49,7 @@ public class PayPalServiceImpl implements PayPalService {
 
     @Value("${paypal.success.url}")
     private String successUrl;
-@Transactional
+    @Transactional
     @Override
     public String processPaypalPayment(PaymentRequest request) {
         try {
@@ -71,7 +71,7 @@ public class PayPalServiceImpl implements PayPalService {
             String transactionReference = payment.getId();
             savePaymentDetails(booking, user, totalFare, transactionReference);
 
-                return approvalUrl;
+            return approvalUrl;
 
 
 
@@ -118,7 +118,7 @@ public class PayPalServiceImpl implements PayPalService {
         payment.setRedirectUrls(redirectUrls);
         return payment.create(apiContext);
     }
-@Transactional
+    @Transactional
     @Override
     public void verifyPayment(String payload) {
         try {
@@ -136,7 +136,7 @@ public class PayPalServiceImpl implements PayPalService {
 
             String transactionId = (String) resource.get("parent_payment");
             if (transactionId == null) {
-             transactionId = (String) resource.get("id");
+                transactionId = (String) resource.get("id");
             }
 
             BookingPayment bookingPayment = paymentRepository.findByTransactionReference(transactionId);

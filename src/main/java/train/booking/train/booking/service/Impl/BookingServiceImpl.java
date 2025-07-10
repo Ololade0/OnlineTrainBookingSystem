@@ -6,16 +6,19 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
-import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.PdfWriter;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
+import org.xhtmlrenderer.pdf.ITextRenderer;
 import train.booking.train.booking.dto.*;
 import train.booking.train.booking.dto.response.ScheduleResponse;
 import train.booking.train.booking.exceptions.BookingCannotBeFoundException;
+import train.booking.train.booking.exceptions.PriceCannotBeFoundException;
 import train.booking.train.booking.model.*;
 import train.booking.train.booking.model.enums.AgeRange;
 import train.booking.train.booking.model.enums.BookingStatus;
@@ -28,6 +31,7 @@ import java.io.ByteArrayOutputStream;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -44,6 +48,12 @@ public class BookingServiceImpl implements BookingService {
         private final ObjectMapper objectMapper;
         private final TrainService trainService;
         private final StationService stationService;
+
+        private final NotificationService notificationService;
+
+//    @Qualifier("customTemplateEngine")
+  private final TemplateEngine templateEngine;
+
 
         @Value("${qrbase.Url}")
         private String qrbaseUrl;
@@ -102,7 +112,7 @@ public class BookingServiceImpl implements BookingService {
                         && price.getAgeRange().equals(ageRange))
                 .map(PriceListDTO::getPrice)
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("No price found for selected train class and age range"));
+                .orElseThrow(() -> new PriceCannotBeFoundException("No price found for selected train class and age range"));
     }
 
     private BookingQueueDTO buildBookingQueueDTO(
@@ -178,15 +188,16 @@ public class BookingServiceImpl implements BookingService {
 
 
     @Override
-    public BookingTicketDTO generateBookingReceipt(Long bookingId) {
+    public BookingTicketDTO generateBookingReceipt(Long bookingId) throws UnirestException {
         Booking booking = findBookingById(bookingId);
         Schedule schedule = scheduleService.findSchedulesById(booking.getScheduleId());
         Train train = trainService.findTrainById(schedule.getTrainId());
         Station departureStation = stationService.findStationById(schedule.getDepartureStationId());
         Station arrivalStation = stationService.findStationById(schedule.getArrivalStationId());
         BookingPayment foundPayment = booking.getBookingPayment();
-
-        return mapBookingTicket(booking, schedule, train, departureStation, arrivalStation, foundPayment);
+          BookingTicketDTO bookingTicketDTO =   mapBookingTicket(booking, schedule, train, departureStation, arrivalStation, foundPayment);
+          notificationService.sendBookingReceipts(booking.getUser().getEmail(), bookingTicketDTO);
+          return bookingTicketDTO;
     }
 
     private static BookingTicketDTO mapBookingTicket(Booking booking, Schedule schedule, Train train, Station departureStation, Station arrivalStation, BookingPayment foundPayment) {
@@ -208,8 +219,7 @@ public class BookingServiceImpl implements BookingService {
         ticket.setSeatNumber(booking.getSeatNumber());
         ticket.setIdentificationType(booking.getUser().getIdentificationType());
         ticket.setIdNumber(booking.getUser().getIdNumber());
-
-        // Convert OtherPassenger to DTOs
+           // Convert OtherPassenger to DTOs
         List<OtherPassenger> otherPassengerDTOList = new ArrayList<>();
         if (booking.getOtherPassengers() != null) {
             for (OtherPassenger passenger : booking.getOtherPassengers()) {
@@ -224,78 +234,52 @@ public class BookingServiceImpl implements BookingService {
             }
         }
         ticket.setOtherPassengers(otherPassengerDTOList);
+
         return ticket;
     }
-
-
-
-    public byte[] downloadBookingReceipt(Long bookingId) throws Exception {
+    @Override
+    public byte[] generateReceiptPdf(Long bookingId) throws Exception {
         BookingTicketDTO ticket = generateBookingReceipt(bookingId);
-
-        Document document = new Document();
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        PdfWriter.getInstance(document, baos);
-        document.open();
-        Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 18);
-        Paragraph title = new Paragraph("Train Ticket Receipt", titleFont);
-        title.setAlignment(Element.ALIGN_CENTER);
-        document.add(title);
-        document.add(new Paragraph(" "));
-
-        // Booking Info
-        document.add(new Paragraph("Booking Number: " + ticket.getBookingNumber()));
-        document.add(new Paragraph("Status: " + ticket.getBookingStatus()));
-        document.add(new Paragraph("Passenger: " + ticket.getFirstName()));
-        document.add(new Paragraph("Travel Date: " + ticket.getTravelDate()));
-        document.add(new Paragraph("From: " + ticket.getSourceStation()));
-        document.add(new Paragraph("To: " + ticket.getDestinationStation()));
-        document.add(new Paragraph("Departure Time: " + ticket.getDepartureTime()));
-        document.add(new Paragraph("Arrival Time: " + ticket.getArrivalTime()));
-        document.add(new Paragraph("Train: " + ticket.getTrainName() + " (" + ticket.getMapBookingTicketDTO() + ")"));
-        document.add(new Paragraph("Seat Number: " + ticket.getSeatNumber()));
-        document.add(new Paragraph("Class: " + ticket.getTrainClass()));
-        document.add(new Paragraph("Passenger Type: " + ticket.getAgeRange()));
-        document.add(new Paragraph("Fare: " + ticket.getTotalFare()));
-        document.add(new Paragraph("Payment Method: " + ticket.getPaymentMethod()));
-        document.add(new Paragraph("ID Type: " + ticket.getIdentificationType()));
-        document.add(new Paragraph("ID Number: " + ticket.getIdNumber()));
-        document.add(new Paragraph(" "));
-
-        // Other Passengers (if any)
-        List<OtherPassenger> others = ticket.getOtherPassengers();
-        if (others != null && !others.isEmpty()) {
-            document.add(new Paragraph("Other Passengers:"));
-            for (OtherPassenger p : others) {
-                document.add(new Paragraph(" - " + p.getName() + ", " + p.getPassengerType() + ", Seat: " + p.getSeatNumber()));
-            }
+        Context context = new Context();
+        context.setVariable("ticket", ticket);
+        context.setVariable("qrCodeBase64", generateQRCodeBase64(qrbaseUrl + ticket.getBookingNumber()));
+        String html = templateEngine.process("receipt", context);
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            ITextRenderer renderer = new ITextRenderer();
+            renderer.setDocumentFromString(html);
+            renderer.layout();
+            renderer.createPDF(baos);
+            return baos.toByteArray();
         }
-
-        document.add(new Paragraph(" ")); // spacing
-
-        String qrContent = qrbaseUrl + ticket.getBookingNumber();
-        Image qrImage = generateQRCodeImage(qrContent);
-        qrImage.scaleToFit(150, 150);
-        document.add(new Paragraph("QR Code:"));
-        document.add(qrImage);
-
-        document.close();
-        return baos.toByteArray();
     }
-
-
-
-    public Image generateQRCodeImage(String text) throws Exception {
-        int width = 200;
-        int height = 200;
+    private static String generateQRCodeBase64(String text) throws Exception {
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
-        BitMatrix bitMatrix = qrCodeWriter.encode(text, BarcodeFormat.QR_CODE, width, height);
+        BitMatrix bitMatrix = qrCodeWriter.encode(text, BarcodeFormat.QR_CODE, 200, 200);
 
         ByteArrayOutputStream pngOutputStream = new ByteArrayOutputStream();
         MatrixToImageWriter.writeToStream(bitMatrix, "PNG", pngOutputStream);
         byte[] pngData = pngOutputStream.toByteArray();
 
-        return Image.getInstance(pngData);
+        return Base64.getEncoder().encodeToString(pngData);
     }
+
+
+
+
+
+
+//    public Image generateQRCodeImage(String text) throws Exception {
+//        int width = 200;
+//        int height = 200;
+//        QRCodeWriter qrCodeWriter = new QRCodeWriter();
+//        BitMatrix bitMatrix = qrCodeWriter.encode(text, BarcodeFormat.QR_CODE, width, height);
+//
+//        ByteArrayOutputStream pngOutputStream = new ByteArrayOutputStream();
+//        MatrixToImageWriter.writeToStream(bitMatrix, "PNG", pngOutputStream);
+//        byte[] pngData = pngOutputStream.toByteArray();
+//
+//        return Image.getInstance(pngData);
+//    }
 
 
 
@@ -316,6 +300,7 @@ public class BookingServiceImpl implements BookingService {
         dto.setTotalFare(booking.getTotalFareAmount());
         dto.setIdNumber(booking.getUser().getIdNumber());
         // Other Passengers
+
         List<OtherPassenger> passengers = booking.getOtherPassengers().stream()
                 .map(p -> new OtherPassenger(p.getName(), p.getPassengerType(), p.getSeatNumber()))
                 .collect(Collectors.toList());

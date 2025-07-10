@@ -1,5 +1,6 @@
 package train.booking.train.booking.controller;
 
+import com.mashape.unirest.http.exceptions.UnirestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.*;
@@ -39,28 +40,28 @@ public class BookingController {
 
     @GetMapping("/receipt/{bookingId}")
 
-    public  ResponseEntity<?> getBookingReceipt(@PathVariable  Long bookingId) throws IOException {
+    public  ResponseEntity<?> getBookingReceipt(@PathVariable  Long bookingId) throws IOException, UnirestException {
         BookingTicketDTO booking =bookingService.generateBookingReceipt(bookingId);
         return ResponseEntity.ok(booking);
 
     }
 
-    @GetMapping("/{bookingId}/receipt/download")
-    public ResponseEntity<byte[]> downloadBookingReceipt(@PathVariable Long bookingId) {
-        try {
-            byte[] pdfBytes = bookingService.downloadBookingReceipt(bookingId);
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_PDF);
-            headers.setContentDispositionFormData("attachment", "booking-receipt-" + bookingId + ".pdf");
-            return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
-    }
+
     @GetMapping("scan/qr/{bookingNumber}")
     public ResponseEntity<?> getBookingByQr(@PathVariable String bookingNumber) {
         BookingTicketDTO ticketDTO = bookingService.scanQRBookingCode(bookingNumber);
         return ResponseEntity.ok(ticketDTO);
+    }
+    @GetMapping("/download/{bookingId}")
+    public ResponseEntity<byte[]> downloadReceipt(@PathVariable Long bookingId) throws Exception {
+        BookingTicketDTO ticket = bookingService.generateBookingReceipt(bookingId); // call your existing method
+        byte[] pdfBytes = bookingService.generateReceiptPdf(bookingId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("attachment", "ticket_receipt.pdf");
+
+        return ResponseEntity.ok().headers(headers).body(pdfBytes);
     }
 
 

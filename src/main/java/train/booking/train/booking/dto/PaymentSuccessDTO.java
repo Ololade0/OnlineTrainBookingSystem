@@ -2,6 +2,8 @@ package train.booking.train.booking.dto;
 
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Setter
 @Getter
 @Builder
@@ -14,4 +16,6 @@ public class PaymentSuccessDTO {
     private Long scheduleId;
     private String paymentId;
     private String pnrCode;
+    private String email;
+    private BigDecimal totalAmount;
 }

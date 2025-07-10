@@ -6,7 +6,6 @@ import lombok.*;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class MailDTO {
@@ -18,6 +17,13 @@ public class MailDTO {
     private String body;
     private boolean isSuccessful;
 
+    public MailDTO(String sender, String receiver, String subject, String body, boolean isSuccessful) {
+        this.sender = sender;
+        this.receiver = receiver;
+        this.subject = subject;
+        this.body = body;
+        this.isSuccessful = isSuccessful;
+    }
 
     public MailDTO(boolean isSuccessful) {
         this.isSuccessful = isSuccessful;

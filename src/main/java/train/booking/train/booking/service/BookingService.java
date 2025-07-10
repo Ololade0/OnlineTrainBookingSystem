@@ -1,5 +1,6 @@
 package train.booking.train.booking.service;
 
+import com.mashape.unirest.http.exceptions.UnirestException;
 import train.booking.train.booking.dto.BookingQueueDTO;
 import train.booking.train.booking.dto.BookingRequestDTO;
 import train.booking.train.booking.dto.BookingResponse;
@@ -13,9 +14,10 @@ public interface BookingService {
    Booking saveBooking(BookingQueueDTO dto);
    Optional<Booking> findBookingByBookingNumber(String bookingNumber);
 
-   BookingTicketDTO generateBookingReceipt(Long bookingId);
+   BookingTicketDTO generateBookingReceipt(Long bookingId) throws UnirestException;
 
-   byte[] downloadBookingReceipt(Long bookingId) throws Exception;
+
+ byte[] generateReceiptPdf(Long bookingId) throws Exception;
 
    Booking findBookingById(Long bookingId);
 

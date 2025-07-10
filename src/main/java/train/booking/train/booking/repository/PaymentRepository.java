@@ -16,6 +16,8 @@ public interface PaymentRepository extends JpaRepository<BookingPayment, Long> {
     @Query("SELECT bp FROM payments bp WHERE bp.transactionReference = :transactionReference")
     BookingPayment findByTransactionReference(@Param("transactionReference") String transactionReference);
 
+    BookingPayment findBytransactionReference(String reference);
+
 //    BookingPayment findByTransactionReference(@Param("transactionReference") String transactionReference);
 
 }

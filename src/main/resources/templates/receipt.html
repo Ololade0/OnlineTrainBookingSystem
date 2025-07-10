@@ -1,0 +1,66 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <style>
+        body { font-family: Arial, sans-serif; color: #000; }
+        h2 { text-align: center; color: green; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #ddd; padding: 8px; }
+        th { background-color: #f2f2f2; }
+        .qr { margin-top: 20px; text-align: center; }
+    </style>
+</head>
+<body>
+<h2>Nigerian Railway Corporation</h2>
+<p><strong>Train:</strong> <span th:text="${ticket.trainName}"></span></p>
+<p><strong>Train code:</strong> <span th:text="${ticket.trainCode}"></span></p>
+<p><strong>Date:</strong> <span th:text="${ticket.travelDate}"></span></p>
+<p><strong>PNR Number:</strong> <span th:text="${ticket.bookingNumber}"></span></p>
+<p><strong>Status:</strong> <span th:text="${ticket.bookingStatus}"></span></p>
+<p><strong>From:</strong> <span th:text="${ticket.sourceStation}"></span></p>
+<p><strong>To:</strong> <span th:text="${ticket.destinationStation}"></span></p>
+<p><strong>Departure:</strong> <span th:text="${ticket.departureTime}"></span></p>
+<p><strong>Arrival:</strong> <span th:text="${ticket.arrivalTime}"></span></p>
+<p><strong>Class:</strong> <span th:text="${ticket.trainClass}"></span></p>
+<p><strong>Total Fare:</strong> ₦<span th:text="${ticket.totalFare}"></span></p>
+
+<h4>Passenger Details</h4>
+<table>
+    <tr>
+        <th>Passenger Name</th>
+        <th>Type</th>
+        <th>Seat</th>
+        <th>ID Number</th>
+        <th>Price</th>
+    </tr>
+    <tr>
+        <td th:text="${ticket.firstName}"></td>
+        <td th:text="${ticket.ageRange}"></td>
+        <td th:text="${ticket.seatNumber}"></td>
+        <td th:text="${ticket.idNumber}"></td>
+        <td>₦<span th:text="${ticket.totalFare}"></span></td>
+    </tr>
+</table>
+
+<!-- Other Passengers -->
+<h4 th:if="${ticket.otherPassengers != null and #lists.size(ticket.otherPassengers) > 0}">Other Passengers</h4>
+<table th:if="${ticket.otherPassengers != null and #lists.size(ticket.otherPassengers) > 0}">
+    <tr>
+        <th>Name</th>
+        <th>Passenger Type</th>
+        <th>Seat Number</th>
+    </tr>
+    <tr th:each="p : ${ticket.otherPassengers}">
+        <td th:text="${p.name}"></td>
+        <td th:text="${p.passengerType}"></td>
+        <td th:text="${p.seatNumber}"></td>
+    </tr>
+</table>
+
+<div class="qr">
+    <img th:src="'data:image/png;base64,' + ${qrCodeBase64}" alt="QR Code"/>
+</div>
+</body>
+</html>

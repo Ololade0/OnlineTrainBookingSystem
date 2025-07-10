@@ -1,5 +1,6 @@
 package train.booking.train.booking.model;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 import lombok.*;
 import train.booking.train.booking.model.enums.AgeRange;
@@ -14,6 +15,7 @@ import train.booking.train.booking.model.enums.IdentificationType;
 @Getter
 @Setter
 @Entity(name = "otherpassenger")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class OtherPassenger {
 
         @Id

@@ -18,7 +18,7 @@ public class PaymentRequest {
     private BigDecimal totalFare;
     private Long userId;
     private String email;
-    private Long bookingId;
+//    private Long bookingId;
 //    private Currency currency;
     private String description;
     private String cancelUrl;

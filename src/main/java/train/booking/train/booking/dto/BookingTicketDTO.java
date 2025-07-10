@@ -1,9 +1,6 @@
 package train.booking.train.booking.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import train.booking.train.booking.model.OtherPassenger;
 import train.booking.train.booking.model.enums.*;
 
@@ -15,7 +12,9 @@ import java.util.List;
 @NoArgsConstructor
 @Setter
 @Getter
+@ToString
 public class BookingTicketDTO {
+    private Long bookingId;
     private String trainName;
     private String trainCode;
     private String mapBookingTicketDTO;
