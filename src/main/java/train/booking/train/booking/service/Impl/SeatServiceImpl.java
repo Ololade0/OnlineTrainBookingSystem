@@ -9,7 +9,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import train.booking.train.booking.dto.BookSeatDTO;
-import train.booking.train.booking.dto.SeatDto;
+import train.booking.train.booking.dto.GenerateSeatDto;
 import train.booking.train.booking.dto.response.BaseResponse;
 import train.booking.train.booking.dto.response.ResponseUtil;
 import train.booking.train.booking.exceptions.*;
@@ -38,7 +38,7 @@ private final ScheduleService scheduleService;
 
 
     @Async
-    public BaseResponse generateSeats(List<SeatDto> seatDtos, Long scheduleId) {
+    public BaseResponse generateSeats(List<GenerateSeatDto> seatDtos, Long scheduleId) {
        Schedule foundSchedule = scheduleService.findSchedulesById(scheduleId);
         if(foundSchedule == null){
             throw new ScheduleCannotBeFoundException("Schedule cannot be found");
@@ -46,7 +46,7 @@ private final ScheduleService scheduleService;
         try {
             List<Seat> seats = new ArrayList<>();
 
-            for (SeatDto seatDto : seatDtos) {
+            for (GenerateSeatDto seatDto : seatDtos) {
                 for (int i = seatDto.getStartSeat(); i <= seatDto.getEndSeat(); i++) {
                     Seat seat = new Seat();
                     seat.setSeatNumber(i);
@@ -58,8 +58,8 @@ private final ScheduleService scheduleService;
             }
             List<Seat> savedSeats = seatRepository.saveAll(seats);
 
-            List<SeatDto> seatDtoList = savedSeats.stream().map(seat -> {
-                SeatDto dto = new SeatDto();
+            List<GenerateSeatDto> seatDtoList = savedSeats.stream().map(seat -> {
+                GenerateSeatDto dto = new GenerateSeatDto();
                 dto.setSeatNumber(seat.getSeatNumber());
                 dto.setStatus(seat.getSeatStatus());
                 dto.setTrainClass(seat.getTrainClass());
@@ -90,7 +90,7 @@ private final ScheduleService scheduleService;
                 throw new SeatAlreadyBookedException("Seat already booked");
             }
 
-            seat.setSeatStatus(SeatStatus.RESERVED);
+            seat.setSeatStatus(SeatStatus.TEMPORARILY_LOCKED);
             seat.setLockTime(LocalDateTime.now());
             seat.setBooking(booking);
 
@@ -112,7 +112,7 @@ private final ScheduleService scheduleService;
         throw new SeatAlreadyBookedException("Seat is already booked");
     }
 
-    if (seat.getSeatStatus() == SeatStatus.RESERVED && seat.getLockTime() != null &&
+    if (seat.getSeatStatus() == SeatStatus.TEMPORARILY_LOCKED && seat.getLockTime() != null &&
             seat.getLockTime().isAfter(LocalDateTime.now().minusMinutes(10))) {
         throw new SeatAlreadyReservedException("Seat is temporarily reserved. Try again later");
     }
@@ -121,7 +121,7 @@ private final ScheduleService scheduleService;
     @Scheduled(fixedRate = 60000)
     public void releaseLockedSeatAfterExpiration() {
         LocalDateTime threshold = LocalDateTime.now().minusMinutes(10);
-        List<Seat> expiredSeats = seatRepository.findBySeatStatusAndLockTimeBefore(SeatStatus.RESERVED, threshold);
+        List<Seat> expiredSeats = seatRepository.findBySeatStatusAndLockTimeBefore(SeatStatus.TEMPORARILY_LOCKED, threshold);
 
         for (Seat seat : expiredSeats) {
             seat.setSeatStatus(SeatStatus.AVAILABLE);
@@ -175,7 +175,7 @@ public Seat bookSeat(BookSeatDTO bookSeatDTO) {
             throw new SeatAlreadyBookedException("Seat Number : " + seat.getSeatNumber() + " is already booked");
         }
 
-        if (seat.getSeatStatus() == SeatStatus.RESERVED &&
+        if (seat.getSeatStatus() == SeatStatus.TEMPORARILY_LOCKED &&
                 seat.getLockTime() != null &&
                 seat.getLockTime().isAfter(LocalDateTime.now().minusMinutes(10))) {
 

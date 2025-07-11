@@ -167,12 +167,10 @@ import train.booking.train.booking.model.enums.PaymentMethod;
 import train.booking.train.booking.model.enums.PaymentStatus;
 import train.booking.train.booking.repository.PaymentRepository;
 import train.booking.train.booking.service.BookingService;
-import train.booking.train.booking.service.NotificationService;
 import train.booking.train.booking.service.StripeService;
 import train.booking.train.booking.service.UserService;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -195,7 +193,6 @@ public class StripeServiceImpl implements StripeService {
     private final UserService userService;
     private final PaymentRepository paymentRepository;
     private final JmsTemplate jmsTemplate;
-    private final NotificationService notificationService;
     private final ObjectMapper objectMapper;
 
     @PostConstruct
@@ -297,31 +294,12 @@ public class StripeServiceImpl implements StripeService {
                     log.info("Payment already processed for: {}", payment.getTransactionReference());
                     return;
                 }
-
-                payment.setPaymentStatus(PaymentStatus.COMPLETED);
-                payment.setPaymentDate(LocalDateTime.now());
-                paymentRepository.save(payment);
-
                 PaymentSuccessDTO dto = PaymentSuccessDTO.builder()
                         .bookingId(bookingId)
                         .pnrCode(booking.getBookingNumber())
                         .paymentId(payment.getTransactionReference())
                         .build();
-
-                notificationService.sendBookingReceipts(payment.getUser().getEmail(),
-                        bookingService.generateBookingReceipt(bookingId));
-
                 jmsTemplate.convertAndSend("payment-queue", objectMapper.writeValueAsString(dto));
-                log.info("Stripe webhook processed successfully for booking {}", bookingId);
-                log.info("Received Stripe webhook. Payload: {}", payload);
-                log.info("Signature Header: {}", sigHeader);
-                log.info("Parsed session ID: {}", session.getId());
-                log.info("Stripe event type received: {}", event.getType());
-
-                log.info(">>> Stripe sigHeader: {}", sigHeader);
-                log.info(">>> Stripe payload: {}", payload);
-                log.info(">>> Stripe secret: {}", stripeWebhookSecret);
-
 
                 log.info("Parsed bookingId from metadata: {}", session.getMetadata().get("bookingId"));
 

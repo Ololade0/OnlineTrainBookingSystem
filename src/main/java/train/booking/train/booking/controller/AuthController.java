@@ -30,6 +30,8 @@ public class AuthController {
     private final AuthTokenService authTokenService;
 
 
+
+
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody UserLoginDTO loginRequest) throws UserCannotBeFoundException {
         Authentication authentication = authenticationManager.authenticate(
@@ -42,5 +44,6 @@ public class AuthController {
         User user = userService.findUserByEmailOrNull(loginRequest.getEmail());
         return new ResponseEntity<>(new AuthToken(token, user.getFirstName(), user.getEmail()), HttpStatus.OK);
     }
+
 }
 

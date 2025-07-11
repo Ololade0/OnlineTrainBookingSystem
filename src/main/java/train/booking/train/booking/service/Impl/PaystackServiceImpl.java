@@ -19,7 +19,6 @@ import train.booking.train.booking.model.enums.PaymentMethod;
 import train.booking.train.booking.model.enums.PaymentStatus;
 import train.booking.train.booking.repository.PaymentRepository;
 import train.booking.train.booking.service.BookingService;
-import train.booking.train.booking.service.NotificationService;
 import train.booking.train.booking.service.PayStackService;
 import train.booking.train.booking.service.UserService;
 
@@ -30,7 +29,6 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.time.LocalDateTime;
 import java.util.Map;
 
 @Service
@@ -48,7 +46,7 @@ public class PaystackServiceImpl implements PayStackService {
     private final UserService userService;
     private final PaymentRepository paymentRepository;
     private final JmsTemplate jmsTemplate;
-    private final NotificationService notificationService;
+
     private final ObjectMapper objectMapper;
 
     @Override
@@ -149,19 +147,12 @@ public class PaystackServiceImpl implements PayStackService {
                 return;
             }
 
-            payment.setPaymentStatus(PaymentStatus.COMPLETED);
-            payment.setPaymentDate(LocalDateTime.now());
-            paymentRepository.save(payment);
-
             Booking booking = payment.getBooking();
             PaymentSuccessDTO dto = PaymentSuccessDTO.builder()
                     .bookingId(booking.getBookingId())
                     .pnrCode(booking.getBookingNumber())
                     .paymentId(reference)
                     .build();
-
-            notificationService.sendBookingReceipts(payment.getUser().getEmail(),
-                    bookingService.generateBookingReceipt(booking.getBookingId()));
 
             jmsTemplate.convertAndSend("payment-queue", objectMapper.writeValueAsString(dto));
             log.info("Paystack payment verified and pushed to queue");

@@ -1,5 +1,6 @@
 package train.booking.train.booking.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import train.booking.train.booking.model.OtherPassenger;
 import train.booking.train.booking.model.enums.*;
@@ -13,6 +14,7 @@ import java.util.List;
 @Setter
 @Getter
 @ToString
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class BookingTicketDTO {
     private Long bookingId;
     private String trainName;

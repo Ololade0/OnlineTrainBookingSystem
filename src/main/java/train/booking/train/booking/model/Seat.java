@@ -20,17 +20,12 @@ public class Seat {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-//    @Column(unique = true)
     private int seatNumber;
     @Enumerated(EnumType.STRING)
     private SeatStatus seatStatus;
 
     private LocalDateTime lockTime;
-//
-//
-//
-//    private String name;
+
 
     @Enumerated(EnumType.STRING)
     private TrainClass trainClass;
@@ -39,10 +34,6 @@ public class Seat {
     @JoinColumn(name = "booking_id")
     @JsonIgnore
     private Booking booking ;
-
-
-
-
     private Long scheduleId;
 
 

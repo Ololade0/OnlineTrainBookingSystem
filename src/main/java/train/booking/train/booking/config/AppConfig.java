@@ -11,12 +11,12 @@ import org.springframework.web.client.RestTemplate;
 public class AppConfig {
     @Bean
     public LocalValidatorFactoryBean validatorFactoryBean(){
-
         return new LocalValidatorFactoryBean();
     }
 
     @Bean
     public RestTemplate restTemplate() {
+
         return new RestTemplate();
     }
 

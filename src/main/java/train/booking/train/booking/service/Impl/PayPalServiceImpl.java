@@ -27,7 +27,6 @@ import train.booking.train.booking.service.PayPalService;
 import train.booking.train.booking.service.UserService;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -40,7 +39,6 @@ public class PayPalServiceImpl implements PayPalService {
     private final APIContext apiContext;
     private final PaymentRepository paymentRepository;
     private final BookingService bookingService;
-    //    private final SeatService seatService;
     private final UserService userService;
     private final JmsTemplate jmsTemplate;
 
@@ -149,10 +147,6 @@ public class PayPalServiceImpl implements PayPalService {
                 log.info("Payment already completed for transaction ID: {}", transactionId);
                 return;
             }
-
-            bookingPayment.setPaymentStatus(PaymentStatus.COMPLETED);
-            bookingPayment.setPaymentDate(LocalDateTime.now());
-            paymentRepository.save(bookingPayment);
             PaymentSuccessDTO dto = PaymentSuccessDTO.builder()
                     .bookingId(bookingPayment.getBooking().getBookingId())
                     .pnrCode(bookingPayment.getBooking().getBookingNumber())
@@ -161,8 +155,7 @@ public class PayPalServiceImpl implements PayPalService {
 
             String jsonPayload = objectMapper.writeValueAsString(dto);
             jmsTemplate.convertAndSend("payment-queue", jsonPayload);
-
-            log.info("Processed payment and pushed to queue for booking ID: {}", bookingPayment.getBooking().getBookingId());
+            log.info("Pushed payment success to ActiveMQ for booking ID: {}", bookingPayment.getBooking().getBookingId());
 
         } catch (Exception e) {
             log.error("Failed to process PayPal webhook: {}", e.getMessage(), e);
@@ -170,4 +163,5 @@ public class PayPalServiceImpl implements PayPalService {
             throw new PaymentProcessingException("Webhook processing failed.");
         }
     }
+
 }

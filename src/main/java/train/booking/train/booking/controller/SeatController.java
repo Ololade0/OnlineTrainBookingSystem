@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import train.booking.train.booking.dto.BookSeatDTO;
-import train.booking.train.booking.dto.SeatDto;
+import train.booking.train.booking.dto.GenerateSeatDto;
 import train.booking.train.booking.dto.response.BaseResponse;
 import train.booking.train.booking.exceptions.SeatAlreadyReservedException;
 import train.booking.train.booking.model.Booking;
@@ -28,7 +28,7 @@ public class SeatController {
 
     @PostMapping("/generate")
 //    @PreAuthorize("hasAuthority('SUPERADMIN_ROLE')")
-    public ResponseEntity<?> generateSeats(@RequestBody List<SeatDto> seatDtos,  @RequestParam long scheduleId) {
+    public ResponseEntity<?> generateSeats(@RequestBody List<GenerateSeatDto> seatDtos, @RequestParam long scheduleId) {
       BaseResponse generatedSeats = seatService.generateSeats(seatDtos, scheduleId);
         return new ResponseEntity<>(generatedSeats, HttpStatus.CREATED);
     }

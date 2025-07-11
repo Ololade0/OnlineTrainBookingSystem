@@ -6,9 +6,11 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import train.booking.train.booking.dto.BookSeatDTO;
 import train.booking.train.booking.dto.BookingTicketDTO;
 import train.booking.train.booking.dto.MailDTO;
 import train.booking.train.booking.dto.response.BaseResponse;
@@ -25,6 +27,8 @@ import java.util.concurrent.CompletableFuture;
 public class NotificationServiceImpl implements NotificationService {
 
     private final RestTemplate restTemplate;
+
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Value("${mailgun.domain}")
     private String DOMAIN;
@@ -107,6 +111,12 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
 
+
+    @Override
+    public void webSocketNotification(BookSeatDTO seatDto){
+        log.info("🔔 Sending WebSocket seat update: {}", seatDto);
+        messagingTemplate.convertAndSend("/topic/seats", seatDto);
+    }
 
 
 }

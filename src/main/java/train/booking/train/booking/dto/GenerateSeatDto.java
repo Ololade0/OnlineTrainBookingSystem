@@ -3,19 +3,29 @@ package train.booking.train.booking.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import train.booking.train.booking.model.enums.TrainClass;
+import train.booking.train.booking.model.enums.SeatStatus;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@ToString
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class BookSeatDTO {
-    private int seatNumber;
-    private Long bookingId;
+public class GenerateSeatDto {
     private Long scheduleId;
+    private int startSeat;
+    private int endSeat;
+    private SeatStatus seatStatus;
+    private int seatNumber;
     private TrainClass trainClass;
-    private boolean isAvailable;
+
+
+
+    public void setSeatNumber(int seatNumber) {
+    }
+
+    public void setStatus(SeatStatus status) {
+    }
+
 
 }
