@@ -1,8 +1,9 @@
 package train.booking.train.booking.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 import lombok.*;
+import train.booking.train.booking.model.enums.AgeRange;
 import train.booking.train.booking.model.enums.GenderType;
 import train.booking.train.booking.model.enums.IdentificationType;
 
@@ -13,7 +14,8 @@ import train.booking.train.booking.model.enums.IdentificationType;
 @NoArgsConstructor
 @Getter
 @Setter
-@Entity(name = "other")
+@Entity(name = "otherpassenger")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class OtherPassenger {
 
         @Id
@@ -27,8 +29,11 @@ public class OtherPassenger {
 
         private String phoneNumber;
         private String idNumber;
-        private String passengerType;
-        private int seatNumber;
+        private AgeRange passengerType;
+        private Integer seatNumber;
+
+        private Long userId;
+
 
 
         @Enumerated(EnumType.STRING)
@@ -38,15 +43,11 @@ public class OtherPassenger {
         @JoinColumn(name = "booking_id", nullable = false)
         private Booking booking;
 
-
-
-
-
-
-
-
-
-
+        public OtherPassenger(String name, AgeRange passengerType, Integer seatNumber) {
+                this.name = name;
+                this.passengerType = passengerType;
+                this.seatNumber = seatNumber;
+        }
 }
 
 

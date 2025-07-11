@@ -5,6 +5,7 @@ import lombok.*;
 import train.booking.train.booking.model.enums.PaymentMethod;
 import train.booking.train.booking.model.enums.PaymentStatus;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Setter
@@ -18,7 +19,7 @@ public class BookingPayment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Double totalPrice;
+    private BigDecimal totalPrice;
 
     @Enumerated(value = EnumType.STRING)
     private PaymentStatus paymentStatus;
@@ -28,18 +29,18 @@ public class BookingPayment {
 
     private String transactionReference;
     private LocalDateTime paymentDate;
-    private String currency;
-//    private String intent;
-//    private String description;
+//    private Currency currency;
     private String cancelUrl;
     private String successUrl;
 
 
 
 
-    @OneToOne
-    @JoinColumn(name = "booking_id")
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "booking_id", referencedColumnName = "bookingId")
+//    @JsonIgnore
     private Booking booking;
+
 
     @ManyToOne
     @JoinColumn(name = "user_id")

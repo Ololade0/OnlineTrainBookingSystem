@@ -3,10 +3,15 @@ package train.booking.train.booking.service.Impl;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import train.booking.train.booking.dto.BookSeatDTO;
+import train.booking.train.booking.dto.BookingTicketDTO;
 import train.booking.train.booking.dto.MailDTO;
 import train.booking.train.booking.dto.response.BaseResponse;
 import train.booking.train.booking.dto.response.ResponseUtil;
@@ -18,8 +23,12 @@ import java.util.concurrent.CompletableFuture;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class NotificationServiceImpl implements NotificationService {
 
+    private final RestTemplate restTemplate;
+
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Value("${mailgun.domain}")
     private String DOMAIN;
@@ -30,6 +39,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Value("${mail.gun.activation}")
     private String ACTIVATION_URL;
+
 
 
     @Override
@@ -58,7 +68,7 @@ public class NotificationServiceImpl implements NotificationService {
 
             }
 
-
+    @Override
     public BaseResponse sendMail(String email, String name) throws UnirestException {
         MailDTO mailRequest = MailDTO.builder()
                 .sender(System.getenv("SENDER"))
@@ -69,19 +79,45 @@ public class NotificationServiceImpl implements NotificationService {
             sendSimpleMail(mailRequest);
             return ResponseUtil.success("Email sucessfully sent", null);
     }
-    public BaseResponse sendActivationEmail(String email,String name,  String token) throws UnirestException {
+
+
+
+    @Override
+    public BaseResponse sendActivationEmail(String email,  String name, String subject,  String token) throws UnirestException {
         String activationLink = ACTIVATION_URL + token;
 
         MailDTO mailRequest = MailDTO.builder()
                 .sender("no-reply@yourdomain.com")
                 .receiver(email)
-                .subject("Activate Your Account")
-                .body("Dear " + name + " Click the link to activate your account: " + activationLink)
+                .subject(subject)
+                .body("Dear, " + name + " Click the link to activate your account: " + activationLink)
                 .build();
-
         sendSimpleMail(mailRequest);
         return ResponseUtil.success("Activation Link sucessfully sent", null);
 
     }
+
+
+    @Override
+    public BaseResponse sendBookingReceipts(String email, BookingTicketDTO bookingTicketDTO) throws UnirestException {
+      MailDTO mailDTO = MailDTO.builder()
+              .sender("no-reply@yourdomain.com")
+              .receiver(email)
+              .subject("Ticket Booking Confirmation")
+              .body(" Dear " + bookingTicketDTO.getFirstName()  + " Thank you for using the Nigerian Railway corportaion online ticket booking services. Your ticket booking Details are " +  bookingTicketDTO)
+              .build();
+      sendSimpleMail(mailDTO);
+      return  ResponseUtil.success("Booking confirmation sucessfully sent", bookingTicketDTO);
     }
+
+
+
+    @Override
+    public void webSocketNotification(BookSeatDTO seatDto){
+        log.info("🔔 Sending WebSocket seat update: {}", seatDto);
+        messagingTemplate.convertAndSend("/topic/seats", seatDto);
+    }
+
+
+}
 

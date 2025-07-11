@@ -12,7 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
+import org.thymeleaf.TemplateEngine;
 import train.booking.train.booking.dto.UserDTO;
 import train.booking.train.booking.dto.UserLoginDTO;
 import train.booking.train.booking.dto.response.BaseResponse;
@@ -29,6 +29,7 @@ import train.booking.train.booking.service.RoleService;
 import train.booking.train.booking.service.UserService;
 
 import javax.management.relation.RoleNotFoundException;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -42,6 +43,8 @@ public class UserServiceImpl implements UserService {
     private final RoleService roleService;
 
     private final NotificationService notificationService;
+
+    private final TemplateEngine templateEngine;
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
@@ -62,7 +65,7 @@ public class UserServiceImpl implements UserService {
                 .phoneNumber(userDTO.getPhoneNumber())
                 .password(bCryptPasswordEncoder.encode(userDTO.getPassword()))
                 .idNumber(userDTO.getIdNumber())
-                .enabled(false)
+                .isVerified(false)
                 .activationToken(activationToken)
                 .roleHashSet(new HashSet<>())
                 .build();
@@ -70,8 +73,7 @@ public class UserServiceImpl implements UserService {
         signupUser.getRoleHashSet().add(assignedRole);
         userRepository.save(signupUser);
         log.info("User Details: {}", signupUser);
-
-        notificationService.sendActivationEmail(signupUser.getEmail(), signupUser.getFirstName(), activationToken);
+            notificationService.sendActivationEmail(signupUser.getEmail(), signupUser.getFirstName(), "ACTIVATION LINK", activationToken);
             UserDTO responseDto = UserDTO.builder()
                     .firstName(signupUser.getFirstName())
                     .lastName(signupUser.getLastName())
@@ -124,7 +126,7 @@ public class UserServiceImpl implements UserService {
                     .phoneNumber(userDTO.getPhoneNumber())
                     .password(bCryptPasswordEncoder.encode(userDTO.getPassword()))
                     .idNumber(userDTO.getIdNumber())
-                    .enabled(false)
+                    .isVerified(false)
                     .activationToken(activationToken)
                     .roleHashSet(new HashSet<>())
                     .build();
@@ -132,7 +134,7 @@ public class UserServiceImpl implements UserService {
             signupUser.getRoleHashSet().add(assignedRole);
             log.info("Assigning role {} to new user {}", requestedRoleType, userDTO.getEmail());
             userRepository.save(signupUser);
-            notificationService.sendActivationEmail(signupUser.getEmail(), signupUser.getFirstName(), activationToken);
+            notificationService.sendActivationEmail(signupUser.getEmail(), signupUser.getFirstName(), "ACTIVATION LINK", activationToken);
             UserDTO responseDto = UserDTO.builder()
                     .firstName(signupUser.getFirstName())
                     .lastName(signupUser.getLastName())
@@ -192,6 +194,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User findUserById(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserCannotBeFoundException("User with id " + userId + " not found"));
+   return user;
+    }
+
+    @Override
     public UserLoginResponse login(UserLoginDTO userLoginRequestModel) {
         var user = userRepository.findUserByEmail(userLoginRequestModel.getEmail());
         if (user.isPresent() && bCryptPasswordEncoder.matches(userLoginRequestModel.getPassword(), user.get().getPassword())) {
@@ -200,10 +209,6 @@ public class UserServiceImpl implements UserService {
         throw new IllegalArgumentException("Invalid email or password");
 
     }
-
-
-
-
 
 
     @Override
@@ -224,7 +229,7 @@ public class UserServiceImpl implements UserService {
     public BaseResponse activateAccount(String token) throws UnirestException {
         User user = userRepository.findByActivationToken(token)
                 .orElseThrow(() -> new RuntimeException("Invalid or expired activation token"));
-        user.setEnabled(true);
+        user.setVerified(true);
         user.setActivationToken(null);
        userRepository.save(user);
        notificationService.sendMail(user.getEmail(), user.getFirstName());
@@ -232,6 +237,67 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    @Override
+    public BaseResponse updateUserProfile(UserDTO userDTO, Long userId) {
+        Optional<User> foundUser = userRepository.findById(userId);
+
+        if (foundUser.isPresent()) {
+            User savedUser = foundUser.get();
+
+            if (userDTO.getFirstName() != null && !userDTO.getFirstName().isBlank()) {
+                savedUser.setFirstName(userDTO.getFirstName());
+            }
+
+            if (userDTO.getLastName() != null && !userDTO.getLastName().isBlank()) {
+                savedUser.setLastName(userDTO.getLastName());
+            }
+
+            if (userDTO.getEmail() != null && userDTO.getEmail().matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
+                savedUser.setEmail(userDTO.getEmail());
+            }
+
+            if (userDTO.getGender() != null) {
+                savedUser.setGender(userDTO.getGender());
+            }
+
+            if (userDTO.getDateOfBirth() != null) {
+                savedUser.setDateOfBirth(userDTO.getDateOfBirth());
+            }
+
+            if (userDTO.getIdentificationType() != null) {
+                savedUser.setIdentificationType(userDTO.getIdentificationType());
+            }
+
+            if (userDTO.getPhoneNumber() != null && userDTO.getPhoneNumber().length() >= 10) {
+                savedUser.setPhoneNumber(userDTO.getPhoneNumber());
+            }
+
+            if (userDTO.getIdNumber() != null && !userDTO.getIdNumber().isBlank()) {
+                savedUser.setIdNumber(userDTO.getIdNumber());
+            }
+            savedUser.setUpdatedAt(LocalDateTime.now());
+
+            userRepository.save(savedUser);
+            return response(savedUser);
+        }
+
+        return ResponseUtil.failed("User not found", null);
+    }
+
+
+
+            private BaseResponse response (User savedUser){
+                UserDTO updatedDto = new UserDTO();
+                updatedDto.setFirstName(savedUser.getFirstName());
+                updatedDto.setLastName(savedUser.getLastName());
+                updatedDto.setEmail(savedUser.getEmail());
+                updatedDto.setGender(savedUser.getGender());
+                updatedDto.setDateOfBirth(savedUser.getDateOfBirth());
+                updatedDto.setIdentificationType(savedUser.getIdentificationType());
+                updatedDto.setPhoneNumber(savedUser.getPhoneNumber());
+                updatedDto.setIdNumber(savedUser.getIdNumber());
+                return ResponseUtil.success("User updated successfully", null);
+            }
 
 
 

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #fff;
+        }
+        h2 {
+            color: #FFD700;
+        }
+        .container {
+            background-color: #003300;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        table {
+            width: 100%;
+            margin-top: 15px;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #555;
+            padding: 8px;
+            text-align: left;
+            color: #fff;
+        }
+        th {
+            background-color: #006400;
+        }
+        .footer {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+  <h2>NRC: Ticket booking Confirmation</h2>
+  <p>Dear <span th:text="${ticket.firstName}">Passenger</span>,</p>
+  <p>Thank you for using the Nigerian Railway Corporation online ticket booking services. Your ticket booking details are:</p>
+
+  <p><strong>PNR No:</strong> <span th:text="${ticket.bookingNumber}"></span></p>
+
+  <table>
+    <tr>
+      <th>Date of booking</th>
+      <th>Date of journey</th>
+      <th>Train No.</th>
+    </tr>
+    <tr>
+      <td th:text="${#temporals.format(ticket.bookingDate, 'dd-MMM-yyyy')}">23-Jun-2025</td>
+      <td th:text="${#temporals.format(ticket.travelDate, 'dd-MMM-yyyy')}">23-Jun-2025</td>
+      <td th:text="${ticket.trainCode}">IL4</td>
+    </tr>
+    <tr>
+      <th>Train Name</th>
+      <th>Station from</th>
+      <th>To</th>
+    </tr>
+    <tr>
+      <td th:text="${ticket.trainName}">Ibadan-Lagos_Evening Train</td>
+      <td th:text="${ticket.sourceStation}">Obafemi Awolowo Station Moniya</td>
+      <td th:text="${ticket.destinationStation}">Mobolaji Johnson Station Ebute Metta</td>
+    </tr>
+    <tr>
+      <th>Class</th>
+      <th>Total fare paid</th>
+      <th>Total amount paid</th>
+    </tr>
+    <tr>
+      <td th:text="${ticket.trainClass}">Standard Class</td>
+      <td>₦<span th:text="${ticket.totalFare}">3600</span></td>
+      <td>₦<span th:text="${ticket.totalFare}">3600</span></td>
+    </tr>
+  </table>
+
+  <h4>Passenger Details</h4>
+  <table>
+    <tr>
+      <th>Seat No</th>
+      <th>Passenger category</th>
+      <th>Base Fare</th>
+      <th>Additional charges</th>
+      <th>Coach No</th>
+      <th>QR Code</th>
+    </tr>
+    <tr>
+      <td th:text="${ticket.seatNumber}">29</td>
+      <td th:text="${ticket.ageRange}">Adult</td>
+      <td>₦<span th:text="${ticket.totalFare}">3600</span></td>
+      <td>0.00</td>
+      <td>C04</td>
+      <td><img src="cid:qrCodeImage" width="100"/></td>
+    </tr>
+  </table>
+
+  <p class="footer">Looking forward to having you on board and wish you happy journeys on our train services.<br/><br/>
+    With regards,<br/>
+    <strong>Team Nigerian Railway Services</strong>
+  </p>
+</div>
+</body>
+</html>

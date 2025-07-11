@@ -1,7 +1,8 @@
 package train.booking.train.booking.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
-import train.booking.train.booking.model.TrainClass;
+import train.booking.train.booking.model.enums.TrainClass;
 import train.booking.train.booking.model.enums.AgeRange;
 
 import java.math.BigDecimal;
@@ -12,6 +13,8 @@ import java.math.BigDecimal;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
+
     public class PriceListDTO {
         private Long id;
         private TrainClass trainClass;
@@ -22,8 +25,10 @@ import java.math.BigDecimal;
 
 
 
-    public PriceListDTO(Long id, BigDecimal price) {
-        this.id = id;
+    public PriceListDTO(TrainClass trainClass, AgeRange ageRange, BigDecimal price) {
+        this.trainClass = trainClass;
+        this.ageRange = ageRange;
         this.price = price;
+
     }
 }

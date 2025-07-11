@@ -73,7 +73,7 @@ import java.util.Map;
 public class DistanceCalculatorService {
 
     private final RestTemplate restTemplate;
-    private final ObjectMapper objectMapper; // ✅ Ensure JSON is handled properly
+    private final ObjectMapper objectMapper;
 
     @Value("${api.baseUrl}")
     private String baseUrl;

@@ -3,10 +3,9 @@ package train.booking.train.booking.dto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import train.booking.train.booking.model.TrainClass;
+import train.booking.train.booking.model.enums.TrainClass;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Setter

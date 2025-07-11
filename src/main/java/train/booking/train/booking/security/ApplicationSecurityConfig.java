@@ -30,19 +30,29 @@ public class ApplicationSecurityConfig{
         http.cors().and().csrf().disable()
                 .authorizeHttpRequests(authorize -> {
                     try {
-                        authorize.requestMatchers("/**/api/v1/auth/**").permitAll()
+                        authorize
+                                .requestMatchers("/api/v1/auth/**").permitAll()
                                 .requestMatchers("/customError").permitAll()
                                 .requestMatchers("/access-denied").permitAll()
+                                .requestMatchers("/api/v1/auth/payments/**").permitAll()
+                                .requestMatchers("/ws/**").permitAll() // For SockJS & native
+                                .requestMatchers("/ws/websocket/**").permitAll() // Native WebSocket endpoint
+                                .requestMatchers("/topic/**").permitAll() // STOMP subscriptions
+                                .requestMatchers("/app/**").permitAll()
+                                .requestMatchers("/api/v1/auth/payments/webhook/stripe/**").permitAll()
                                 .anyRequest().authenticated()
                                 .and()
                                 .exceptionHandling().authenticationEntryPoint(unAuthorizedEntryPoint)
                                 .accessDeniedHandler(accessDeniedHandler())
                                 .and()
                                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-                    } catch (Exception e) {
+                    }
+
+                    catch (Exception e) {
                         throw new RuntimeException(e);
                     }
                 });
+
 
 
 

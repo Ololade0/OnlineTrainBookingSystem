@@ -14,8 +14,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByEmail(String email);
 
     boolean existsByIdNumber(String idNumber);
-//  @Query("SELECT new train.booking.train.booking.dto.UserDTO(u.email, u.firstName, u.lastName) FROM User u WHERE u.email = :email")
-
     @EntityGraph(attributePaths = "roleHashSet")
     Optional<User> findUserByEmail(String email);
 

@@ -1,7 +1,7 @@
 package train.booking.train.booking.model;
 
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -10,7 +10,6 @@ import train.booking.train.booking.model.enums.IdentificationType;
 import train.booking.train.booking.model.enums.RoleType;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -43,7 +42,7 @@ public class User extends AuditBaseEntity{
 
     private IdentificationType identificationType;
 
-    private boolean enabled = false;
+    private boolean isVerified = false;
     private String activationToken;
 
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -54,7 +53,7 @@ public class User extends AuditBaseEntity{
     )
     private Set<Role> roleHashSet = new HashSet<>();
 
-    @JsonBackReference
+    @JsonManagedReference
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Booking> bookings;
 
