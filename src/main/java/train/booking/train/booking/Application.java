@@ -10,7 +10,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableJms
 @EnableScheduling
 @PropertySource(value = {"file:/data/TrainBooking/application.properties"})
-//file:C:\\data\\TrainBooking\\application.properties
 public class Application {
 
 
