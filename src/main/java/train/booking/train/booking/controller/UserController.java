@@ -9,8 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
-import train.booking.train.booking.dto.PriceListDTO;
-import train.booking.train.booking.dto.TrainDto;
 import train.booking.train.booking.dto.UserDTO;
 import train.booking.train.booking.dto.response.BaseResponse;
 import train.booking.train.booking.repository.UserRepository;
@@ -21,7 +19,6 @@ import train.booking.train.booking.service.TrainService;
 import train.booking.train.booking.service.UserService;
 
 import javax.management.relation.RoleNotFoundException;
-import java.util.List;
 
 @RestController
 @Slf4j
@@ -40,10 +37,10 @@ public class UserController {
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid  @RequestBody UserDTO signUpRequest) throws UnirestException, RoleNotFoundException {
-        return new ResponseEntity<>(userService.signUp(signUpRequest), HttpStatus.CREATED);
+        return new ResponseEntity<>(userService.signUpNewUser(signUpRequest), HttpStatus.CREATED);
     }
-    @PostMapping("/{email}")
-    public ResponseEntity<?> registerUser(@PathVariable  String email){
+    @GetMapping("/{email}")
+    public ResponseEntity<?> findUserByEmail(@PathVariable  String email){
        BaseResponse foundUser = userService.findUserByEmail(email);
         return  ResponseEntity.ok(foundUser);
     }

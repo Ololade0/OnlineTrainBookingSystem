@@ -41,7 +41,6 @@ public class User extends AuditBaseEntity{
     private String idNumber;
 
     private IdentificationType identificationType;
-
     private boolean isVerified = false;
     private String activationToken;
 
@@ -62,7 +61,13 @@ public class User extends AuditBaseEntity{
         return this.roleHashSet.stream().anyMatch(role -> role.getRoleType() == roleType);
     }
 
+    public boolean isVerified() {
+        return isVerified;
+    }
 
+    public void setVerified(boolean verified) {
+        isVerified = verified;
+    }
 }
 
 

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Naija Railway - Home</title>
+  <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet">
+  <link th:href="@{/css/style.css}" rel="stylesheet">
+  <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            scroll-behavior: smooth;
+        }
+        .hero {
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+                        url('/images/train_hero.jpg') no-repeat center center/cover;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            color: white;
+            text-align: center;
+        }
+        .hero-content h1 {
+            font-size: 3.5rem;
+            font-weight: bold;
+        }
+        .search-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .card-section {
+            padding: 60px 0;
+            background: #f9f9f9;
+        }
+        .card-title {
+            color: #198754;
+        }
+        .footer {
+            background: #212529;
+            color: white;
+            padding: 30px 0;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-success fixed-top shadow">
+  <div class="container-fluid">
+    <a class="navbar-brand fw-bold" href="#">Naija Railway</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+            data-bs-target="#navbarNav" aria-controls="navbarNav"
+            aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item"><a class="nav-link active" href="#">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="#book">Book Ticket</a></li>
+        <li class="nav-item"><a class="nav-link" href="#services">Services</a></li>
+        <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero d-flex justify-content-center align-items-center" id="home">
+  <div class="container hero-content">
+    <h1>Explore Nigeria by Train</h1>
+    <p class="lead">Reliable • Safe • Fast • Affordable</p>
+
+    <!-- Booking Search Form -->
+    <div class="search-box mt-4 mx-auto col-lg-8">
+      <form th:action="@{/search}" method="get" class="row g-3">
+        <div class="col-md-4">
+          <input type="text" class="form-control" name="from" placeholder="Departure Station" required>
+        </div>
+        <div class="col-md-4">
+          <input type="text" class="form-control" name="to" placeholder="Arrival Station" required>
+        </div>
+        <div class="col-md-4">
+          <input type="date" class="form-control" name="travelDate" required>
+        </div>
+        <div class="col-12 text-center mt-3">
+          <button type="submit" class="btn btn-success btn-lg">Find Trains</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- Services / Routes -->
+<section class="card-section text-center" id="services">
+  <div class="container">
+    <h2 class="mb-5 fw-bold">Our Popular Routes</h2>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow">
+          <div class="card-body">
+            <h5 class="card-title">Lagos → Ibadan</h5>
+            <p class="card-text">Comfortable daily trains connecting two major cities in Nigeria.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow">
+          <div class="card-body">
+            <h5 class="card-title">Abuja → Kaduna</h5>
+            <p class="card-text">Safe and fast service on one of the most popular intercity routes.</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow">
+          <div class="card-body">
+            <h5 class="card-title">Port Harcourt → Aba</h5>
+            <p class="card-text">Efficient train for business and family travel in the South East.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- About -->
+<section class="container my-5" id="about">
+  <div class="row align-items-center">
+    <div class="col-md-6">
+      <h2 class="fw-bold">About Naija Railway</h2>
+      <p>We are committed to modernizing Nigeria's railway system by offering fast, safe, and reliable train services across the country. Our mission is to make train travel the preferred mode of transport for millions of Nigerians.</p>
+    </div>
+    <div class="col-md-6">
+      <img th:src="@{/images/about-train.jpg}" class="img-fluid rounded shadow" alt="Train Image">
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer text-center">
+  <div class="container">
+    <p>&copy; 2025 Naija Railway Corporation. All rights reserved.</p>
+    <p>Follow us:
+      <a href="#" class="text-white mx-2">Facebook</a> |
+      <a href="#" class="text-white mx-2">Instagram</a> |
+      <a href="#" class="text-white mx-2">Twitter</a>
+    </p>
+  </div>
+</footer>
+
+<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

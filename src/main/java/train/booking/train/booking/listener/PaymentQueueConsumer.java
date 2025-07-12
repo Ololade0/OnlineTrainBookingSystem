@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import train.booking.train.booking.WebSocket.WebSocketImpl;
 import train.booking.train.booking.dto.BookSeatDTO;
 import train.booking.train.booking.dto.BookingTicketDTO;
 import train.booking.train.booking.dto.PaymentSuccessDTO;
@@ -30,7 +29,7 @@ public class PaymentQueueConsumer {
 
     private final NotificationService notificationService;
 
-    private final WebSocketImpl webSocket;
+
 
     private final ObjectMapper mapper = new ObjectMapper();
 
@@ -58,7 +57,7 @@ public class PaymentQueueConsumer {
 
         log.info("Seat {} booked for {}", seat.getSeatNumber(), booking.getBookingNumber());
         seatDto.setAvailable(false);
-        webSocket.sendSeatUpdate(seatDto);
+        notificationService.webSocketNotification(seatDto);
 
 
         // Book seats for other passengers

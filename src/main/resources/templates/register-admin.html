@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Super Admin Login - Train Booking System</title>
+    <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .content {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .login-box {
+      width: 100%;
+      max-width: 420px;
+      background: #fff;
+      padding: 2.5rem;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .login-box h2 {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .login-box p {
+      text-align: center;
+      color: #6c757d;
+      font-size: 1.05rem;
+      margin-bottom: 2rem;
+    }
+
+    label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+    }
+
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 8px;
+      background-color: #e9f0ff;
+      font-size: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    input:focus {
+      outline: none;
+    }
+
+    .error-message {
+      color: red;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+      display: none;
+      text-align: center;
+    }
+
+    .login-button {
+      width: 100%;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 8px;
+      background-color: #28a745;
+      color: #fff;
+      font-weight: 600;
+      font-size: 1.05rem;
+      cursor: pointer;
+    }
+
+    .login-button:hover {
+      background-color: #218838;
+    }
+
+    footer {
+      background-color: #f5f5f5;
+      padding: 1rem 0;
+      text-align: center;
+      font-size: 0.95rem;
+      color: #666;
+      border-top: 1px solid #ddd;
+    }
+
+    @media (max-width: 576px) {
+      .login-box {
+        padding: 2rem 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="content">
+    <div class="login-box">
+        <h2>Welcome Super Admin</h2>
+        <p>Sign in to continue</p>
+        <form id="superAdminForm">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="you@example.com" required>
+
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="********" required>
+
+            <div class="error-message" id="errorMsg"></div>
+
+            <button type="submit" class="login-button">Sign In</button>
+        </form>
+    </div>
+</div>
+
+<footer>
+    &copy; 2025 Nigerian Railway Corporation. All rights reserved.
+</footer>
+
+<script>
+  document.getElementById("superAdminForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const errorMsg = document.getElementById("errorMsg");
+
+    const response = await fetch("/api/v1/auth/register-superadmin", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
+
+    if (response.ok) {
+      // redirect to dashboard
+      window.location.href = "/admin/dashboard";
+    } else if (response.status === 401) {
+      errorMsg.textContent = "Incorrect password.";
+      errorMsg.style.display = "block";
+    } else if (response.status === 404) {
+      errorMsg.textContent = "User does not exist.";
+      errorMsg.style.display = "block";
+    } else {
+      const result = await response.json().catch(() => ({}));
+      errorMsg.textContent = result.message || "Something went wrong.";
+      errorMsg.style.display = "block";
+    }
+  });
+</script>
+
+</body>
+</html>
+

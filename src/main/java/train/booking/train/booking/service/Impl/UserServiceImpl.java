@@ -12,7 +12,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.thymeleaf.TemplateEngine;
 import train.booking.train.booking.dto.UserDTO;
 import train.booking.train.booking.dto.UserLoginDTO;
 import train.booking.train.booking.dto.response.BaseResponse;
@@ -27,6 +26,7 @@ import train.booking.train.booking.repository.UserRepository;
 import train.booking.train.booking.service.NotificationService;
 import train.booking.train.booking.service.RoleService;
 import train.booking.train.booking.service.UserService;
+import train.booking.train.booking.utils.Helper;
 
 import javax.management.relation.RoleNotFoundException;
 import java.time.LocalDateTime;
@@ -44,9 +44,12 @@ public class UserServiceImpl implements UserService {
 
     private final NotificationService notificationService;
 
-    private final TemplateEngine templateEngine;
+    private final Helper helper;
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    String activationToken = UUID.randomUUID().toString();
+
+
 
     @Override
     public BaseResponse superAdminSignUp(UserDTO userDTO) throws UnirestException {
@@ -72,9 +75,9 @@ public class UserServiceImpl implements UserService {
         Role assignedRole = roleService.findByRoleType(RoleType.SUPERADMIN_ROLE);
         signupUser.getRoleHashSet().add(assignedRole);
         userRepository.save(signupUser);
-        log.info("User Details: {}", signupUser);
-            notificationService.sendActivationEmail(signupUser.getEmail(), signupUser.getFirstName(), "ACTIVATION LINK", activationToken);
-            UserDTO responseDto = UserDTO.builder()
+        Map m = getMap(signupUser);
+        notificationService.sendEmailV3(signupUser.getEmail(), "ACTIVATION LINK", helper.build(m, "signup-notification-email"));
+        UserDTO responseDto = UserDTO.builder()
                     .firstName(signupUser.getFirstName())
                     .lastName(signupUser.getLastName())
                     .email(signupUser.getEmail())
@@ -90,15 +93,15 @@ public class UserServiceImpl implements UserService {
     }
 
 
+
     @Override
     @Transactional
-    public BaseResponse signUp(UserDTO userDTO) throws UnirestException, RoleNotFoundException {
+    public BaseResponse signUpNewUser(UserDTO userDTO) throws UnirestException, RoleNotFoundException {
         try {
-
 //        validateUserInfo(userDTO);
 //        validateEmail(userDTO.getEmail());
 //        validatePasswordStrength(userDTO.getPassword());
-            String activationToken = UUID.randomUUID().toString();
+//            String activationToken = UUID.randomUUID().toString();
             RoleType requestedRoleType = Optional.ofNullable(userDTO.getRoleType()).orElse(RoleType.USER_ROLE);
 
             log.info("Requested RoleType: {}", requestedRoleType);
@@ -134,7 +137,8 @@ public class UserServiceImpl implements UserService {
             signupUser.getRoleHashSet().add(assignedRole);
             log.info("Assigning role {} to new user {}", requestedRoleType, userDTO.getEmail());
             userRepository.save(signupUser);
-            notificationService.sendActivationEmail(signupUser.getEmail(), signupUser.getFirstName(), "ACTIVATION LINK", activationToken);
+            Map m = getMap(signupUser);
+            notificationService.sendEmailV3(signupUser.getEmail(), "ACTIVATION LINK", helper.build(m, "register-admin"));
             UserDTO responseDto = UserDTO.builder()
                     .firstName(signupUser.getFirstName())
                     .lastName(signupUser.getLastName())
@@ -146,6 +150,14 @@ public class UserServiceImpl implements UserService {
             log.error("Error during super admin sign-up: {}", e.getMessage());
             return ResponseUtil.invalidOrNullInput("Sign-up failed due to an unexpected error.");
         }
+    }
+
+    private static Map getMap(User signupUser) {
+        Map m = new HashMap<>();
+        m.put("FirstName", signupUser.getFirstName());
+        m.put("token",  "" + signupUser.getActivationToken());
+        log.info("Email to send activation to: {}", signupUser.getEmail());
+        return m;
     }
 
 
@@ -167,7 +179,7 @@ public class UserServiceImpl implements UserService {
 
     private void validatePasswordStrength(String password) {
         if (!password.matches("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$")) {
-            throw new SeatAlreadyBookedException("Password must be at least 8 characters long and include uppercase, lowercase, a number, and a special character.");
+            throw new WeakPasswordException("Password must be at least 8 characters long and include uppercase, lowercase, a number, and a special character.");
         }
     }
 
@@ -225,14 +237,20 @@ public class UserServiceImpl implements UserService {
                 .build();
 
     }
-
+@Override
     public BaseResponse activateAccount(String token) throws UnirestException {
         User user = userRepository.findByActivationToken(token)
                 .orElseThrow(() -> new RuntimeException("Invalid or expired activation token"));
+        if(user.isVerified()){
+            return ResponseUtil.success("Account is already activated.", null);
+        }
         user.setVerified(true);
         user.setActivationToken(null);
        userRepository.save(user);
-       notificationService.sendMail(user.getEmail(), user.getFirstName());
+       Map map = new HashMap<>();
+       map.put("firstName", user.getFirstName());
+        map.put("lastName", user.getLastName());
+       notificationService.sendEmailV3(user.getEmail(), user.getFirstName(),helper.build(map,  "account-activation-email"));
        return ResponseUtil.success("Account as been sucessfully activated",null);
 
     }
@@ -284,9 +302,13 @@ public class UserServiceImpl implements UserService {
         return ResponseUtil.failed("User not found", null);
     }
 
+    @Override
+    public void save(User user) {
+        userRepository.save(user);
+    }
 
 
-            private BaseResponse response (User savedUser){
+    private BaseResponse response (User savedUser){
                 UserDTO updatedDto = new UserDTO();
                 updatedDto.setFirstName(savedUser.getFirstName());
                 updatedDto.setLastName(savedUser.getLastName());
@@ -298,6 +320,7 @@ public class UserServiceImpl implements UserService {
                 updatedDto.setIdNumber(savedUser.getIdNumber());
                 return ResponseUtil.success("User updated successfully", null);
             }
+
 
 
 

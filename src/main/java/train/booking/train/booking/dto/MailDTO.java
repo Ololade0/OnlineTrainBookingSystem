@@ -12,14 +12,14 @@ public class MailDTO {
     @Email
     private String sender;
     @Email
-    private String receiver;
+    private String recipient;
     private String subject;
     private String body;
     private boolean isSuccessful;
 
     public MailDTO(String sender, String receiver, String subject, String body, boolean isSuccessful) {
         this.sender = sender;
-        this.receiver = receiver;
+        this.recipient = receiver;
         this.subject = subject;
         this.body = body;
         this.isSuccessful = isSuccessful;

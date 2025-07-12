@@ -3,13 +3,13 @@ package train.booking.train.booking.service.Impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import train.booking.train.booking.WebSocket.WebSocketImpl;
 import train.booking.train.booking.dto.BookSeatDTO;
 import train.booking.train.booking.dto.BookingRequestDTO;
 import train.booking.train.booking.dto.PaymentSuccessDTO;
 import train.booking.train.booking.model.Booking;
 import train.booking.train.booking.model.OtherPassenger;
 import train.booking.train.booking.repository.OtherPassengerRepository;
+import train.booking.train.booking.service.NotificationService;
 import train.booking.train.booking.service.OtherPassengerService;
 import train.booking.train.booking.service.SeatService;
 
@@ -22,7 +22,7 @@ import java.util.List;
 public class OtherPassengerImpl implements OtherPassengerService {
     private final OtherPassengerRepository otherPassengerRepository;
 
-    private final WebSocketImpl webSocket;
+    private final NotificationService notificationService;
 
     private final SeatService seatService;
 
@@ -66,7 +66,7 @@ public class OtherPassengerImpl implements OtherPassengerService {
                     otherSeat.setBookingId(booking.getBookingId());
                     seatService.bookSeat(otherSeat);
                     otherSeat.setAvailable(false);
-                    webSocket.sendSeatUpdate(otherSeat);
+                    notificationService.webSocketNotification(otherSeat);
                 } catch (Exception e) {
                     log.error("Failed to book seat for other passenger {}: {}", passenger.getName(), e.getMessage());
                     throw new RuntimeException(e);

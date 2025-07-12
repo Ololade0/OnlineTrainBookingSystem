@@ -14,7 +14,7 @@ import java.util.Optional;
 
 public interface UserService extends UserDetailsService {
    BaseResponse superAdminSignUp(UserDTO userDTO) throws UnirestException, RoleNotFoundException;
-    BaseResponse signUp(UserDTO userDTO) throws UnirestException, RoleNotFoundException;
+    BaseResponse signUpNewUser(UserDTO userDTO) throws UnirestException, RoleNotFoundException;
    BaseResponse findUserByEmail(String email);
 
    User findUserByEmailOrNull(String email);
@@ -28,4 +28,5 @@ public interface UserService extends UserDetailsService {
 
    BaseResponse updateUserProfile(UserDTO userDTO, Long userId);
 
+    void save(User user);
 }

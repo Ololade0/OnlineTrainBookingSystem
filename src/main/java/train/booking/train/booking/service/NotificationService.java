@@ -11,14 +11,8 @@ import java.util.concurrent.CompletableFuture;
 
 public interface NotificationService {
     CompletableFuture<MailDTO> sendSimpleMail(MailDTO mailRequest) throws UnirestException;
-    BaseResponse sendMail(String email, String name) throws UnirestException;
-
-//  BaseResponse sendActivationEmail(String email,String name,  String token) throws UnirestException;
-
     BaseResponse sendBookingReceipts(String email, BookingTicketDTO bookingTicketDTO) throws UnirestException;
+        void webSocketNotification(BookSeatDTO seatDto);
 
-    BaseResponse sendActivationEmail(String email,  String name, String subject,  String token) throws UnirestException;
-
-    void webSocketNotification(BookSeatDTO seatDto);
-
+    void sendEmailV3(String recipient, String subject, String body);
 }
