@@ -3,6 +3,7 @@ package train.booking.train.booking.service.Impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
@@ -28,6 +29,7 @@ import train.booking.train.booking.service.*;
 import train.booking.train.booking.utils.PnrCodeGenerator;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -148,7 +150,6 @@ public class BookingServiceImpl implements BookingService {
                 .totalFareAmount(dto.getTotalFare())
                 .bookingNumber(dto.getBookingNumber())
                 .build();
-
         return bookingRepository.save(booking);
     }
 
@@ -197,6 +198,7 @@ public class BookingServiceImpl implements BookingService {
 
     private static BookingTicketDTO mapBookingTicket(Booking booking, Schedule schedule, Train train, Station departureStation, Station arrivalStation, BookingPayment foundPayment) {
         BookingTicketDTO ticket = new BookingTicketDTO();
+        ticket.setMessage("Thank you for using our online booking service.");
         ticket.setTrainName(train.getTrainName());
         ticket.setTrainCode(train.getTrainCode());
         ticket.setTravelDate(booking.getTravelDate());
@@ -237,8 +239,9 @@ public class BookingServiceImpl implements BookingService {
         BookingTicketDTO ticket = generateBookingReceipt(bookingId);
         Context context = new Context();
         context.setVariable("ticket", ticket);
+//        context.setVariable("qrCodeBase64", "data:image/png;base64," + generateQRCodeBase64(qrbaseUrl + ticket.getBookingNumber()));
         context.setVariable("qrCodeBase64", generateQRCodeBase64(qrbaseUrl + ticket.getBookingNumber()));
-        String html = templateEngine.process("receipt", context);
+        String html = templateEngine.process("pdf-receipt", context);
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             ITextRenderer renderer = new ITextRenderer();
             renderer.setDocumentFromString(html);
@@ -247,7 +250,8 @@ public class BookingServiceImpl implements BookingService {
             return baos.toByteArray();
         }
     }
-    private static String generateQRCodeBase64(String text) throws Exception {
+    @Override
+    public String generateQRCodeBase64(String text) throws WriterException, IOException {
         QRCodeWriter qrCodeWriter = new QRCodeWriter();
         BitMatrix bitMatrix = qrCodeWriter.encode(text, BarcodeFormat.QR_CODE, 200, 200);
 

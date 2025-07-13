@@ -16,6 +16,7 @@ import java.util.List;
 @ToString
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class BookingTicketDTO {
+    private String message;
     private Long bookingId;
     private String trainName;
     private String trainCode;

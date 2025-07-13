@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import train.booking.train.booking.dto.BookSeatDTO;
-import train.booking.train.booking.dto.BookingTicketDTO;
 import train.booking.train.booking.dto.MailDTO;
 import train.booking.train.booking.service.NotificationService;
 
@@ -37,13 +36,12 @@ public class NotificationServiceImpl implements NotificationService {
 
 
     @Override
-    public void sendBookingReceipts(String recipient, String subject, BookingTicketDTO bookingTicketDTO) {
+    public void sendBookingReceipts(String recipient, String subject, String body) {
         MailDTO request = new MailDTO();
         request.setSender(sender);
         request.setRecipient(recipient);
         request.setSubject(subject);
-        request.setBody((" Dear " + bookingTicketDTO.getFirstName()  + " Thank you for using the Nigerian Railway corportaion online ticket booking services. Your ticket booking Details are " +  bookingTicketDTO));
-
+        request.setBody(body);
         webClientBuilder.build()
                 .post()
                 .uri(emailApiUrl)

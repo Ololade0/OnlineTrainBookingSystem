@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <style>
+    body {
+        font-family: 'Segoe UI', sans-serif;
+        background-color: #ffffff;
+        color: #000000;
+        margin: 0;
+        padding: 20px;
+    }
+    .container {
+        background-color: #f9f9f9;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h2 {
+        color: #004080;
+    }
+    table {
+        width: 100%;
+        margin-top: 20px;
+        border-collapse: collapse;
+    }
+    th, td {
+        padding: 12px;
+        text-align: left;
+        border: 1px solid #ccc;
+    }
+    th {
+        background-color: #d4edda;
+    }
+    tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+    .footer {
+        margin-top: 30px;
+    }
+    img.qr {
+        border: 2px solid #004080;
+        border-radius: 8px;
+    }
+</style>
+
+</head>
+<body>
+<div class="container">
+  <h2>Ololade Railway Corporation - Ticket Confirmation</h2>
+  <p>Dear <span th:text="${ticket.firstName}">Passenger</span>,</p>
+  <p th:text="${ticket.message}">Thank you for using our online booking service.</p>
+
+  <p><strong>PNR No:</strong> <span th:text="${ticket.bookingNumber}">PNRXXXXXX</span></p>
+
+  <table>
+    <tr>
+      <th>Travel Date</th>
+      <th>Departure Time</th>
+      <th>Arrival Time</th>
+    </tr>
+    <tr>
+      <td th:text="${ticket.travelDate}">24-Jun-2025</td>
+      <td th:text="${ticket.departureTime}">08:00</td>
+      <td th:text="${ticket.arrivalTime}">12:00</td>
+    </tr>
+    <tr>
+      <th>Train Name</th>
+      <th>Train Code</th>
+      <th>Class</th>
+    </tr>
+    <tr>
+      <td th:text="${ticket.trainName}">Express Train</td>
+      <td th:text="${ticket.trainCode}">T1234</td>
+      <td th:text="${ticket.trainClass}">ECONOMY</td>
+    </tr>
+    <tr>
+      <th>From</th>
+      <th>To</th>
+      <th>Payment Method</th>
+    </tr>
+    <tr>
+      <td th:text="${ticket.sourceStation}">EBUTTE Station</td>
+      <td th:text="${ticket.destinationStation}">ABEOKUTA Station</td>
+      <td th:text="${ticket.paymentMethod}">PAYPAL</td>
+    </tr>
+    <tr>
+      <th colspan="2">Total Fare Paid</th>
+      <td>₦<span th:text="${ticket.totalFare}">3100</span></td>
+    </tr>
+  </table>
+
+  <h3>Primary Passenger</h3>
+  <table>
+    <tr>
+      <th>Full Name</th>
+      <th>Seat No</th>
+      <th>Passenger Type</th>
+      <th>Identification Type</th>
+      <th>ID Number</th>
+    </tr>
+    <tr>
+      <td th:text="${ticket.firstName}">Ololade</td>
+      <td th:text="${ticket.seatNumber}">14</td>
+      <td th:text="${ticket.ageRange}">ADULT</td>
+      <td th:text="${ticket.identificationType}">NIN</td>
+      <td th:text="${ticket.idNumber}">A146390597i46</td>
+    </tr>
+  </table>
+
+  <div th:if="${ticket.otherPassengers != null}">
+    <h3>Other Passengers</h3>
+    <table>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Passenger Type</th>
+        <th>Identification Type</th>
+        <th>ID Number</th>
+        <th>Seat No</th>
+      </tr>
+      <tr th:each="p : ${ticket.otherPassengers}">
+        <td th:text="${p.name}">Jane Doe</td>
+        <td th:text="${p.email}">jane@example.com</td>
+        <td th:text="${p.passengerType}">MINOR</td>
+        <td th:text="${p.identificationType}">NIN</td>
+        <td th:text="${p.idNumber}">A1234567</td>
+        <td th:text="${p.seatNumber}">13</td>
+      </tr>
+    </table>
+  </div>
+
+  <h3>QR Code</h3>
+  <p>
+    <img th:src="'data:image/png;base64,' + ${qrCodeBase64}" alt="QR Code" class="qr" width="120"/>
+  </p>
+
+  <p class="footer">
+    We look forward to having you onboard. Wishing you safe and pleasant travel with Nigerian Railway Services.<br/><br/>
+    Regards,<br/>
+    <strong>Team Ololade Railway Corporation</strong>
+  </p>
+</div>
+</body>
+</html>
