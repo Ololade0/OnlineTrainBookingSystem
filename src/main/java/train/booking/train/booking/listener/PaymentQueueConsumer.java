@@ -66,7 +66,7 @@ public class PaymentQueueConsumer {
         // Finally, mark the payment as COMPLETED
         BookingPayment bookingPayment =   paymentService.updateBookingPayment(dto.getPaymentId());
        BookingTicketDTO generateReceipt =  bookingService.generateBookingReceipt(booking.getBookingId());
-      notificationService.sendBookingReceipts(bookingPayment.getUser().getEmail(),generateReceipt);
+      notificationService.sendBookingReceipts(bookingPayment.getUser().getEmail(),"BOOKING RECEIPT", generateReceipt);
             log.info("Marked payment {} as COMPLETED for booking {}", dto.getPaymentId(), dto.getBookingId());
         }
 

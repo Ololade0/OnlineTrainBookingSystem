@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.thymeleaf.TemplateEngine;
 import train.booking.train.booking.dto.ResetPasswordDto;
 import train.booking.train.booking.exceptions.PasswordException;
 import train.booking.train.booking.model.PasswordResetToken;
@@ -27,10 +26,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class PasswordResetTokenServiceImpl  implements PasswordResetTokenService {
 
-    @Value("${mail.gun.activation}")
+    @Value("${activation.url}")
     private String resetPasswordUrl;
 
-    private final TemplateEngine templateEngine;
 
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final UserService userService;
@@ -82,7 +80,6 @@ public class PasswordResetTokenServiceImpl  implements PasswordResetTokenService
             PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(resetPasswordDto.getToken())
                     .orElseThrow(() -> new PasswordException("Invalid token"));
             User foundUser = userService.findUserById(resetToken.getUserId());
-
             if (resetToken.getExpiryDate().isBefore(LocalDateTime.now())) {
                 throw new PasswordException("Token has expired");
             }

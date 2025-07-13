@@ -48,10 +48,6 @@ public class BookingServiceImpl implements BookingService {
         private final ObjectMapper objectMapper;
         private final TrainService trainService;
         private final StationService stationService;
-
-        private final NotificationService notificationService;
-
-//    @Qualifier("customTemplateEngine")
   private final TemplateEngine templateEngine;
 
 
@@ -195,9 +191,8 @@ public class BookingServiceImpl implements BookingService {
         Station departureStation = stationService.findStationById(schedule.getDepartureStationId());
         Station arrivalStation = stationService.findStationById(schedule.getArrivalStationId());
         BookingPayment foundPayment = booking.getBookingPayment();
-          BookingTicketDTO bookingTicketDTO =   mapBookingTicket(booking, schedule, train, departureStation, arrivalStation, foundPayment);
-          notificationService.sendBookingReceipts(booking.getUser().getEmail(), bookingTicketDTO);
-          return bookingTicketDTO;
+        //          notificationService.sendBookingReceipts(booking.getUser().getEmail(), "BOOKING RECEIPT", bookingTicketDTO);
+          return mapBookingTicket(booking, schedule, train, departureStation, arrivalStation, foundPayment);
     }
 
     private static BookingTicketDTO mapBookingTicket(Booking booking, Schedule schedule, Train train, Station departureStation, Station arrivalStation, BookingPayment foundPayment) {

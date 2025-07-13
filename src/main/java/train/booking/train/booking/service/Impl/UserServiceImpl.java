@@ -54,9 +54,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public BaseResponse superAdminSignUp(UserDTO userDTO) throws UnirestException {
         try{
-//        validateUserInfo(userDTO);
-//        validateEmail(userDTO.getEmail());
-//        validatePasswordStrength(userDTO.getPassword());
+        validateUserInfo(userDTO);
+        validateEmail(userDTO.getEmail());
+        validatePasswordStrength(userDTO.getPassword());
         String activationToken = UUID.randomUUID().toString();
         User signupUser = User.builder()
                 .firstName(userDTO.getFirstName())
@@ -76,7 +76,7 @@ public class UserServiceImpl implements UserService {
         signupUser.getRoleHashSet().add(assignedRole);
         userRepository.save(signupUser);
         Map m = getMap(signupUser);
-        notificationService.sendEmailV3(signupUser.getEmail(), "ACTIVATION LINK", helper.build(m, "signup-notification-email"));
+        notificationService.sendEmailV3(signupUser.getEmail(), "ACTIVATION LINK", helper.build(m, "account-activation-email"));
         UserDTO responseDto = UserDTO.builder()
                     .firstName(signupUser.getFirstName())
                     .lastName(signupUser.getLastName())

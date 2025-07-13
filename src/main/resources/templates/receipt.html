@@ -1,66 +1,105 @@
-
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
     <style>
-        body { font-family: Arial, sans-serif; color: #000; }
-        h2 { text-align: center; color: green; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { border: 1px solid #ddd; padding: 8px; }
-        th { background-color: #f2f2f2; }
-        .qr { margin-top: 20px; text-align: center; }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #fff;
+        }
+        h2 {
+            color: #FFD700;
+        }
+        .container {
+            background-color: #003300;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        table {
+            width: 100%;
+            margin-top: 15px;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #555;
+            padding: 8px;
+            text-align: left;
+            color: #fff;
+        }
+        th {
+            background-color: #006400;
+        }
+        .footer {
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
-<h2>Nigerian Railway Corporation</h2>
-<p><strong>Train:</strong> <span th:text="${ticket.trainName}"></span></p>
-<p><strong>Train code:</strong> <span th:text="${ticket.trainCode}"></span></p>
-<p><strong>Date:</strong> <span th:text="${ticket.travelDate}"></span></p>
-<p><strong>PNR Number:</strong> <span th:text="${ticket.bookingNumber}"></span></p>
-<p><strong>Status:</strong> <span th:text="${ticket.bookingStatus}"></span></p>
-<p><strong>From:</strong> <span th:text="${ticket.sourceStation}"></span></p>
-<p><strong>To:</strong> <span th:text="${ticket.destinationStation}"></span></p>
-<p><strong>Departure:</strong> <span th:text="${ticket.departureTime}"></span></p>
-<p><strong>Arrival:</strong> <span th:text="${ticket.arrivalTime}"></span></p>
-<p><strong>Class:</strong> <span th:text="${ticket.trainClass}"></span></p>
-<p><strong>Total Fare:</strong> ₦<span th:text="${ticket.totalFare}"></span></p>
+<div class="container">
+    <h2>NRC: Ticket booking Confirmation</h2>
+    <p>Dear <span th:text="${ticket.firstName}">Passenger</span>,</p>
+    <p>Thank you for using the Nigerian Railway Corporation online ticket booking services. Your ticket booking details are:</p>
 
-<h4>Passenger Details</h4>
-<table>
-    <tr>
-        <th>Passenger Name</th>
-        <th>Type</th>
-        <th>Seat</th>
-        <th>ID Number</th>
-        <th>Price</th>
-    </tr>
-    <tr>
-        <td th:text="${ticket.firstName}"></td>
-        <td th:text="${ticket.ageRange}"></td>
-        <td th:text="${ticket.seatNumber}"></td>
-        <td th:text="${ticket.idNumber}"></td>
-        <td>₦<span th:text="${ticket.totalFare}"></span></td>
-    </tr>
-</table>
+    <p><strong>PNR No:</strong> <span th:text="${ticket.bookingNumber}"></span></p>
 
-<!-- Other Passengers -->
-<h4 th:if="${ticket.otherPassengers != null and #lists.size(ticket.otherPassengers) > 0}">Other Passengers</h4>
-<table th:if="${ticket.otherPassengers != null and #lists.size(ticket.otherPassengers) > 0}">
-    <tr>
-        <th>Name</th>
-        <th>Passenger Type</th>
-        <th>Seat Number</th>
-    </tr>
-    <tr th:each="p : ${ticket.otherPassengers}">
-        <td th:text="${p.name}"></td>
-        <td th:text="${p.passengerType}"></td>
-        <td th:text="${p.seatNumber}"></td>
-    </tr>
-</table>
+    <table>
+        <tr>
+            <th>Date of booking</th>
+            <th>Date of journey</th>
+            <th>Train No.</th>
+        </tr>
+        <tr>
+            <td th:text="${#temporals.format(ticket.bookingDate, 'dd-MMM-yyyy')}">23-Jun-2025</td>
+            <td th:text="${#temporals.format(ticket.travelDate, 'dd-MMM-yyyy')}">23-Jun-2025</td>
+            <td th:text="${ticket.trainCode}">IL4</td>
+        </tr>
+        <tr>
+            <th>Train Name</th>
+            <th>Station from</th>
+            <th>To</th>
+        </tr>
+        <tr>
+            <td th:text="${ticket.trainName}">Ibadan-Lagos_Evening Train</td>
+            <td th:text="${ticket.sourceStation}">Obafemi Awolowo Station Moniya</td>
+            <td th:text="${ticket.destinationStation}">Mobolaji Johnson Station Ebute Metta</td>
+        </tr>
+        <tr>
+            <th>Class</th>
+            <th>Total fare paid</th>
+            <th>Total amount paid</th>
+        </tr>
+        <tr>
+            <td th:text="${ticket.trainClass}">Standard Class</td>
+            <td>₦<span th:text="${ticket.totalFare}">3600</span></td>
+            <td>₦<span th:text="${ticket.totalFare}">3600</span></td>
+        </tr>
+    </table>
 
-<div class="qr">
-    <img th:src="'data:image/png;base64,' + ${qrCodeBase64}" alt="QR Code"/>
+    <h4>Passenger Details</h4>
+    <table>
+        <tr>
+            <th>Seat No</th>
+            <th>Passenger category</th>
+            <th>Base Fare</th>
+            <th>Additional charges</th>
+            <th>Coach No</th>
+            <th>QR Code</th>
+        </tr>
+        <tr>
+            <td th:text="${ticket.seatNumber}">29</td>
+            <td th:text="${ticket.ageRange}">Adult</td>
+            <td>₦<span th:text="${ticket.totalFare}">3600</span></td>
+            <td>0.00</td>
+            <td>C04</td>
+            <td><img src="cid:qrCodeImage" width="100"/></td>
+        </tr>
+    </table>
+
+    <p class="footer">Looking forward to having you on board and wish you happy journeys on our train services.<br/><br/>
+        With regards,<br/>
+        <strong>Team Nigerian Railway Services</strong>
+    </p>
 </div>
 </body>
 </html>
