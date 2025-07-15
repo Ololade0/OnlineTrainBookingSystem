@@ -7,17 +7,18 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import train.booking.train.booking.dto.UserLoginDTO;
+import train.booking.train.booking.dto.response.UserLoginResponse;
 import train.booking.train.booking.exceptions.UserCannotBeFoundException;
 import train.booking.train.booking.model.AuthToken;
 import train.booking.train.booking.model.User;
+import train.booking.train.booking.model.enums.AuthTokenStatus;
 import train.booking.train.booking.security.jwt.TokenProvider;
 import train.booking.train.booking.service.AuthTokenService;
 import train.booking.train.booking.service.UserService;
+
+import java.time.Instant;
 
 @RequiredArgsConstructor
 @RestController
@@ -38,14 +39,31 @@ public class AuthController {
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),
                         loginRequest.getPassword())
         );
-        authTokenService.login(loginRequest);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        final String token = tokenProvider.generateJWTToken(authentication);
+
+         String jwtToken = tokenProvider.generateJWTToken(authentication);
         User user = userService.findUserByEmailOrNull(loginRequest.getEmail());
-        return new ResponseEntity<>(new AuthToken(token, user.getFirstName(), user.getEmail()), HttpStatus.OK);
+        Instant expiryDate = Instant.now().plusSeconds(3600);
+        AuthToken authToken = AuthToken.builder()
+                .token(jwtToken)
+                .name(user.getFirstName())
+                .email(user.getEmail())
+                .expiryDate(expiryDate)
+                .authTokenStatus(AuthTokenStatus.ACTIVE)
+                .build();
+        authTokenService.saveToken(authToken);
+        authTokenService.login(loginRequest);
+
+
+        return new ResponseEntity<>(new UserLoginResponse(jwtToken, user.getFirstName(), user.getEmail()), HttpStatus.OK);
     }
 
-//
+    @PostMapping("/logout")
+    public void  logout(@RequestParam  String token){
+        authTokenService.logout(token);
+
+    }
+
 
 }
 

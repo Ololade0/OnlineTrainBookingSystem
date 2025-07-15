@@ -14,5 +14,9 @@ public interface StationService {
 
    Station findStationById(Long stationId);
 
+    BaseResponse updateStation(Long stationId, StationDto stationDto);
+    BaseResponse deleteStation(Long stationId);
+
+
 
 }

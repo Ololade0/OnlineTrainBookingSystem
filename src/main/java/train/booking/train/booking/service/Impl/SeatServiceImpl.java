@@ -117,7 +117,12 @@ private final ScheduleService scheduleService;
         throw new SeatAlreadyReservedException("Seat is temporarily reserved. Try again later");
     }
 
-}
+//        if (seat.getBooking().getBookingId() == null || !seat.getBooking().getBookingId().equals(bookSeatDTO.getBookingId())) {
+//            throw new BookingCannotBeFoundException("Booking Id cannot be found or doesn't match: " + seat.getBooking().getBookingId());
+//        }
+
+
+    }
     @Scheduled(fixedRate = 60000)
     public void releaseLockedSeatAfterExpiration() {
         LocalDateTime threshold = LocalDateTime.now().minusMinutes(10);

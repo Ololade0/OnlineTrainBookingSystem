@@ -10,6 +10,10 @@ import com.google.zxing.qrcode.QRCodeWriter;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -235,12 +239,14 @@ public class BookingServiceImpl implements BookingService {
         return ticket;
     }
     @Override
-    public byte[] generateReceiptPdf(Long bookingId) throws Exception {
+    public byte[] generateReceiptInPdf(Long bookingId) throws Exception {
         BookingTicketDTO ticket = generateBookingReceipt(bookingId);
         Context context = new Context();
         context.setVariable("ticket", ticket);
+        String qrBase64 = generateQRCodeBase64(qrbaseUrl + ticket.getBookingNumber());
+        context.setVariable("qrCodeBase64", qrBase64);
 //        context.setVariable("qrCodeBase64", "data:image/png;base64," + generateQRCodeBase64(qrbaseUrl + ticket.getBookingNumber()));
-        context.setVariable("qrCodeBase64", generateQRCodeBase64(qrbaseUrl + ticket.getBookingNumber()));
+//        context.setVariable("qrCodeBase64", generateQRCodeBase64(qrbaseUrl + ticket.getBookingNumber()));
         String html = templateEngine.process("pdf-receipt", context);
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             ITextRenderer renderer = new ITextRenderer();
@@ -263,29 +269,16 @@ public class BookingServiceImpl implements BookingService {
     }
 
 
-
-
-
-
-//    public Image generateQRCodeImage(String text) throws Exception {
-//        int width = 200;
-//        int height = 200;
-//        QRCodeWriter qrCodeWriter = new QRCodeWriter();
-//        BitMatrix bitMatrix = qrCodeWriter.encode(text, BarcodeFormat.QR_CODE, width, height);
-//
-//        ByteArrayOutputStream pngOutputStream = new ByteArrayOutputStream();
-//        MatrixToImageWriter.writeToStream(bitMatrix, "PNG", pngOutputStream);
-//        byte[] pngData = pngOutputStream.toByteArray();
-//
-//        return Image.getInstance(pngData);
-//    }
-
-
-
     @Override
     public BookingTicketDTO scanQRBookingCode(String bookingNumber) {
       Optional<Booking> foundBooking= findBookingByBookingNumber(bookingNumber);
         return mapToBookingTicketDTO(foundBooking.get());
+    }
+
+    @Override
+    public Page<Booking> findAllBookingsBySchedule(int size, int page, Long scheduleId) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("bookingDate").descending());
+        return bookingRepository.findAllByScheduleId(scheduleId, pageable);
     }
 
     private BookingTicketDTO mapToBookingTicketDTO(Booking booking) {

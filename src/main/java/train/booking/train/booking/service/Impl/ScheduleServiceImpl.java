@@ -247,10 +247,44 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
 
+        @Override
+        public BaseResponse updateSchedule(Long scheduleId, ScheduleDTO scheduleDTO) {
+            Schedule existingSchedule = scheduleRepository.findById(scheduleId)
+                    .orElseThrow(() -> new ScheduleCannotBeFoundException("Schedule not found with ID: " + scheduleId));
+
+            // Validate station and train IDs
+            Station departureStation = stationService.findStationById(scheduleDTO.getDepartureStationId());
+
+
+            Station arrivalStation = stationService.findStationById(scheduleDTO.getArrivalStationId());
+
+            Train train = trainService.findTrainById(scheduleDTO.getTrainId());
+
+            // Update schedule details
+            existingSchedule.setDepartureStationId(departureStation.getStationId());
+            existingSchedule.setArrivalStationId(arrivalStation.getStationId());
+            existingSchedule.setTrainId(train.getId());
+            existingSchedule.setDepartureDate(scheduleDTO.getDepartureDate());
+            existingSchedule.setDepartureTime(scheduleDTO.getDepartureTime());
+            existingSchedule.setArrivalDate(scheduleDTO.getArrivalDate());
+            existingSchedule.setArrivalTime(scheduleDTO.getArrivalTime());
+            scheduleRepository.save(existingSchedule);
+
+            log.info("Schedule updated successfully: ID {}", scheduleId);
+            return ResponseUtil.success("Schedule updated successfully", null);
+        }
+
+        @Override
+        public BaseResponse deleteSchedule(Long scheduleId) {
+            Schedule schedule = scheduleRepository.findById(scheduleId)
+                    .orElseThrow(() -> new ScheduleCannotBeFoundException("Schedule not found with ID: " + scheduleId));
+            scheduleRepository.delete(schedule);
+
+            log.info("Schedule deleted: ID {}", scheduleId);
+            return ResponseUtil.success("Schedule deleted successfully", null);
+        }
+
+    }
 
 
 
-
-
-
-}

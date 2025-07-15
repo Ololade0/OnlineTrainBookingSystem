@@ -2,6 +2,7 @@ package train.booking.train.booking.service;
 
 import com.google.zxing.WriterException;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import org.springframework.data.domain.Page;
 import train.booking.train.booking.dto.BookingQueueDTO;
 import train.booking.train.booking.dto.BookingRequestDTO;
 import train.booking.train.booking.dto.BookingResponse;
@@ -19,7 +20,7 @@ public interface BookingService {
    BookingTicketDTO generateBookingReceipt(Long bookingId) throws UnirestException;
 
 
- byte[] generateReceiptPdf(Long bookingId) throws Exception;
+ byte[] generateReceiptInPdf(Long bookingId) throws Exception;
 
     String generateQRCodeBase64(String text) throws WriterException, IOException;
 
@@ -28,4 +29,6 @@ public interface BookingService {
    Booking updateBookingStatus(Long bookingId);
 
    BookingTicketDTO scanQRBookingCode(String bookingNumber);
+
+    Page<Booking> findAllBookingsBySchedule(int size, int page, Long scheduleId);
 }

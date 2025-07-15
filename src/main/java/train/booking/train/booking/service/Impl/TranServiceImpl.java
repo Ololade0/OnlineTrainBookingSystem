@@ -43,6 +43,24 @@ public class TranServiceImpl implements TrainService {
                 .orElseThrow(() -> new TrainCannotBeFoundException("Train not found"));
     }
 
+    @Override
+    public BaseResponse updateTrain(Long trainId, TrainDto trainDto) {
+        Train train = findTrainById(trainId);
+        train.setTrainName(trainDto.getTrainName());
+        train.setTrainCode(trainDto.getTrainCode());
+        trainRepository.save(train);
+        return  ResponseUtil.success("Train updated successfully", true);
+    }
+
+    @Override
+    public BaseResponse deleteTrain(Long trainId) {
+        Train train = trainRepository.findById(trainId)
+                .orElseThrow(() -> new TrainCannotBeFoundException("Train not found with id: " + trainId));
+
+        trainRepository.delete(train);
+        return ResponseUtil.success("Train deleted successfully", true);
+    }
+
     }
 
 

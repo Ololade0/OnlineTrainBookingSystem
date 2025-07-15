@@ -1,20 +1,83 @@
 
+<!--&lt;!&ndash; templates/home.html &ndash;&gt;-->
+<!--<!DOCTYPE html>-->
+<!--<html xmlns:th="http://www.thymeleaf.org" lang="en">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <title>Ololade TrainBooking | Home</title>-->
+<!--    <script src="https://cdn.tailwindcss.com"></script>-->
+<!--</head>-->
+<!--<body class="bg-gray-100 font-sans leading-relaxed tracking-wide flex flex-col">-->
+
+<!--&lt;!&ndash; Navbar &ndash;&gt;-->
+<!--<nav class="bg-white shadow-md p-4 flex justify-between items-center">-->
+<!--    <div class="text-2xl font-bold text-green-600">Ololade TrainBooking</div>-->
+<!--    <div class="space-x-4">-->
+<!--        <a href="/" class="text-gray-700 hover:text-green-600">Home</a>-->
+<!--        <a href="/bookings/search" class="text-gray-700 hover:text-green-600">Train-TimeTable</a>-->
+<!--        <a href="/bookings/my" class="text-gray-700 hover:text-green-600">My Bookings</a>-->
+<!--        <a href="/login" class="text-gray-700 hover:text-green-600">Login</a>-->
+<!--        <a href="/register" class="text-gray-700 hover:text-green-600">Register</a>-->
+<!--    </div>-->
+<!--</nav>-->
+
+<!--&lt;!&ndash; Hero Section &ndash;&gt;-->
+<!--<section class="text-center py-20 bg-green-50">-->
+<!--    <h1 class="text-4xl font-bold text-green-700 mb-4">Welcome to Ololade TrainBooking 🚆</h1>-->
+<!--    <p class="text-gray-600 text-lg mb-6">Book your train tickets easily and securely</p>-->
+<!--    <a href="/bookings/search" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition">Book Ticket Now</a>-->
+<!--</section>-->
+
+<!--&lt;!&ndash; Features Section &ndash;&gt;-->
+<!--<section class="grid grid-cols-1 md:grid-cols-3 gap-6 px-8 py-12">-->
+<!--    <div class="bg-white shadow-md p-6 rounded-lg text-center">-->
+<!--        <h3 class="text-xl font-semibold mb-2">📅Train Timetable</h3>-->
+<!--        <p class="text-gray-600">Check upcoming train routes and timings.</p>-->
+<!--    </div>-->
+<!--    <div class="bg-white shadow-md p-6 rounded-lg text-center">-->
+<!--        <h3 class="text-xl font-semibold mb-2">💳 Available Payment Option </h3>-->
+<!--        <p class="text-gray-600">Learn more about payment options and security.</p>-->
+<!--    </div>-->
+<!--    <div class="bg-white shadow-md p-6 rounded-lg text-center">-->
+<!--        <h3 class="text-xl font-semibold mb-2">📞 Contact Us</h3>-->
+<!--        <p class="text-gray-600">Need help? Reach out to our support team.</p>-->
+<!--    </div>-->
+<!--</section>-->
+
+<!--&lt;!&ndash; Footer &ndash;&gt;-->
+<!--<footer class="bg-white border-t text-center text-sm text-gray-500 py-4">-->
+<!--    © 2025 Ololade TrainBooking Inc. | <a href="/terms" class="hover:underline">Terms</a> | <a href="/privacy" class="hover:underline">Privacy</a>-->
+<!--</footer>-->
+
+<!--</body>-->
+<!--</html>-->
+
+
 <!-- templates/home.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>TrainBooking | Home</title>
+    <title>Ololade TrainBooking | Home</title>
     <script src="https://cdn.tailwindcss.com"></script>
+<!--    <style>-->
+<!--        /* Added background image for body */-->
+<!--        body {-->
+<!--            background-image: url('/static/images/train.jpg'); /* Path to your image */-->
+<!--            background-size: cover; /* Cover the entire area */-->
+<!--            background-position: center 10%; /* Center the image */-->
+<!--            background-repeat: no-repeat; /* Prevent repeating the image */-->
+<!--        }-->
+<!--  </style>-->
 </head>
 <body class="bg-gray-100 font-sans leading-relaxed tracking-wide flex flex-col">
 
 <!-- Navbar -->
 <nav class="bg-white shadow-md p-4 flex justify-between items-center">
-    <div class="text-2xl font-bold text-green-600">TrainBooking</div>
+    <div class="text-2xl font-bold text-green-600">Ololade TrainBooking</div>
     <div class="space-x-4">
         <a href="/" class="text-gray-700 hover:text-green-600">Home</a>
-        <a href="/bookings/search" class="text-gray-700 hover:text-green-600">Book Ticket</a>
+        <a href="/bookings/search" class="text-gray-700 hover:text-green-600">Train-TimeTable</a>
         <a href="/bookings/my" class="text-gray-700 hover:text-green-600">My Bookings</a>
         <a href="/login" class="text-gray-700 hover:text-green-600">Login</a>
         <a href="/register" class="text-gray-700 hover:text-green-600">Register</a>
@@ -23,7 +86,7 @@
 
 <!-- Hero Section -->
 <section class="text-center py-20 bg-green-50">
-    <h1 class="text-4xl font-bold text-green-700 mb-4">Welcome to TrainBooking 🚆</h1>
+    <h1 class="text-4xl font-bold text-green-700 mb-4">Welcome to Ololade TrainBooking 🚆</h1>
     <p class="text-gray-600 text-lg mb-6">Book your train tickets easily and securely</p>
     <a href="/bookings/search" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition">Book Ticket Now</a>
 </section>
@@ -31,11 +94,11 @@
 <!-- Features Section -->
 <section class="grid grid-cols-1 md:grid-cols-3 gap-6 px-8 py-12">
     <div class="bg-white shadow-md p-6 rounded-lg text-center">
-        <h3 class="text-xl font-semibold mb-2">📅 View Schedule</h3>
+        <h3 class="text-xl font-semibold mb-2">📅Train Timetable</h3>
         <p class="text-gray-600">Check upcoming train routes and timings.</p>
     </div>
     <div class="bg-white shadow-md p-6 rounded-lg text-center">
-        <h3 class="text-xl font-semibold mb-2">💳 Payment Info</h3>
+        <h3 class="text-xl font-semibold mb-2">💳 Available Payment Option </h3>
         <p class="text-gray-600">Learn more about payment options and security.</p>
     </div>
     <div class="bg-white shadow-md p-6 rounded-lg text-center">
@@ -46,8 +109,9 @@
 
 <!-- Footer -->
 <footer class="bg-white border-t text-center text-sm text-gray-500 py-4">
-    © 2025 TrainBooking Inc. | <a href="/terms" class="hover:underline">Terms</a> | <a href="/privacy" class="hover:underline">Privacy</a>
+    © 2025 Ololade TrainBooking Inc. | <a href="/terms" class="hover:underline">Terms</a> | <a href="/privacy" class="hover:underline">Privacy</a>
 </footer>
 
 </body>
 </html>
+

@@ -3,7 +3,10 @@ package train.booking.train.booking.controller;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.*;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import train.booking.train.booking.dto.BookingRequestDTO;
 import train.booking.train.booking.dto.BookingResponse;
@@ -23,7 +26,6 @@ public class BookingController {
     private final BookingService bookingService;
 
 
-
     @PostMapping("/book")
 
     public ResponseEntity<?> createBooking(@RequestBody BookingRequestDTO bookingRequestDTO) {
@@ -33,35 +35,41 @@ public class BookingController {
     }
 
     @GetMapping("/pnr/{pnrCode}")
-    public ResponseEntity<?> getBookingIdByPnr(@PathVariable String pnrCode) {
+    public ResponseEntity<?> findBookingByPnr(@PathVariable String pnrCode) {
         Optional<Booking> booking = bookingService.findBookingByBookingNumber(pnrCode);
         return ResponseEntity.ok(booking);
     }
 
+
     @GetMapping("/receipt/{bookingId}")
 
-    public  ResponseEntity<?> getBookingReceipt(@PathVariable  Long bookingId) throws IOException, UnirestException {
+    public  ResponseEntity<?> findBookingReceipt(@PathVariable  Long bookingId) throws IOException, UnirestException {
         BookingTicketDTO booking =bookingService.generateBookingReceipt(bookingId);
         return ResponseEntity.ok(booking);
 
     }
 
-
     @GetMapping("scan/qr/{bookingNumber}")
-    public ResponseEntity<?> getBookingByQr(@PathVariable String bookingNumber) {
+    public ResponseEntity<?> scanQRBookingCode(@PathVariable String bookingNumber) {
         BookingTicketDTO ticketDTO = bookingService.scanQRBookingCode(bookingNumber);
         return ResponseEntity.ok(ticketDTO);
     }
     @GetMapping("/download/{bookingId}")
     public ResponseEntity<byte[]> downloadReceipt(@PathVariable Long bookingId) throws Exception {
-        BookingTicketDTO ticket = bookingService.generateBookingReceipt(bookingId); // call your existing method
-        byte[] pdfBytes = bookingService.generateReceiptPdf(bookingId);
-
+        BookingTicketDTO ticket = bookingService.generateBookingReceipt(bookingId);
+        byte[] pdfBytes = bookingService.generateReceiptInPdf(bookingId);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
         headers.setContentDispositionFormData("attachment", "ticket_receipt.pdf");
 
         return ResponseEntity.ok().headers(headers).body(pdfBytes);
+    }
+        @GetMapping("all-booking/{scheduleId}")
+    public ResponseEntity<?> findAllBooking(  @PathVariable Long scheduleId,
+                                              @RequestParam(defaultValue = "0") int page,
+                                              @RequestParam(defaultValue = "50") int size){
+        Page allBooking= bookingService.findAllBookingsBySchedule(size, page, scheduleId);
+        return ResponseEntity.ok(allBooking);
     }
 
 

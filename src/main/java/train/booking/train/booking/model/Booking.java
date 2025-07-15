@@ -3,6 +3,8 @@
 package train.booking.train.booking.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -62,12 +64,12 @@ public class Booking {
 
 
     @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    @JsonIgnore
+    @JsonIgnore
     private BookingPayment bookingPayment;
 
     @OneToMany(mappedBy = "booking")
+    @JsonManagedReference
     private List<OtherPassenger> otherPassengers = new ArrayList<>();
-
 
     private Long scheduleId;
 

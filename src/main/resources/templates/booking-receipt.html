@@ -133,7 +133,9 @@
 
     <h3>QR Code</h3>
     <p>
-        <img th:src="'data:image/png;base64,' + ${QRCode}" alt="QR Code" class="qr" width="120"/>
+<!--        <img th:src="'data:image/png;base64,' + ${QRCode}" alt="QR Code" class="qr" width="120"/>-->
+        <img th:src="${qrCodeBase64}" alt="QR Code" class="qr" width="120"/>
+
     </p>
 
     <p class="footer">

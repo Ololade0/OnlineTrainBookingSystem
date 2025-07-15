@@ -1,5 +1,6 @@
 package train.booking.train.booking.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 import lombok.*;
@@ -41,6 +42,7 @@ public class OtherPassenger {
 
         @ManyToOne
         @JoinColumn(name = "booking_id", nullable = false)
+        @JsonBackReference
         private Booking booking;
 
         public OtherPassenger(String name, AgeRange passengerType, Integer seatNumber) {

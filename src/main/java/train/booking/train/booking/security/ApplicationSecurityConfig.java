@@ -32,6 +32,10 @@ public class ApplicationSecurityConfig{
                     try {
                         authorize
                                 .requestMatchers("/api/v1/auth/**").permitAll()
+                                .requestMatchers("/", "/api/v1/auth/home/home-page", "/home", "/register-superadmin").permitAll() // <- Added this
+
+                                // ✅ Allow access to static files like images, CSS, JS, etc.
+                                .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**", "/static/**").permitAll() // <- Added this
                                 .requestMatchers("/customError").permitAll()
                                 .requestMatchers("/access-denied").permitAll()
                                 .requestMatchers("/api/v1/auth/payments/**").permitAll()

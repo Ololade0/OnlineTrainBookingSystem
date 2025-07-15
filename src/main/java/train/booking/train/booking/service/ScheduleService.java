@@ -18,4 +18,8 @@ public interface ScheduleService {
 
 
     Page<Schedule> findAllSchedules(int page, int size);
+
+    BaseResponse updateSchedule(Long id, ScheduleDTO scheduleDTO);
+
+    BaseResponse deleteSchedule(Long id);
 }

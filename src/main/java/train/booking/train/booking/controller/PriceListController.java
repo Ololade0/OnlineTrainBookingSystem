@@ -33,8 +33,6 @@ public class PriceListController {
 
     }
 
-
-
         @GetMapping("/list")
         public ResponseEntity<List<PriceList>> getPrices(
                 @RequestParam Long scheduleId,
@@ -42,6 +40,7 @@ public class PriceListController {
         ) {
             return ResponseEntity.ok(priceListService.getPriceListByScheduleAndStation(scheduleId, stationId));
         }
+
 
         @GetMapping("/detail")
         public ResponseEntity<PriceList> getSpecificPrice(

@@ -5,7 +5,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import train.booking.train.booking.dto.UserDTO;
 import train.booking.train.booking.dto.UserLoginDTO;
 import train.booking.train.booking.dto.response.BaseResponse;
-
 import train.booking.train.booking.dto.response.UserLoginResponse;
 import train.booking.train.booking.model.User;
 
@@ -13,7 +12,7 @@ import javax.management.relation.RoleNotFoundException;
 import java.util.Optional;
 
 public interface UserService extends UserDetailsService {
-   BaseResponse superAdminSignUp(UserDTO userDTO) throws UnirestException, RoleNotFoundException;
+
     BaseResponse signUpNewUser(UserDTO userDTO) throws UnirestException, RoleNotFoundException;
    BaseResponse findUserByEmail(String email);
 
@@ -29,4 +28,6 @@ public interface UserService extends UserDetailsService {
    BaseResponse updateUserProfile(UserDTO userDTO, Long userId);
 
     void save(User user);
+
+
 }

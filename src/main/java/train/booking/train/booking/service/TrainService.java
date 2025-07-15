@@ -9,4 +9,8 @@ public interface TrainService {
     BaseResponse newTrain(TrainDto trainDto);
     Train  findTrainById(Long trainId);
 
+    BaseResponse updateTrain(Long trainId, TrainDto trainDto);
+    BaseResponse deleteTrain(Long trainId);
+
+
 }

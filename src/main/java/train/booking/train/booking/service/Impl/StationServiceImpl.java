@@ -1,19 +1,15 @@
 package train.booking.train.booking.service.Impl;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import train.booking.train.booking.dto.StationDto;
 import train.booking.train.booking.dto.response.BaseResponse;
-import train.booking.train.booking.dto.response.ResponseCodes;
 import train.booking.train.booking.dto.response.ResponseUtil;
-
 import train.booking.train.booking.exceptions.StationCannotBeFoundException;
 import train.booking.train.booking.model.Station;
 import train.booking.train.booking.repository.StationRepository;
 import train.booking.train.booking.service.StationService;
 
-import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -28,8 +24,6 @@ public class StationServiceImpl implements StationService {
         Station station = Station.builder()
                 .stationCode(stationDto.getStationCode())
                 .stationName(stationDto.getStationName())
-                .stationTag(stationDto.getStationTag())
-                .stationType(stationDto.getStationType())
                 .build();
          stationRepository.save(station);
          StationDto responseDto = StationDto
@@ -66,6 +60,25 @@ public class StationServiceImpl implements StationService {
                 .orElseThrow(() -> new StationCannotBeFoundException("Station not found"));
     }
 
+    @Override
+    public BaseResponse updateStation(Long stationId, StationDto stationDto) {
+        Station station = stationRepository.findById(stationId)
+                .orElseThrow(() -> new StationCannotBeFoundException("Station not found with id: " + stationId));
 
+        station.setStationName(stationDto.getStationName());
+        station.setStationCode(stationDto.getStationCode());
 
+        stationRepository.save(station);
+        return ResponseUtil.success("Station updated successfully", station);
+    }
+
+    @Override
+    public BaseResponse deleteStation(Long stationId) {
+        Station station = stationRepository.findById(stationId)
+                .orElseThrow(() -> new StationCannotBeFoundException("Station not found with id: " + stationId));
+
+        stationRepository.delete(station);
+        return ResponseUtil.success("Station deleted successfully", true);
+    }
 }
+

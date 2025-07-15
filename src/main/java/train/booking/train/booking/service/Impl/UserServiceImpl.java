@@ -47,50 +47,50 @@ public class UserServiceImpl implements UserService {
     private final Helper helper;
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    String activationToken = UUID.randomUUID().toString();
 
 
 
-    @Override
-    public BaseResponse superAdminSignUp(UserDTO userDTO) throws UnirestException {
-        try{
-        validateUserInfo(userDTO);
-        validateEmail(userDTO.getEmail());
-        validatePasswordStrength(userDTO.getPassword());
-        String activationToken = UUID.randomUUID().toString();
-        User signupUser = User.builder()
-                .firstName(userDTO.getFirstName())
-                .lastName(userDTO.getLastName())
-                .email(userDTO.getEmail())
-                .gender(userDTO.getGender())
-                .dateOfBirth(userDTO.getDateOfBirth())
-                .identificationType(userDTO.getIdentificationType())
-                .phoneNumber(userDTO.getPhoneNumber())
-                .password(bCryptPasswordEncoder.encode(userDTO.getPassword()))
-                .idNumber(userDTO.getIdNumber())
-                .isVerified(false)
-                .activationToken(activationToken)
-                .roleHashSet(new HashSet<>())
-                .build();
-        Role assignedRole = roleService.findByRoleType(RoleType.SUPERADMIN_ROLE);
-        signupUser.getRoleHashSet().add(assignedRole);
-        userRepository.save(signupUser);
-        Map m = getMap(signupUser);
-        notificationService.sendEmailV3(signupUser.getEmail(), "ACTIVATION LINK", helper.build(m, "account-activation-email"));
-        UserDTO responseDto = UserDTO.builder()
-                    .firstName(signupUser.getFirstName())
-                    .lastName(signupUser.getLastName())
-                    .email(signupUser.getEmail())
-                    .roles(signupUser.getRoleHashSet())
-                    .build();
-            return ResponseUtil.success("Account sucessfully created", responseDto);
-        }
-          catch (Exception e) {
-            log.error("Error during super admin sign-up: {}", e.getMessage());
-            return ResponseUtil.failed("Sign-up failed due to an unexpected error.", e);
-        }
 
-    }
+//    @Override
+//    public BaseResponse superAdminSignUp(UserDTO userDTO) throws UnirestException {
+//        try{
+//            validateUserInfo(userDTO);
+//            validateEmail(userDTO.getEmail());
+//            validatePasswordStrength(userDTO.getPassword());
+//            String activationToken = UUID.randomUUID().toString();
+//            User signupUser = User.builder()
+//                    .firstName(userDTO.getFirstName())
+//                    .lastName(userDTO.getLastName())
+//                    .email(userDTO.getEmail())
+//                    .gender(userDTO.getGender())
+//                    .dateOfBirth(userDTO.getDateOfBirth())
+//                    .identificationType(userDTO.getIdentificationType())
+//                    .phoneNumber(userDTO.getPhoneNumber())
+//                    .password(bCryptPasswordEncoder.encode(userDTO.getPassword()))
+//                    .idNumber(userDTO.getIdNumber())
+//                    .isVerified(false)
+//                    .activationToken(activationToken)
+//                    .roleHashSet(new HashSet<>())
+//                    .build();
+//            Role assignedRole = roleService.findByRoleType(RoleType.SUPERADMIN_ROLE);
+//            signupUser.getRoleHashSet().add(assignedRole);
+//            userRepository.save(signupUser);
+//            Map m = getMap(signupUser);
+//            notificationService.sendEmailV3(signupUser.getEmail(), "ACTIVATION LINK", helper.build(m, "account-activation-email"));
+//            UserDTO responseDto = UserDTO.builder()
+//                    .firstName(signupUser.getFirstName())
+//                    .lastName(signupUser.getLastName())
+//                    .email(signupUser.getEmail())
+//                    .roles(signupUser.getRoleHashSet())
+//                    .build();
+//            return ResponseUtil.success("Account sucessfully created", responseDto);
+//        }
+//        catch (Exception e) {
+//            log.error("Error during super admin sign-up: {}", e.getMessage());
+//            return ResponseUtil.failed("Sign-up failed due to an unexpected error.", e);
+//        }
+//
+//    }
 
 
 
@@ -98,10 +98,10 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public BaseResponse signUpNewUser(UserDTO userDTO) throws UnirestException, RoleNotFoundException {
         try {
-//        validateUserInfo(userDTO);
-//        validateEmail(userDTO.getEmail());
-//        validatePasswordStrength(userDTO.getPassword());
-//            String activationToken = UUID.randomUUID().toString();
+        validateUserInfo(userDTO);
+        validateEmail(userDTO.getEmail());
+        validatePasswordStrength(userDTO.getPassword());
+            String activationToken = UUID.randomUUID().toString();
             RoleType requestedRoleType = Optional.ofNullable(userDTO.getRoleType()).orElse(RoleType.USER_ROLE);
 
             log.info("Requested RoleType: {}", requestedRoleType);
@@ -199,10 +199,10 @@ public class UserServiceImpl implements UserService {
 
 
 
-
+@Override
     public User findUserByEmailOrNull(String email) {
-        Optional<User> user = userRepository.findUserByEmail(email);
-        return user.orElse(null);
+        Optional<User> user = Optional.ofNullable(userRepository.findUserByEmail(email).orElseThrow(() -> new UserCannotBeFoundException("User cannot be found")));
+        return user.get();
     }
 
     @Override

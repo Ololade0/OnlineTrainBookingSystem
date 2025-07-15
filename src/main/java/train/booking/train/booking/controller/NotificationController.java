@@ -25,9 +25,6 @@ public class NotificationController {
         return ResponseEntity.ok(userService.activateAccount(token));
     }
 
-
-
-
     @PostMapping("/trigger-websocket")
     public ResponseEntity<String> triggerWebSocket(@RequestBody BookSeatDTO seatDto) {
         notificationService.webSocketNotification(seatDto);

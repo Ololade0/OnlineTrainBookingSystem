@@ -3,21 +3,12 @@ package train.booking.train.booking.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import train.booking.train.booking.dto.ScheduleDTO;
 import train.booking.train.booking.dto.StationDto;
-import train.booking.train.booking.dto.TrainDto;
 import train.booking.train.booking.dto.response.BaseResponse;
-import train.booking.train.booking.model.Station;
-import train.booking.train.booking.service.ScheduleService;
 import train.booking.train.booking.service.StationService;
-import train.booking.train.booking.service.TrainService;
-
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @Slf4j
@@ -36,6 +27,19 @@ public class StationController {
 
 
 
+
+    @PutMapping("/update-station/{stationId}")
+    public ResponseEntity<BaseResponse> updateStation(@PathVariable Long stationId,
+                                                      @RequestBody @Validated StationDto stationDto) {
+        BaseResponse response = stationService.updateStation(stationId, stationDto);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/delete-station/{stationId}")
+    public ResponseEntity<BaseResponse> deleteStation(@PathVariable Long stationId) {
+        BaseResponse response = stationService.deleteStation(stationId);
+        return ResponseEntity.ok(response);
+    }
 
 
 

@@ -7,7 +7,6 @@ import train.booking.train.booking.dto.RoleDTo;
 import train.booking.train.booking.dto.response.BaseResponse;
 import train.booking.train.booking.dto.response.ResponseCodes;
 import train.booking.train.booking.dto.response.ResponseUtil;
-import train.booking.train.booking.exceptions.RoleAlraedyExistException;
 import train.booking.train.booking.exceptions.RoleException;
 import train.booking.train.booking.model.Role;
 import train.booking.train.booking.model.enums.RoleType;
@@ -52,6 +51,34 @@ public class RoleServiceImpl implements RoleService {
                 .orElseThrow(() -> new RoleNotFoundException("Role not found: " + roleType));
     }
 
+    @Override
+    public BaseResponse update(RoleDTo roleDTo) {
+        Optional<Role> optionalRole = roleRepository.findByRoleType(roleDTo.getRoleType());
+        if (optionalRole.isEmpty()) {
+            log.warn("Role not found for update: {}", roleDTo.getRoleType());
+            throw new RoleException("Role cannot be found");
+        }
+        optionalRole.get().setRoleType(roleDTo.getRoleType());
+        roleRepository.save(optionalRole.get());
+        RoleDTo response = RoleDTo.builder()
+                .roleType(optionalRole.get().getRoleType())
+                .build();
+
+        log.info("Role updated: {}", optionalRole.get().getRoleType());
+        return ResponseUtil.success("Role successfully updated", response);
+    }
+
+    @Override
+    public BaseResponse delete(RoleType roleType) {
+        Optional<Role> optionalRole = roleRepository.findByRoleType(roleType);
+        if (optionalRole.isEmpty()) {
+            log.warn("Role not found for deletion: {}", roleType);
+            throw new RoleException("Role cannot be found");
+        }
+        roleRepository.delete(optionalRole.get());
+        log.info("Role deleted: {}", roleType);
+        return ResponseUtil.success("Role successfully deleted", null);
+    }
 
 
 
