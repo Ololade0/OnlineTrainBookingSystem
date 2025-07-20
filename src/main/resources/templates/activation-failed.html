@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Activation Failed</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #fff5f5;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 100px auto;
+            background-color: #ffffff;
+            padding: 40px;
+            text-align: center;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(255, 0, 0, 0.1);
+        }
+        h1 {
+            color: #cc0000;
+        }
+        p {
+            font-size: 18px;
+            color: #333;
+        }
+        .button {
+            display: inline-block;
+            margin-top: 20px;
+            background-color: #cc0000;
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>⚠️ Activation Failed</h1>
+    <p th:text="${message}">The activation link is invalid or has expired.</p>
+    <a href="/register" class="button">Try Again</a>
+</div>
+</body>
+</html>

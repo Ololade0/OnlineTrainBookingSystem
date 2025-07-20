@@ -1,14 +1,10 @@
 
 package train.booking.train.booking.dto.response;
 
-import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
-import java.util.Objects;
 
 public class BaseResponse<E> implements Serializable {
-
-
-
+  
   private Status status;
 
   private E entity;

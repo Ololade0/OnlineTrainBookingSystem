@@ -71,6 +71,7 @@ public class NotificationServiceImpl implements NotificationService {
             request.setRecipient(recipient);
             request.setSubject(subject);
             request.setBody(activationLink);
+//            log.info("EMAIL SERVICE LINK: {}", activationLink);
 
             webClientBuilder.build()
                     .post()

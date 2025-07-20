@@ -8,7 +8,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import train.booking.train.booking.dto.FindAllByRolesDTO;
 import train.booking.train.booking.dto.UserDTO;
@@ -29,13 +28,6 @@ public class AdminController {
     public ResponseEntity<?> superAdminSignUp(@Valid @RequestBody UserDTO signUpRequest) throws UnirestException, RoleNotFoundException {;
         return new ResponseEntity<>(adminService.superAdminSignUp(signUpRequest), HttpStatus.CREATED);
     }
-
-    @GetMapping("/register-superadmin")
-    public String showAdminRegisterPage(Model model) {
-        model.addAttribute("admin", new UserDTO());
-        return "register-admin";
-    }
-
     @GetMapping("/find-roles")
     public ResponseEntity<?> getAllByRoles(@RequestParam RoleType roleType,
                                                @RequestParam(defaultValue = "0") int page,
@@ -43,6 +35,8 @@ public class AdminController {
       Page<FindAllByRolesDTO> listOfAdmin =  adminService.findAllByRole(roleType, page, size);
         return new ResponseEntity<>(listOfAdmin.getContent(), HttpStatus.OK);
     }
+
+
 
 
 

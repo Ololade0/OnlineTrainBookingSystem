@@ -5,8 +5,10 @@ import train.booking.train.booking.dto.ScheduleDTO;
 import train.booking.train.booking.dto.response.BaseResponse;
 import train.booking.train.booking.dto.response.ScheduleResponse;
 import train.booking.train.booking.model.Schedule;
+import train.booking.train.booking.model.enums.Route;
 
 import java.time.LocalDate;
+import java.util.List;
 
 
 public interface ScheduleService {
@@ -22,4 +24,6 @@ public interface ScheduleService {
     BaseResponse updateSchedule(Long id, ScheduleDTO scheduleDTO);
 
     BaseResponse deleteSchedule(Long id);
+
+    List<Schedule> findByRouteName(Route route);
 }

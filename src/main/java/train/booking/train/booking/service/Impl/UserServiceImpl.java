@@ -238,20 +238,16 @@ public class UserServiceImpl implements UserService {
 
     }
 @Override
-    public BaseResponse activateAccount(String token) throws UnirestException {
+    public String activateAccount(String token) throws UnirestException {
         User user = userRepository.findByActivationToken(token)
                 .orElseThrow(() -> new RuntimeException("Invalid or expired activation token"));
         if(user.isVerified()){
-            return ResponseUtil.success("Account is already activated.", null);
+            return "Account is already activated";
         }
         user.setVerified(true);
         user.setActivationToken(null);
        userRepository.save(user);
-       Map map = new HashMap<>();
-       map.put("firstName", user.getFirstName());
-        map.put("lastName", user.getLastName());
-       notificationService.sendEmailV3(user.getEmail(), user.getFirstName(),helper.build(map,  "account-activation-email"));
-       return ResponseUtil.success("Account as been sucessfully activated",null);
+       return "Account as been sucessfully activated";
 
     }
 

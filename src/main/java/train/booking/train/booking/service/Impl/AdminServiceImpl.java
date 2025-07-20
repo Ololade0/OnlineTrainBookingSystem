@@ -44,9 +44,9 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public BaseResponse superAdminSignUp(UserDTO userDTO) throws UnirestException {
         try{
-            validateStaffInfo(userDTO);
-            validateStaffEmail(userDTO.getEmail());
-            validateStaffPasswordStrength(userDTO.getPassword());
+//            validateStaffInfo(userDTO);
+//            validateStaffEmail(userDTO.getEmail());
+//            validateStaffPasswordStrength(userDTO.getPassword());
             String activationToken = UUID.randomUUID().toString();
             User signupUser = User.builder()
                     .firstName(userDTO.getFirstName())
@@ -101,8 +101,9 @@ public class AdminServiceImpl implements AdminService {
 
     private static Map getMap(User signupUser) {
         Map m = new HashMap<>();
-        m.put("FirstName", signupUser.getFirstName());
-        m.put("token",  "" + signupUser.getActivationToken());
+        m.put("firstName", signupUser.getFirstName());
+        m.put("lastName", signupUser.getLastName());
+        m.put("activationToken", signupUser.getActivationToken());
         log.info("Email to send activation to: {}", signupUser.getEmail());
         return m;
     }

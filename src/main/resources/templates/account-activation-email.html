@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -49,6 +50,8 @@
             border-radius: 5px;
             font-weight: bold;
         }
+
+
         .socials {
             text-align: center;
             margin-top: 30px;
@@ -68,31 +71,31 @@
 <body>
 <div class="email-wrapper">
   <div class="header">
-    <img class="logo" src="https://yourdomain.com/logo.png" alt="Company Logo">
-    <h1>YourAppName</h1>
+    <img class="logo" src="http://localhost:8080/images/train.jpg" alt="Train Logo">
+    <h1>Ololade Train Booking System</h1>
   </div>
   <div class="content">
-    <p>Hi <strong th:text="${firstName} + ' ' + ${lastName}">User</strong>,</p>
-    <p>Welcome to <strong>YourAppName</strong>! To complete your registration, please activate your account by clicking the button below:</p>
+    <p>Hi <strong th:text="${firstName + ' ' + lastName}">User</strong>,</p>
+    <p>Welcome to <strong>Ololade TrainBooking System</strong>! To complete your registration, please activate your account by clicking the button below:</p>
   </div>
-  <!--    <div class="button-container">-->
-  <!--        <a th:href="@{https://yourdomain.com/activate/{token}(token=${activationToken})}" class="button">Activate Account</a>-->
-  <!--    </div>-->
 
   <div class="button-container">
-    <a th:href="'http://localhost:8090/api/v1/auth/activate?token=' + ${activationToken}" class="button">Activate Account</a>
+    <a th:href="@{'http://localhost:8080/api/v1/auth/activate?token=' + ${activationToken}}" class="button">Activate Account</a>
   </div>
+
   <div class="content">
     <p>If you didn’t sign up for this account, you can safely ignore this email.</p>
-    <p>— The YourAppName Team</p>
+    <p>— Ololade Train Booking System Team</p>
   </div>
+
   <div class="socials">
     <a href="https://facebook.com/yourapp"><img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook"></a>
     <a href="https://twitter.com/yourapp"><img src="https://cdn-icons-png.flaticon.com/512/733/733579.png" alt="Twitter"></a>
     <a href="https://linkedin.com/company/yourapp"><img src="https://cdn-icons-png.flaticon.com/512/145/145807.png" alt="LinkedIn"></a>
   </div>
+
   <div class="footer">
-    &copy; 2025 ololade booking app. All rights reserved.<br>
+    &copy; 2025 ololade booking system. All rights reserved.<br>
     123 Business Ave, Tech City, NG<br>
     <a href="mailto:support@yourdomain.com">support@yourdomain.com</a>
   </div>

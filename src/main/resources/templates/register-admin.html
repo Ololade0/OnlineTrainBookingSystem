@@ -1,168 +1,419 @@
+<!--<!DOCTYPE html>-->
+<!--<html xmlns:th="http://www.thymeleaf.org">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <title>Super Admin Registration</title>-->
+<!--    <style>-->
+<!--        * {-->
+<!--            box-sizing: border-box;-->
+<!--        }-->
+
+<!--        body {-->
+<!--            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;-->
+<!--            background: #f0f2f5;-->
+<!--            margin: 0;-->
+<!--            padding: 0;-->
+<!--            display: flex;-->
+<!--            align-items: center;-->
+<!--            justify-content: center;-->
+<!--            height: 100vh;-->
+<!--            overflow: hidden;-->
+<!--        }-->
+
+<!--        .container {-->
+<!--            background-color: #fff;-->
+<!--            padding: 20px;-->
+<!--            border-radius: 12px;-->
+<!--            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);-->
+<!--            width: 100%;-->
+<!--            max-width: 1200px;-->
+<!--            display: flex;-->
+<!--            flex-wrap: wrap;-->
+<!--            gap: 10px;-->
+<!--            justify-content: center;-->
+<!--        }-->
+
+<!--        .welcome-header {-->
+<!--            text-align: center;-->
+<!--            font-size: 20px;-->
+<!--            font-weight: bold;-->
+<!--            color: #006400;-->
+<!--            margin-bottom: 10px;-->
+<!--            width: 100%;-->
+<!--        }-->
+
+<!--        h2 {-->
+<!--            text-align: center;-->
+<!--            margin-bottom: 20px;-->
+<!--            color: #333;-->
+<!--            font-size: 16px;-->
+<!--            width: 100%;-->
+<!--        }-->
+
+<!--        form {-->
+<!--            display: flex;-->
+<!--            flex-wrap: wrap;-->
+<!--            gap: 10px;-->
+<!--            width: 100%;-->
+<!--        }-->
+
+<!--        .form-group {-->
+<!--            flex: 1 1 25%;-->
+<!--            display: flex;-->
+<!--            flex-direction: column;-->
+<!--        }-->
+
+<!--        label {-->
+<!--            margin-bottom: 5px;-->
+<!--            font-weight: 600;-->
+<!--        }-->
+
+<!--        input, select {-->
+<!--            padding: 10px;-->
+<!--            border: 1px solid #ccc;-->
+<!--            border-radius: 6px;-->
+<!--            font-size: 14px;-->
+<!--        }-->
+
+<!--        input:focus, select:focus {-->
+<!--            border-color: #006400;-->
+<!--            outline: none;-->
+<!--        }-->
+
+<!--        button {-->
+<!--            padding: 12px;-->
+<!--            background-color: #006400;-->
+<!--            color: #fff;-->
+<!--            font-size: 16px;-->
+<!--            font-weight: bold;-->
+<!--            border: none;-->
+<!--            border-radius: 8px;-->
+<!--            cursor: pointer;-->
+<!--            margin-top: 10px;-->
+<!--            width: 100%;-->
+<!--        }-->
+
+<!--        button:hover {-->
+<!--            background-color: #004d00;-->
+<!--        }-->
+
+<!--        .form-footer {-->
+<!--            width: 100%;-->
+<!--            text-align: center;-->
+<!--            margin-top: 10px;-->
+<!--            font-size: 14px;-->
+<!--        }-->
+
+<!--        .form-footer a {-->
+<!--            color: #006400;-->
+<!--            text-decoration: none;-->
+<!--        }-->
+
+<!--        .form-footer a:hover {-->
+<!--            text-decoration: underline;-->
+<!--        }-->
+
+<!--        /* ✅ Added error message style */-->
+<!--        .error-message {-->
+<!--            width: 100%;-->
+<!--            text-align: center;-->
+<!--            color: red;-->
+<!--            font-weight: bold;-->
+<!--            margin-bottom: 10px;-->
+<!--        }-->
+
+<!--        @media (max-width: 768px) {-->
+<!--            .form-group {-->
+<!--                flex: 1 1 100%;-->
+<!--            }-->
+<!--        }-->
+<!--    </style>-->
+<!--</head>-->
+<!--<body>-->
+<!--<div class="container">-->
+<!--    <div class="welcome-header">Welcome to the Super Admin Registration Page</div>-->
+<!--    <h2>Please fill in the form below</h2>-->
+
+<!--    &lt;!&ndash; ✅ Added error message block &ndash;&gt;-->
+<!--    <div th:if="${errorMessage}" class="error-message">-->
+<!--        <p th:text="${errorMessage}"></p>-->
+<!--    </div>-->
+
+<!--    &lt;!&ndash; ✅ FORM ACTION: Must match your controller's POST mapping path &ndash;&gt;-->
+<!--    <form th:action="@{/api/v1/auth/admin/register-superadmin}" th:object="${admin}" method="post">-->
+
+<!--        &lt;!&ndash; ✅ FIELDS: All bind to UserDTO properties &ndash;&gt;-->
+<!--        <div class="form-group">-->
+<!--            <label>First Name</label>-->
+<!--            <input type="text" th:field="*{firstName}" placeholder="Enter first name" required />-->
+<!--        </div>-->
+
+<!--        <div class="form-group">-->
+<!--            <label>Last Name</label>-->
+<!--            <input type="text" th:field="*{lastName}" placeholder="Enter last name" required />-->
+<!--        </div>-->
+
+<!--        <div class="form-group">-->
+<!--            <label>Email</label>-->
+<!--            <input type="email" th:field="*{email}" placeholder="admin@example.com"-->
+<!--                   pattern="^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$"-->
+<!--                   required />-->
+<!--        </div>-->
+
+<!--        <div class="form-group">-->
+<!--            <label>Password</label>-->
+<!--            <input type="password" th:field="*{password}" placeholder="********"-->
+<!--                   pattern="^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=]).{8,}$"-->
+<!--                   required />-->
+<!--        </div>-->
+
+<!--        <div class="form-group">-->
+<!--            <label>Confirm Password</label>-->
+<!--            <input type="password" th:field="*{confirmPassword}" placeholder="Re-enter password" required />-->
+<!--        </div>-->
+
+<!--        <div class="form-group">-->
+<!--            <label>Phone Number</label>-->
+<!--            <input type="tel" th:field="*{phoneNumber}" placeholder="+234..." required />-->
+<!--        </div>-->
+
+<!--        <div class="form-group">-->
+<!--            <label>Date of Birth</label>-->
+<!--            <input type="date" th:field="*{dateOfBirth}" required />-->
+<!--        </div>-->
+
+<!--        <div class="form-group">-->
+<!--            <label>Gender</label>-->
+<!--            <select th:field="*{gender}" required>-->
+<!--                <option value="" disabled selected>Select gender</option>-->
+<!--                <option value="MALE">Male</option>-->
+<!--                <option value="FEMALE">Female</option>-->
+<!--            </select>-->
+<!--        </div>-->
+
+<!--        <div class="form-group">-->
+<!--            <label>Identification Type</label>-->
+<!--            <select th:field="*{identificationType}" required>-->
+<!--                <option value="" disabled selected>Select ID type</option>-->
+<!--                <option value="NIN">NIN</option>-->
+<!--                <option value="PASSPORT">Passport</option>-->
+<!--                <option value="DRIVER_LICENSE">Driver’s License</option>-->
+<!--            </select>-->
+<!--        </div>-->
+
+<!--        <div class="form-group">-->
+<!--            <label>ID Number</label>-->
+<!--            <input type="text" th:field="*{idNumber}" placeholder="ID number"-->
+<!--                   pattern=".{10,15}" title="ID must be between 10 and 15 characters" required />-->
+<!--        </div>-->
+
+<!--        <button type="submit">Register Admin</button>-->
+
+<!--        &lt;!&ndash; ✅ FOOTER LINK TO LOGIN OR SUCCESS PAGE &ndash;&gt;-->
+<!--        <div class="form-footer">-->
+<!--            Already have an account? <a th:href="@{/login}">Login</a>-->
+<!--        </div>-->
+<!--    </form>-->
+<!--</div>-->
+<!--</body>-->
+<!--</html>-->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Super Admin Registration</title>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f0f2f5;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            overflow: hidden; /* Prevent scrolling */
-        }
-
-        .container {
-            background-color: #fff;
-            padding: 20px; /* Reduced padding */
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            width: 100%; /* Full width */
-            max-width: 1200px; /* Max width for larger screens */
-            display: flex; /* Flexbox for horizontal layout */
-            flex-wrap: wrap; /* Wrap content if necessary */
-            gap: 10px; /* Space between items */
-            justify-content: center; /* Center the content */
-        }
-
-        .welcome-header {
-            text-align: center;
-            font-size: 20px;
-            font-weight: bold;
-            color: #006400; /* Dark green */
-            margin-bottom: 10px;
-            width: 100%; /* Full width */
-        }
-
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #333;
-            font-size: 16px;
-            width: 100%; /* Full width */
-        }
-
-        form {
-            display: flex;
-            flex-wrap: wrap; /* Allow wrapping for form elements */
-            gap: 10px; /* Space between form groups */
-            width: 100%; /* Full width */
-        }
-
-        .form-group {
-            flex: 1 1 25%; /* Set to take up 25% of the width */
-            display: flex;
-            flex-direction: column;
-        }
-
-        label {
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-
-        input, select {
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-
-        input:focus, select:focus {
-            border-color: #006400; /* Dark green focus border */
-            outline: none;
-        }
-
-        button {
-            padding: 12px;
-            background-color: #006400; /* Dark green button */
-            color: #fff;
-            font-size: 16px;
-            font-weight: bold;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-top: 10px; /* Reduced margin */
-            width: 100%; /* Full width button */
-        }
-
-        button:hover {
-            background-color: #004d00; /* Even darker green on hover */
-        }
-
-        .form-footer {
-            width: 100%;
-            text-align: center;
-            margin-top: 10px;
-            font-size: 14px;
-        }
-
-        .form-footer a {
-            color: #006400; /* Dark green link */
-            text-decoration: none;
-        }
-
-        .form-footer a:hover {
-            text-decoration: underline;
-        }
-
-        @media (max-width: 768px) {
-            .form-group {
-                flex: 1 1 100%; /* Stack on smaller screens */
+        <style>
+            * {
+                box-sizing: border-box;
             }
-        }
-    </style>
+
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background: #f0f2f5;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 100vh;
+                overflow: hidden;
+            }
+
+            .container {
+                background-color: #fff;
+                padding: 20px;
+                border-radius: 12px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                width: 100%;
+                max-width: 1200px;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                justify-content: center;
+            }
+
+            .welcome-header {
+                text-align: center;
+                font-size: 20px;
+                font-weight: bold;
+                color: #006400;
+                margin-bottom: 10px;
+                width: 100%;
+            }
+
+            h2 {
+                text-align: center;
+                margin-bottom: 20px;
+                color: #333;
+                font-size: 16px;
+                width: 100%;
+            }
+
+            form {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                width: 100%;
+            }
+
+            .form-group {
+                flex: 1 1 25%;
+                display: flex;
+                flex-direction: column;
+            }
+
+            label {
+                margin-bottom: 5px;
+                font-weight: 600;
+            }
+
+            input, select {
+                padding: 10px;
+                border: 1px solid #ccc;
+                border-radius: 6px;
+                font-size: 14px;
+            }
+
+            input:focus, select:focus {
+                border-color: #006400;
+                outline: none;
+            }
+
+            button {
+                padding: 12px;
+                background-color: #006400;
+                color: #fff;
+                font-size: 16px;
+                font-weight: bold;
+                border: none;
+                border-radius: 8px;
+                cursor: pointer;
+                margin-top: 10px;
+                width: 100%;
+            }
+
+            button:hover {
+                background-color: #004d00;
+            }
+
+            .form-footer {
+                width: 100%;
+                text-align: center;
+                margin-top: 10px;
+                font-size: 14px;
+            }
+
+            .form-footer a {
+                color: #006400;
+                text-decoration: none;
+            }
+
+            .form-footer a:hover {
+                text-decoration: underline;
+            }
+
+            /* ✅ Added error message style */
+            .error-message {
+                width: 100%;
+                text-align: center;
+                color: red;
+                font-weight: bold;
+                margin-bottom: 10px;
+            }
+
+            @media (max-width: 768px) {
+                .form-group {
+                    flex: 1 1 100%;
+                }
+            }
+        </style>
 </head>
 <body>
 <div class="container">
     <div class="welcome-header">Welcome to the Super Admin Registration Page</div>
     <h2>Please fill in the form below</h2>
 
-    <form th:action="@{/api/v1/admins/register}" th:object="${admin}" method="post">
+    <!-- Error message block -->
+    <div th:if="${errorMessage}" class="error-message">
+        <p th:text="${errorMessage}"></p>
+    </div>
+
+    <form th:action="@{/api/v1/auth/admin/register-superadmin}" th:object="${admin}" method="post">
+
         <div class="form-group">
             <label>First Name</label>
             <input type="text" th:field="*{firstName}" placeholder="Enter first name" required />
+            <div th:if="${#fields.hasErrors('firstName')}" class="error-message">
+                <p th:errors="*{firstName}"></p>
+            </div>
         </div>
 
         <div class="form-group">
             <label>Last Name</label>
             <input type="text" th:field="*{lastName}" placeholder="Enter last name" required />
+            <div th:if="${#fields.hasErrors('lastName')}" class="error-message">
+                <p th:errors="*{lastName}"></p>
+            </div>
         </div>
 
         <div class="form-group">
             <label>Email</label>
-            <input type="email" th:field="*{email}" placeholder="admin@example.com"
-                   pattern="^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$"
-                   required />
+            <input type="email" th:field="*{email}" placeholder="admin@example.com" required />
+            <div th:if="${#fields.hasErrors('email')}" class="error-message">
+                <p th:errors="*{email}"></p>
+            </div>
         </div>
 
         <div class="form-group">
             <label>Password</label>
-            <input type="password" th:field="*{password}" placeholder="********"
-                   pattern="^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=]).{8,}$"
-                   required />
+            <input type="password" th:field="*{password}" placeholder="********" required />
+            <div th:if="${#fields.hasErrors('password')}" class="error-message">
+                <p th:errors="*{password}"></p>
+            </div>
         </div>
 
         <div class="form-group">
             <label>Confirm Password</label>
             <input type="password" th:field="*{confirmPassword}" placeholder="Re-enter password" required />
+            <div th:if="${#fields.hasErrors('confirmPassword')}" class="error-message">
+                <p th:errors="*{confirmPassword}"></p>
+            </div>
         </div>
 
         <div class="form-group">
             <label>Phone Number</label>
             <input type="tel" th:field="*{phoneNumber}" placeholder="+234..." required />
+            <div th:if="${#fields.hasErrors('phoneNumber')}" class="error-message">
+                <p th:errors="*{phoneNumber}"></p>
+            </div>
         </div>
 
         <div class="form-group">
             <label>Date of Birth</label>
             <input type="date" th:field="*{dateOfBirth}" required />
+            <div th:if="${#fields.hasErrors('dateOfBirth')}" class="error-message">
+                <p th:errors="*{dateOfBirth}"></p>
+            </div>
         </div>
 
         <div class="form-group">
@@ -172,6 +423,9 @@
                 <option value="MALE">Male</option>
                 <option value="FEMALE">Female</option>
             </select>
+            <div th:if="${#fields.hasErrors('gender')}" class="error-message">
+                <p th:errors="*{gender}"></p>
+            </div>
         </div>
 
         <div class="form-group">
@@ -182,12 +436,17 @@
                 <option value="PASSPORT">Passport</option>
                 <option value="DRIVER_LICENSE">Driver’s License</option>
             </select>
+            <div th:if="${#fields.hasErrors('identificationType')}" class="error-message">
+                <p th:errors="*{identificationType}"></p>
+            </div>
         </div>
 
         <div class="form-group">
             <label>ID Number</label>
-            <input type="text" th:field="*{idNumber}" placeholder="ID number"
-                   pattern=".{10,15}" title="ID must be between 10 and 15 characters" required />
+            <input type="text" th:field="*{idNumber}" placeholder="ID number" required />
+            <div th:if="${#fields.hasErrors('idNumber')}" class="error-message">
+                <p th:errors="*{idNumber}"></p>
+            </div>
         </div>
 
         <button type="submit">Register Admin</button>

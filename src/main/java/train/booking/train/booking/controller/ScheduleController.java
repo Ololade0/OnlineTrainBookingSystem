@@ -11,11 +11,14 @@ import train.booking.train.booking.dto.response.ScheduleResponse;
 import train.booking.train.booking.dto.response.BaseResponse;
 import train.booking.train.booking.exceptions.ScheduleCannotBeFoundException;
 import train.booking.train.booking.model.Schedule;
+import train.booking.train.booking.model.enums.Route;
 import train.booking.train.booking.service.ScheduleService;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:5173")
 @Slf4j
 @RequestMapping("/api/v1/auth/schedule")
 @RequiredArgsConstructor
@@ -73,7 +76,11 @@ public class ScheduleController {
         return ResponseEntity.ok(response);
     }
 
-
+    @GetMapping("schedule-route")
+     public ResponseEntity<?> findScheduleByRoute(@RequestParam Route route){
+       List<Schedule> scheduleList = scheduleService.findByRouteName(route);
+       return ResponseEntity.ok(scheduleList);
+     }
 
 
 

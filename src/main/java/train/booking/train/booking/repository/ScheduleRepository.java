@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import train.booking.train.booking.dto.ScheduleDetailsDTO;
 import train.booking.train.booking.model.Schedule;
+import train.booking.train.booking.model.enums.Route;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -51,6 +52,8 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
             @Param("travelDate") LocalDate travelDate
     );
 
+
+    List<Schedule> findByRoute(Route route);
 
 
 }

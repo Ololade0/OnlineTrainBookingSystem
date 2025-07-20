@@ -23,7 +23,7 @@ public interface UserService extends UserDetailsService {
 
    Optional<User> findUserByActivationToken(String token);
 
-   BaseResponse activateAccount(String token) throws UnirestException;
+   String activateAccount(String token) throws UnirestException;
 
    BaseResponse updateUserProfile(UserDTO userDTO, Long userId);
 
