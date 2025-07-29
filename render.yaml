@@ -13,6 +13,7 @@ services:
     plan: free
     dockerfilePath: ./Dockerfile.activemq
     autoDeploy: false
+    # Only include ports if supported
     ports:
       - port: 61616
         protocol: tcp
