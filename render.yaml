@@ -1,8 +1,20 @@
 services:
   - type: web
     name: train-booking-app
-    env: Docker
+    env: docker
     plan: free
     buildCommand: ./mvnw clean install
-    startCommand: java -jar target/*.jar
+    startCommand: java -jar target/train.booking-0.0.1-SNAPSHOT.jar
     autoDeploy: true
+
+  - type: pserv
+    name: activemq
+    env: docker
+    plan: free
+    dockerfilePath: ./Dockerfile.activemq
+    autoDeploy: false
+    ports:
+      - port: 61616
+        protocol: tcp
+      - port: 8161
+        protocol: tcp

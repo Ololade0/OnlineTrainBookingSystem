@@ -1,0 +1,5 @@
+# Dockerfile.activemq
+FROM rmohr/activemq:5.17.6
+
+ENV ACTIVEMQ_ADMIN_LOGIN=admin
+ENV ACTIVEMQ_ADMIN_PASSWORD=admin
