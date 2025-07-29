@@ -5,5 +5,3 @@ FROM rmohr/activemq:5.17.6
 ENV ACTIVEMQ_ADMIN_LOGIN=admin
 ENV ACTIVEMQ_ADMIN_PASSWORD=admin
 
-# Optional: expose ports (Render handles this from render.yaml too)
-EXPOSE 61616 8161
