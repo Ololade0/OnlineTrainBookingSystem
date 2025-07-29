@@ -3,8 +3,6 @@ services:
     name: train-booking-app
     env: docker
     plan: free
-    buildCommand: ./mvnw clean install
-    startCommand: java -jar target/train.booking-0.0.1-SNAPSHOT.jar
     autoDeploy: true
 
   - type: pserv
