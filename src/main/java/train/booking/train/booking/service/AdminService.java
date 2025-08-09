@@ -10,8 +10,6 @@ import train.booking.train.booking.model.enums.RoleType;
 public interface AdminService {
     BaseResponse superAdminSignUp(UserDTO userDTO) throws UnirestException;
 
-
-
     Page<FindAllByRolesDTO> findAllByRole(RoleType roleType, int page, int size);
 
 
