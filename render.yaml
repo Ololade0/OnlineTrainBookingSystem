@@ -5,31 +5,16 @@ services:
     plan: free
     dockerfilePath: ./Dockerfile
     envVars:
-      # MySQL (Clever Cloud)
       - key: SPRING_DATASOURCE_URL
-        value: jdbc:mysql://bgaqhcpz2j2pojkwci7y-mysql.services.clever-cloud.com:3306/bgaqhcpz2j2pojkwci7y
+        value: jdbc:mysql://<MYSQL_HOST>:<MYSQL_PORT>/<MYSQL_DB>?useSSL=false&serverTimezone=UTC
       - key: SPRING_DATASOURCE_USERNAME
-        value: uz0gx4ciohpnybjf
+        value: <MYSQL_USER>
       - key: SPRING_DATASOURCE_PASSWORD
-        value: oJnQk0kU7Gp99xzfDE30
-      - key: SPRING_DATASOURCE_DRIVER_CLASS_NAME
-        value: com.mysql.cj.jdbc.Driver
-
-      # JPA
-      - key: SPRING_JPA_HIBERNATE_DDL_AUTO
-        value: update
-      - key: SPRING_JPA_SHOW_SQL
-        value: "true"
-      - key: SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT
-        value: org.hibernate.dialect.MySQL8Dialect
-
-      # Security
-      - key: SPRING_SECURITY_USER_NAME
+        value: <MYSQL_PASSWORD>
+      - key: SPRING_SECURITY_USER
         value: user
-      - key: SPRING_SECURITY_USER_PASSWORD
+      - key: SPRING_SECURITY_PASS
         value: password
-
-      # JWT
       - key: JWT_SECRET
         value: my-very-very-secret-string
       - key: JWT_ISSUER
@@ -38,70 +23,48 @@ services:
         value: SECRET_KEY
       - key: AUTHORITIES_KEY
         value: ROLE_
-
-      # ActiveMQ
-      - key: SPRING_ACTIVEMQ_BROKER_URL
+      - key: ACTIVEMQ_BROKER_URL
         value: tcp://activemq:61616
-      - key: SPRING_ACTIVEMQ_USER
+      - key: ACTIVEMQ_USER
         value: admin
-      - key: SPRING_ACTIVEMQ_PASSWORD
+      - key: ACTIVEMQ_PASSWORD
         value: admin
-      - key: SPRING_ACTIVEMQ_PACKAGES_TRUST_ALL
-        value: "true"
-      - key: SPRING_JMS_LISTENER_CONCURRENCY
-        value: "5"
-      - key: SPRING_JMS_LISTENER_MAX_CONCURRENCY
-        value: "10"
-
-      # External APIs
-      - key: API_BASEURL
+      - key: API_BASE_URL
         value: https://api.openrouteservice.org
       - key: API_KEY
-        value: 5b3ce3597851110001cf624881d5a4bf24d0434289e2ca5b86f14f8c
-
-      # Email
+        value: <API_KEY>
       - key: ACTIVATION_URL
         value: http://localhost:8090/api/v1/auth/activate
       - key: EMAIL_URL
         value: https://api.cicod.com/email/send/noattachment
       - key: EMAIL_SENDER
         value: noreply@cicod.com
-
-      # PayPal
       - key: PAYPAL_CLIENT_ID
-        value: ASTS4s2So-TevJ2GSnS1VnkhEKRoImmt14FopJt3DzrAD8N_E5eUJHAoJ2I5dLpdnsQnOoyEx5uCuYqA
+        value: <PAYPAL_CLIENT_ID>
       - key: PAYPAL_CLIENT_SECRET
-        value: EDXzVixPVMeVIuN65QcSRwPZcW_NLdoEWE1nyT6LShOeCxt3vm_c1-fnuKlaCYxOtsYS9Q7eJtKureKS
+        value: <PAYPAL_CLIENT_SECRET>
       - key: PAYPAL_MODE
         value: sandbox
       - key: PAYPAL_CANCEL_URL
         value: http://localhost:8090/api/v1/auth/payments/cancel
       - key: PAYPAL_SUCCESS_URL
         value: http://localhost:8090/api/v1/auth/payments/success
-
-      # Stripe
       - key: STRIPE_SECRET_KEY
-        value: sk_test_51Qnl0PDMEHdujgzhxItqNbghPjo80zpEtI32LoLyBkL6Us8TOLC4J6pbsgfoJoCgOkTsiYKKAYGpNM7b2co81c9S00Od8jwrIB
-      - key: STRIPE_API_PUBLISHABLE_KEY
-        value: pk_test_51Qnl0PDMEHdujgzhRFvsUBwdRvNg0GUW2kJVQefiGBzXSy2gioe2qh18P2yz7oSwzWOzNFRv0tR8je8Jb8FPzcaa00gG9KSTxc
+        value: <STRIPE_SECRET_KEY>
+      - key: STRIPE_PUBLISHABLE_KEY
+        value: <STRIPE_PUBLISHABLE_KEY>
       - key: STRIPE_WEBHOOK_SECRET
-        value: whsec_a5a59bc9300078e9fa40534160d1b85934824bc0d8bcd15e638634baaa544008
-
-      # Paystack
+        value: <STRIPE_WEBHOOK_SECRET>
       - key: PAYSTACK_SECRET_KEY
-        value: sk_test_5e4bdbaf59f560ef804d721af8a3844951c0f1e3
+        value: <PAYSTACK_SECRET_KEY>
       - key: PAYSTACK_PUBLIC_KEY
-        value: pk_test_7b916452b5da81d7dc000459d1c6e418cf78760f
+        value: <PAYSTACK_PUBLIC_KEY>
       - key: PAYSTACK_BASE_URL
         value: https://api.paystack.co
       - key: PAYSTACK_INIT_URL
         value: https://api.paystack.co/transaction/initialize
-
-      # QR Code
       - key: QRBASE_URL
         value: http://localhost:8090/api/v1/auth/booking/qr
-
-      # CORS
       - key: CORS_ALLOWED_ORIGINS
         value: http://localhost:5173
 
