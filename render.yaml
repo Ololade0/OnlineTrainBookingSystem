@@ -1,0 +1,75 @@
+services:
+  - type: web
+    name: springboot-app
+    env: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: SPRING_DATASOURCE_URL
+        value: jdbc:mysql://<MYSQL_HOST>:<MYSQL_PORT>/<MYSQL_DB>?useSSL=false&serverTimezone=UTC
+      - key: SPRING_DATASOURCE_USERNAME
+        value: <MYSQL_USER>
+      - key: SPRING_DATASOURCE_PASSWORD
+        value: <MYSQL_PASSWORD>
+      - key: SPRING_SECURITY_USER
+        value: user
+      - key: SPRING_SECURITY_PASS
+        value: password
+      - key: JWT_SECRET
+        value: my-very-very-secret-string
+      - key: JWT_ISSUER
+        value: Lolade
+      - key: SIGNING_KEY
+        value: SECRET_KEY
+      - key: AUTHORITIES_KEY
+        value: ROLE_
+      - key: ACTIVEMQ_BROKER_URL
+        value: tcp://activemq:61616
+      - key: ACTIVEMQ_USER
+        value: admin
+      - key: ACTIVEMQ_PASSWORD
+        value: admin
+      - key: API_BASE_URL
+        value: https://api.openrouteservice.org
+      - key: API_KEY
+        value: <API_KEY>
+      - key: ACTIVATION_URL
+        value: http://localhost:8090/api/v1/auth/activate
+      - key: EMAIL_URL
+        value: https://api.cicod.com/email/send/noattachment
+      - key: EMAIL_SENDER
+        value: noreply@cicod.com
+      - key: PAYPAL_CLIENT_ID
+        value: <PAYPAL_CLIENT_ID>
+      - key: PAYPAL_CLIENT_SECRET
+        value: <PAYPAL_CLIENT_SECRET>
+      - key: PAYPAL_MODE
+        value: sandbox
+      - key: PAYPAL_CANCEL_URL
+        value: http://localhost:8090/api/v1/auth/payments/cancel
+      - key: PAYPAL_SUCCESS_URL
+        value: http://localhost:8090/api/v1/auth/payments/success
+      - key: STRIPE_SECRET_KEY
+        value: <STRIPE_SECRET_KEY>
+      - key: STRIPE_PUBLISHABLE_KEY
+        value: <STRIPE_PUBLISHABLE_KEY>
+      - key: STRIPE_WEBHOOK_SECRET
+        value: <STRIPE_WEBHOOK_SECRET>
+      - key: PAYSTACK_SECRET_KEY
+        value: <PAYSTACK_SECRET_KEY>
+      - key: PAYSTACK_PUBLIC_KEY
+        value: <PAYSTACK_PUBLIC_KEY>
+      - key: PAYSTACK_BASE_URL
+        value: https://api.paystack.co
+      - key: PAYSTACK_INIT_URL
+        value: https://api.paystack.co/transaction/initialize
+      - key: QRBASE_URL
+        value: http://localhost:8090/api/v1/auth/booking/qr
+      - key: CORS_ALLOWED_ORIGINS
+        value: http://localhost:5173
+
+  - type: private_service
+    name: activemq
+    env: docker
+    plan: free
+    dockerfilePath: ./activemq.Dockerfile
