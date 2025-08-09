@@ -1,0 +1,2 @@
+FROM rmohr/activemq:5.16.5
+EXPOSE 61616 8161
