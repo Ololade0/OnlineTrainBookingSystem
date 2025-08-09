@@ -13,8 +13,6 @@ services:
         value: oJnQk0kU7Gp99xzfDE30
       - key: SPRING_SECURITY_USER
         value: user
-      - key: SPRING_SECURITY_PASS
-        value: password
       - key: JWT_SECRET
         value: my-very-very-secret-string
       - key: JWT_ISSUER
