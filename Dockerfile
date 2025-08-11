@@ -1,5 +1,5 @@
-# Stage 1: Build your Spring Boot app
-FROM maven:3.8.6-openjdk-21 AS builder
+# Stage 1: Build your Spring Boot app with Java 21
+FROM maven:3.9.2-eclipse-temurin-21 AS builder
 
 WORKDIR /app
 
