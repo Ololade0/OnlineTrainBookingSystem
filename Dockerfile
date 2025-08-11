@@ -1,22 +1,14 @@
-# Stage 1: Build
-FROM eclipse-temurin:21-jdk AS builder
+FROM rmohr/activemq:latest
 
-WORKDIR /app
-COPY . .
+# Copy your Spring Boot jar
+COPY target/app.jar /opt/app/train.booking-0.0.1-SNAPSHOT.jar
 
-# Give permission to run mvnw
-RUN chmod +x mvnw
+# Copy start script
+COPY start.sh /opt/start.sh
+RUN chmod +x /opt/start.sh
 
-# Build the application JAR (skip tests for faster build)
-RUN ./mvnw clean package -DskipTests
+# Expose ActiveMQ ports and app port if needed
+EXPOSE 61616 8161 8080
 
-# Stage 2: Run
-FROM eclipse-temurin:21-jre
-
-WORKDIR /app
-
-# Copy the jar from the builder stage
-COPY --from=builder /app/target/*.jar app.jar
-
-# Run the Spring Boot application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Run the startup script
+CMD ["/opt/start.sh"]
