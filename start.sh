@@ -1,13 +1,14 @@
 #!/bin/bash
 
-# Start ActiveMQ in background
+# Start ActiveMQ in the background
 /opt/activemq/bin/activemq console &
 
-# Wait 10 seconds for ActiveMQ to fully start
+# Wait for ActiveMQ to start properly
 sleep 10
 
-# Start your Spring Boot app
+# Start your Spring Boot application
 java -jar /opt/app/train.booking-0.0.1-SNAPSHOT.jar
 
-# Keep the container running (optional)
+# Keep the container running
 wait
+
