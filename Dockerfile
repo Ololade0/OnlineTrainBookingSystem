@@ -1,13 +1,36 @@
-FROM rmohr/activemq:latest
+# =========================
+# 1️⃣ Build stage
+# =========================
+FROM maven:3.9.6-eclipse-temurin-21 AS build
 
-# Use /tmp/app instead of /opt/app
-RUN mkdir -p /tmp/app
+# Set working directory
+WORKDIR /app
 
-COPY --from=builder /app/target/train.booking-0.0.1-SNAPSHOT.jar /tmp/app/train.booking-0.0.1-SNAPSHOT.jar
+# Copy Maven descriptor first for caching dependencies
+COPY pom.xml .
 
-COPY start.sh /tmp/start.sh
-RUN chmod +x /tmp/start.sh
+# Download dependencies (caches layer if pom.xml unchanged)
+RUN mvn dependency:go-offline -B
 
-EXPOSE 61616 8161 8080
+# Copy source code
+COPY src ./src
 
-CMD ["/tmp/start.sh"]
+# Package the application
+RUN mvn clean package -DskipTests
+
+# =========================
+# 2️⃣ Runtime stage
+# =========================
+FROM eclipse-temurin:21-jdk-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Copy jar from build stage
+COPY --from=build /app/target/*.jar app.jar
+
+# Expose Spring Boot port (ActiveMQ embedded stays internal)
+EXPOSE 8080
+
+# Run the application
+ENTRYPOINT ["java", "-jar", "app.jar"]
