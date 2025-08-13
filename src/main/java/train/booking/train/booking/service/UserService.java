@@ -14,18 +14,18 @@ import java.util.Optional;
 public interface UserService extends UserDetailsService {
 
     BaseResponse signUpNewUser(UserDTO userDTO) throws UnirestException, RoleNotFoundException;
-   BaseResponse findUserByEmail(String email);
+    BaseResponse findUserByEmail(String email);
 
-   User findUserByEmailOrNull(String email);
-   User findUserById(Long userId);
+    User findUserByEmailOrNull(String email);
+    User findUserById(Long userId);
 
-   UserLoginResponse login(UserLoginDTO userLoginRequestModel);
+    UserLoginResponse login(UserLoginDTO userLoginRequestModel);
 
-   Optional<User> findUserByActivationToken(String token);
+    Optional<User> findUserByActivationToken(String token);
 
-   String activateAccount(String token) throws UnirestException;
+    String activateAccount(String token) throws UnirestException;
 
-   BaseResponse updateUserProfile(UserDTO userDTO, Long userId);
+    BaseResponse updateUserProfile(UserDTO userDTO, Long userId);
 
     void save(User user);
 

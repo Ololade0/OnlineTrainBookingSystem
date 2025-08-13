@@ -39,26 +39,26 @@ public class PasswordResetTokenServiceImpl  implements PasswordResetTokenService
 
     @Override
     public String forgotPassword(String email) throws UnirestException {
-      User foundUser =   userService.findUserByEmailOrNull(email);
-      if(foundUser != null) {
-          LocalDateTime expiryDate = LocalDateTime.now().plusMinutes(15);
-          String token = UUID.randomUUID().toString();
-          passwordResetTokenRepository.deleteByUserId(foundUser.getId());
+        User foundUser =   userService.findUserByEmailOrNull(email);
+        if(foundUser != null) {
+            LocalDateTime expiryDate = LocalDateTime.now().plusMinutes(15);
+            String token = UUID.randomUUID().toString();
+            passwordResetTokenRepository.deleteByUserId(foundUser.getId());
 
-          PasswordResetToken passwordResetToken = PasswordResetToken.builder()
-                  .expiryDate(expiryDate)
-                  .token(token)
-                  .userId(foundUser.getId())
-                  .build();
-    passwordResetTokenRepository.save(passwordResetToken);
-          Map m = new HashMap<>();
-          m.put("resetPasswordUrl", resetPasswordUrl + "?token=" + token);
-          m.put("customerName", foundUser.getFirstName());
-          notificationService.sendEmailV3(foundUser.getEmail(), "ACTIVATION LINK", helper.build(m, "register-admin"));
-          return "Reset Link has been sent to your email";
+            PasswordResetToken passwordResetToken = PasswordResetToken.builder()
+                    .expiryDate(expiryDate)
+                    .token(token)
+                    .userId(foundUser.getId())
+                    .build();
+            passwordResetTokenRepository.save(passwordResetToken);
+            Map m = new HashMap<>();
+            m.put("resetPasswordUrl", resetPasswordUrl + "?token=" + token);
+            m.put("customerName", foundUser.getFirstName());
+            notificationService.sendEmailV3(foundUser.getEmail(), "ACTIVATION LINK", helper.build(m, "register-admin"));
+            return "Reset Link has been sent to your email";
 
-      }
-      throw new PasswordException("Credentials cannot be found");
+        }
+        throw new PasswordException("Credentials cannot be found");
 
     }
 
@@ -74,20 +74,20 @@ public class PasswordResetTokenServiceImpl  implements PasswordResetTokenService
     }
 
 
-        @Override
-        public String resetPassword(ResetPasswordDto resetPasswordDto) {
+    @Override
+    public String resetPassword(ResetPasswordDto resetPasswordDto) {
 
-            PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(resetPasswordDto.getToken())
-                    .orElseThrow(() -> new PasswordException("Invalid token"));
-            User foundUser = userService.findUserById(resetToken.getUserId());
-            if (resetToken.getExpiryDate().isBefore(LocalDateTime.now())) {
-                throw new PasswordException("Token has expired");
-            }
-            foundUser.setPassword(bCryptPasswordEncoder.encode(resetPasswordDto.getNewPassword()));
-            userService.save(foundUser);
-            passwordResetTokenRepository.delete(resetToken);
-            return "Password reset successfully";
+        PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(resetPasswordDto.getToken())
+                .orElseThrow(() -> new PasswordException("Invalid token"));
+        User foundUser = userService.findUserById(resetToken.getUserId());
+        if (resetToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+            throw new PasswordException("Token has expired");
         }
+        foundUser.setPassword(bCryptPasswordEncoder.encode(resetPasswordDto.getNewPassword()));
+        userService.save(foundUser);
+        passwordResetTokenRepository.delete(resetToken);
+        return "Password reset successfully";
     }
+}
 
 

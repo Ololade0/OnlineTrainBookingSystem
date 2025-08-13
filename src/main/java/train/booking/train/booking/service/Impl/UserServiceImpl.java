@@ -98,9 +98,9 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public BaseResponse signUpNewUser(UserDTO userDTO) throws UnirestException, RoleNotFoundException {
         try {
-        validateUserInfo(userDTO);
-        validateEmail(userDTO.getEmail());
-        validatePasswordStrength(userDTO.getPassword());
+            validateUserInfo(userDTO);
+            validateEmail(userDTO.getEmail());
+            validatePasswordStrength(userDTO.getPassword());
             String activationToken = UUID.randomUUID().toString();
             RoleType requestedRoleType = Optional.ofNullable(userDTO.getRoleType()).orElse(RoleType.USER_ROLE);
 
@@ -199,7 +199,7 @@ public class UserServiceImpl implements UserService {
 
 
 
-@Override
+    @Override
     public User findUserByEmailOrNull(String email) {
         Optional<User> user = Optional.ofNullable(userRepository.findUserByEmail(email).orElseThrow(() -> new UserCannotBeFoundException("User cannot be found")));
         return user.get();
@@ -209,7 +209,7 @@ public class UserServiceImpl implements UserService {
     public User findUserById(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserCannotBeFoundException("User with id " + userId + " not found"));
-   return user;
+        return user;
     }
 
     @Override
@@ -225,8 +225,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<User> findUserByActivationToken(String token) {
-       return Optional.ofNullable(userRepository.findByActivationToken(token)
-               .orElseThrow(() -> new UserCannotBeFoundException("User with token cannot be found ")));
+        return Optional.ofNullable(userRepository.findByActivationToken(token)
+                .orElseThrow(() -> new UserCannotBeFoundException("User with token cannot be found ")));
     }
 
 
@@ -237,7 +237,7 @@ public class UserServiceImpl implements UserService {
                 .build();
 
     }
-@Override
+    @Override
     public String activateAccount(String token) throws UnirestException {
         User user = userRepository.findByActivationToken(token)
                 .orElseThrow(() -> new RuntimeException("Invalid or expired activation token"));
@@ -246,8 +246,8 @@ public class UserServiceImpl implements UserService {
         }
         user.setVerified(true);
         user.setActivationToken(null);
-       userRepository.save(user);
-       return "Account as been sucessfully activated";
+        userRepository.save(user);
+        return "Account as been sucessfully activated";
 
     }
 
@@ -305,17 +305,17 @@ public class UserServiceImpl implements UserService {
 
 
     private BaseResponse response (User savedUser){
-                UserDTO updatedDto = new UserDTO();
-                updatedDto.setFirstName(savedUser.getFirstName());
-                updatedDto.setLastName(savedUser.getLastName());
-                updatedDto.setEmail(savedUser.getEmail());
-                updatedDto.setGender(savedUser.getGender());
-                updatedDto.setDateOfBirth(savedUser.getDateOfBirth());
-                updatedDto.setIdentificationType(savedUser.getIdentificationType());
-                updatedDto.setPhoneNumber(savedUser.getPhoneNumber());
-                updatedDto.setIdNumber(savedUser.getIdNumber());
-                return ResponseUtil.success("User updated successfully", null);
-            }
+        UserDTO updatedDto = new UserDTO();
+        updatedDto.setFirstName(savedUser.getFirstName());
+        updatedDto.setLastName(savedUser.getLastName());
+        updatedDto.setEmail(savedUser.getEmail());
+        updatedDto.setGender(savedUser.getGender());
+        updatedDto.setDateOfBirth(savedUser.getDateOfBirth());
+        updatedDto.setIdentificationType(savedUser.getIdentificationType());
+        updatedDto.setPhoneNumber(savedUser.getPhoneNumber());
+        updatedDto.setIdNumber(savedUser.getIdNumber());
+        return ResponseUtil.success("User updated successfully", null);
+    }
 
 
 

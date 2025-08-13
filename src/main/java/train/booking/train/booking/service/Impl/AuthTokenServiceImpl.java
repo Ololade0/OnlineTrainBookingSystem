@@ -38,7 +38,7 @@ public class AuthTokenServiceImpl implements AuthTokenService {
     }
 
     @Override
-  @Transactional
+    @Transactional
     public void logout(String token) {
         Optional<AuthToken> optionalAuthToken = authTokenRepository.findByToken(token);
         if (optionalAuthToken.isPresent()) {
