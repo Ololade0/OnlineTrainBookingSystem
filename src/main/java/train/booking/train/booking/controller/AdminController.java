@@ -4,6 +4,7 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +20,13 @@ import javax.management.relation.RoleNotFoundException;
 @Controller
 @Slf4j
 @RequestMapping("/api/v1/auth/admin")
-@RequiredArgsConstructor
 public class AdminController {
-        private final AdminService adminService;
+    @Autowired
+        private  AdminService adminService;
+
+    public AdminController(AdminService adminService) {
+        this.adminService = adminService;
+    }
 
 
     @PostMapping("/register-superadmin")

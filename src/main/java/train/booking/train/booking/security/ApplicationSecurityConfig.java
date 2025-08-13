@@ -34,6 +34,7 @@ public class ApplicationSecurityConfig {
                                 .requestMatchers(
                                         "/api/v1/auth/**",
                                         "/",
+                                        "/",
                                         "/home",
                                         "/register-superadmin",
                                         "/display-registration-form",
