@@ -4,7 +4,6 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import train.booking.train.booking.dto.ResetPasswordDto;
 import train.booking.train.booking.exceptions.PasswordException;

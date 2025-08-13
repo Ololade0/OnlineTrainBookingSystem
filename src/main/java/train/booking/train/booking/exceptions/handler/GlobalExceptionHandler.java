@@ -2,7 +2,7 @@ package train.booking.train.booking.exceptions.handler;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.InsufficientAuthenticationException;
+
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -108,9 +108,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 
-    @ExceptionHandler(InsufficientAuthenticationException.class)
-    public ResponseEntity<String> handleInsufficientAuthenticationException(InsufficientAuthenticationException ex) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("{\"error\": \"Full authentication is required to access this resource.\"}");
-    }
+//    @ExceptionHandler(InsufficientAuthenticationException.class)
+//    public ResponseEntity<String> handleInsufficientAuthenticationException(InsufficientAuthenticationException ex) {
+//        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("{\"error\": \"Full authentication is required to access this resource.\"}");
+//    }
 }
 
