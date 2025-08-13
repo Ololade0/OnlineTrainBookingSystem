@@ -37,7 +37,7 @@ public class AdminServiceImpl implements AdminService {
 
     private final Helper helper;
 
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
 
 
 
@@ -56,7 +56,7 @@ public class AdminServiceImpl implements AdminService {
                     .dateOfBirth(userDTO.getDateOfBirth())
                     .identificationType(userDTO.getIdentificationType())
                     .phoneNumber(userDTO.getPhoneNumber())
-                    .password(bCryptPasswordEncoder.encode(userDTO.getPassword()))
+                    .password(userDTO.getPassword())
                     .idNumber(userDTO.getIdNumber())
                     .isVerified(false)
                     .activationToken(activationToken)

@@ -33,7 +33,7 @@ public class PasswordResetTokenServiceImpl  implements PasswordResetTokenService
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final UserService userService;
     private final NotificationService notificationService;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+//    private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final Helper helper;
 
 
@@ -83,7 +83,7 @@ public class PasswordResetTokenServiceImpl  implements PasswordResetTokenService
         if (resetToken.getExpiryDate().isBefore(LocalDateTime.now())) {
             throw new PasswordException("Token has expired");
         }
-        foundUser.setPassword(bCryptPasswordEncoder.encode(resetPasswordDto.getNewPassword()));
+        foundUser.setPassword(resetPasswordDto.getNewPassword());
         userService.save(foundUser);
         passwordResetTokenRepository.delete(resetToken);
         return "Password reset successfully";

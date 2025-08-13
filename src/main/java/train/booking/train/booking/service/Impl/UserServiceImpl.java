@@ -46,7 +46,7 @@ public class UserServiceImpl implements UserService {
 
     private final Helper helper;
 
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
 
 
 
@@ -127,7 +127,7 @@ public class UserServiceImpl implements UserService {
                     .dateOfBirth(userDTO.getDateOfBirth())
                     .identificationType(userDTO.getIdentificationType())
                     .phoneNumber(userDTO.getPhoneNumber())
-                    .password(bCryptPasswordEncoder.encode(userDTO.getPassword()))
+                    .password(userDTO.getPassword())
                     .idNumber(userDTO.getIdNumber())
                     .isVerified(false)
                     .activationToken(activationToken)
@@ -215,8 +215,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserLoginResponse login(UserLoginDTO userLoginRequestModel) {
         var user = userRepository.findUserByEmail(userLoginRequestModel.getEmail());
-        if (user.isPresent() && bCryptPasswordEncoder.matches(userLoginRequestModel.getPassword(), user.get().getPassword())) {
-            return buildSuccessfulLoginResponse(user.get());
+//        if (user.isPresent() && userLoginRequestModel.getPassword(), user.get().getPassword() {
+            if(user.isPresent() && userLoginRequestModel.getPassword().matches(user.get().getPassword())){
+                return buildSuccessfulLoginResponse(user.get());
+//            }
+
         }
         throw new IllegalArgumentException("Invalid email or password");
 
@@ -322,34 +325,15 @@ public class UserServiceImpl implements UserService {
 
 
 
-    @Override
+     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findUserByEmail(username).orElse(null);
-
-        /*
-        TODO
-
-        if (!user.isEnabled()) {
-            throw new UserIsDisabledException("User account is disabled");
+        Optional<User> userOptional = userRepository.findUserByEmail(username);
+        if (userOptional.isPresent()) {
+//            return new UserDetails.User(userOptional.get());
+            return new org.springframework.security.core.userdetails.User(userOptional.get().getEmail(), userOptional.get().getPassword(), getAuthorities(userOptional.get().getRoleHashSet()));// Custom UserDetails implementation
+        } else {
+            throw new UsernameNotFoundException("User not found: " + username);
         }
-        return new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
-                user.getPassword(),
-                user.isEnabled(),
-                true,
-                true,
-                true,
-                Set.of(new SimpleGrantedAuthority((user.getRoleHashSet()).toString())));
-
-       }
-         */
-
-        if (user != null) {
-            return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), getAuthorities(user.getRoleHashSet()));
-        }
-
-        return null;
-
     }
 
 

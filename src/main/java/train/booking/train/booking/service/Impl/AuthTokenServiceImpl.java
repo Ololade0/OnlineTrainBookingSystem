@@ -22,14 +22,14 @@ import java.util.Optional;
 public class AuthTokenServiceImpl implements AuthTokenService {
 
     private final UserService userService;
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+//    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     private final AuthTokenRepository authTokenRepository;
 
     @Override
     public UserLoginResponse login(UserLoginDTO userLoginRequestModel) {
         User user = userService.findUserByEmailOrNull(userLoginRequestModel.getEmail());
-        if (user != null && bCryptPasswordEncoder.matches(userLoginRequestModel.getPassword(), user.getPassword())) {
+        if (user != null && userLoginRequestModel.getPassword().equals(user.getPassword())) {
             return buildSuccessfulLoginResponse(user);
         }
         throw new IllegalArgumentException("Invalid email or password");
