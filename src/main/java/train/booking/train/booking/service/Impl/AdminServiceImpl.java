@@ -33,6 +33,11 @@ public class AdminServiceImpl implements AdminService {
     @Value("${activation.url}")
     private String ACTIVATION_URL;
 
+
+
+    @Value("${base.url}")
+    private String BASE_URL;
+
     private final UserRepository userRepository;
     private final RoleService roleService;
 
@@ -52,7 +57,7 @@ public class AdminServiceImpl implements AdminService {
 //            validateStaffEmail(userDTO.getEmail());
 //            validateStaffPasswordStrength(userDTO.getPassword());
             activationToken = UUID.randomUUID().toString();
-            String activationLink = ACTIVATION_URL + activationToken;
+            String activationLink = BASE_URL + ACTIVATION_URL + activationToken;
             User signupUser = User.builder()
                     .firstName(userDTO.getFirstName())
                     .lastName(userDTO.getLastName())
