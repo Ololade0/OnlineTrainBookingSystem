@@ -23,7 +23,7 @@ public class DistanceCalculatorService {
     private final ObjectMapper objectMapper;
 
 
-    @Value("${api.baseUrl}")
+    @Value("${api.baseurl}")
     private String baseUrl;
 
     @Value("${api.key}")
