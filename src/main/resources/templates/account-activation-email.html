@@ -108,15 +108,156 @@
         <p>Welcome to <strong>Ololade Train Booking System</strong>! To complete your registration, please activate your account by clicking the button below:</p>
     </div>
 
+
+
     <div class="button-container">
-<!--        <a th:href="@{'http://localhost:8081/api/v1/auth/activate?token=' + ${activationToken}}" class="button">
-
-
-        Activate Account
+        <a th:href="@{${base.url}${activation.url}(token=${activationToken})}" class="button">
+            Activate Account
         </a>
     </div>
 
 
+
+    <div class="content">
+        <p>If you didn’t sign up for this account, you can safely ignore this email.</p>
+        <p>— The Ololade Train Booking System Team</p>
+    </div>
+
+    <div class="socials">
+        <a href="https://facebook.com/yourapp">
+            <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook">
+        </a>
+        <a href="https://twitter.com/yourapp">
+            <img src="https://cdn-icons-png.flaticon.com/512/733/733579.png" alt="Twitter">
+        </a>
+        <a href="https://linkedin.com/company/yourapp">
+            <img src="https://cdn-icons-png.flaticon.com/512/145/145807.png" alt="LinkedIn">
+        </a>
+    </div>
+
+    <div class="footer">
+        &copy; 2025 Ololade Train Booking System. All rights reserved.<br>
+        123 Business Ave, Tech City, NG<br>
+        <a href="mailto:support@yourdomain.com">support@yourdomain.com</a>
+    </div>
+</div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Activate Your Account</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .email-wrapper {
+            max-width: 600px;
+            margin: 30px auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+        }
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #16A34A;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+        .logo {
+            max-width: 160px;
+            margin-bottom: 10px;
+        }
+        .header h1 {
+            font-size: 22px;
+            color: #16A34A;
+            margin: 0;
+        }
+        .content {
+            font-size: 16px;
+            color: #444;
+            line-height: 1.6;
+        }
+        .button-container {
+            text-align: center;
+            margin: 35px 0;
+        }
+        .button {
+            background-color: #16A34A;
+            color: #ffffff;
+            padding: 14px 28px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 16px;
+            display: inline-block;
+            transition: background-color 0.2s ease;
+        }
+        .button:hover {
+            background-color: #15803d;
+        }
+        .footer {
+            text-align: center;
+            color: #888888;
+            font-size: 13px;
+            margin-top: 40px;
+            border-top: 1px solid #eaeaea;
+            padding-top: 15px;
+        }
+        .socials {
+            text-align: center;
+            margin-top: 25px;
+        }
+        .socials img {
+            width: 28px;
+            margin: 0 6px;
+        }
+        @media only screen and (max-width: 600px) {
+            .email-wrapper {
+                padding: 20px;
+            }
+            .button {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="email-wrapper">
+    <div class="header">
+        <img class="logo" src="http://localhost:8080/images/train.jpg" alt="Train Logo">
+        <h1>Ololade Train Booking System</h1>
+    </div>
+
+    <div class="content">
+        <p>Hi <strong th:text="${firstName + ' ' + lastName}">User</strong>,</p>
+        <p>Welcome to <strong>Ololade Train Booking System</strong>! To complete your registration, please activate your account by clicking the button below:</p>
+    </div>
+
+    <div class="button-container">
+        <a th:href="@{${base.url}${activation.url}(token=${activationToken})}" class="button">
+            Activate Account
+        </a>
+    </div>
 
     <div class="content">
         <p>If you didn’t sign up for this account, you can safely ignore this email.</p>
