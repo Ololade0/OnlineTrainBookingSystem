@@ -46,7 +46,6 @@ public class PaystackServiceImpl implements PayStackService {
     private final UserService userService;
     private final PaymentRepository paymentRepository;
     private final JmsTemplate jmsTemplate;
-
     private final ObjectMapper objectMapper;
 
     @Override

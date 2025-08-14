@@ -8,7 +8,6 @@ import train.booking.train.booking.model.enums.RoleType;
 @Setter
 @Getter
 @Builder
-@ToString
 @Entity(name = "role")
 @AllArgsConstructor
 @NoArgsConstructor

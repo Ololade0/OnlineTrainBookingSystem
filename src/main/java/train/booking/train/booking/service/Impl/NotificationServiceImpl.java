@@ -12,7 +12,7 @@ import train.booking.train.booking.dto.BookSeatDTO;
 import train.booking.train.booking.dto.MailDTO;
 import train.booking.train.booking.service.NotificationService;
 
-;
+;import java.util.Map;
 
 @Service
 @Slf4j
@@ -65,34 +65,31 @@ public class NotificationServiceImpl implements NotificationService {
 
             @Override
             public void sendEmailV3(String recipient, String subject, String body) {
-                String activationLink = ACTIVATION_URL + body;
-            MailDTO request = new MailDTO();
-            request.setSender(sender);
-            request.setRecipient(recipient);
-            request.setSubject(subject);
-            request.setBody(activationLink);
-//            log.info("EMAIL SERVICE LINK: {}", activationLink);
+                MailDTO request = new MailDTO();
+                request.setSender(sender);
+                request.setRecipient(recipient);
+                request.setSubject(subject);
+                request.setBody(body);
 
-            webClientBuilder.build()
-                    .post()
-                    .uri(emailApiUrl)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .bodyValue(request)
-                    .retrieve()
-                    .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(), clientResponse ->
-                            clientResponse.bodyToMono(String.class).flatMap(errorBody -> {
-                                log.error("Failed to send email: {}", errorBody);
-                                return Mono.error(new RuntimeException("Email API Error: " + errorBody));
-                            })
-                    )
-                    .bodyToMono(String.class)
-                    .doOnSuccess(response -> log.info("Email API response: {}", response))
-                    .doOnError(error -> log.error("Error sending email", error))
-                    .subscribe();
-        }
+                webClientBuilder.build()
+                        .post()
+                        .uri(emailApiUrl)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(request)
+                        .retrieve()
+                        .onStatus(status -> status.is4xxClientError() || status.is5xxServerError(), clientResponse ->
+                                clientResponse.bodyToMono(String.class).flatMap(errorBody -> {
+                                    log.error("Failed to send email: {}", errorBody);
+                                    return Mono.error(new RuntimeException("Email API Error: " + errorBody));
+                                })
+                        )
+                        .bodyToMono(String.class)
+                        .doOnSuccess(response -> log.info("Email API response: {}", response))
+                        .doOnError(error -> log.error("Error sending email", error))
+                        .subscribe();
+            }
 
-
-            @Override
+       @Override
             public void webSocketNotification(BookSeatDTO seatDto){
                 log.info("🔔 Sending WebSocket seat update: {}", seatDto);
                 messagingTemplate.convertAndSend("/topic/seats", seatDto);

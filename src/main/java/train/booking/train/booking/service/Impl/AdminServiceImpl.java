@@ -3,6 +3,7 @@ package train.booking.train.booking.service.Impl;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,12 +30,16 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class AdminServiceImpl implements AdminService {
 
+    @Value("${activation.url}")
+    private String ACTIVATION_URL;
+
     private final UserRepository userRepository;
     private final RoleService roleService;
 
     private final NotificationService notificationService;
 
     private final Helper helper;
+    String activationToken;
 
 
 
@@ -46,7 +51,8 @@ public class AdminServiceImpl implements AdminService {
 //            validateStaffInfo(userDTO);
 //            validateStaffEmail(userDTO.getEmail());
 //            validateStaffPasswordStrength(userDTO.getPassword());
-            String activationToken = UUID.randomUUID().toString();
+            activationToken = UUID.randomUUID().toString();
+            String activationLink = ACTIVATION_URL + activationToken;
             User signupUser = User.builder()
                     .firstName(userDTO.getFirstName())
                     .lastName(userDTO.getLastName())
@@ -58,7 +64,7 @@ public class AdminServiceImpl implements AdminService {
                     .password(userDTO.getPassword())
                     .idNumber(userDTO.getIdNumber())
                     .isVerified(false)
-                    .activationToken(activationToken)
+                    .activationToken(activationLink)
                     .roleHashSet(new HashSet<>())
                     .build();
             Role assignedRole = roleService.findByRoleType(RoleType.SUPERADMIN_ROLE);
@@ -102,7 +108,7 @@ public class AdminServiceImpl implements AdminService {
         Map m = new HashMap<>();
         m.put("firstName", signupUser.getFirstName());
         m.put("lastName", signupUser.getLastName());
-        m.put("activationToken", signupUser.getActivationToken());
+        m.put("activationToken", signupUser.getActivationToken() );
         log.info("Email to send activation to: {}", signupUser.getEmail());
         return m;
     }
@@ -135,5 +141,64 @@ public class AdminServiceImpl implements AdminService {
         }
     }
 
+//
+//    @Override
+//    public BaseResponse superAdminSignUp(UserDTO userDTO) throws UnirestException {
+//        try {
+//            // Generate token and link
+//            String activationToken = UUID.randomUUID().toString();
+//            String activationLink = ACTIVATION_URL + activationToken;
+//
+//            // Create and save the user
+//            User signupUser = User.builder()
+//                    .firstName(userDTO.getFirstName())
+//                    .lastName(userDTO.getLastName())
+//                    .email(userDTO.getEmail())
+//                    .gender(userDTO.getGender())
+//                    .dateOfBirth(userDTO.getDateOfBirth())
+//                    .identificationType(userDTO.getIdentificationType())
+//                    .phoneNumber(userDTO.getPhoneNumber())
+//                    .password(passwordEncoder.encode(userDTO.getPassword())) // hash password
+//                    .idNumber(userDTO.getIdNumber())
+//                    .isVerified(false)
+//                    .activationToken(activationToken)
+//                    .roleHashSet(new HashSet<>())
+//                    .build();
+//
+//            Role assignedRole = roleService.findByRoleType(RoleType.SUPERADMIN_ROLE);
+//            signupUser.getRoleHashSet().add(assignedRole);
+//            userRepository.save(signupUser);
+//
+//            // Prepare template variables
+//            Map<String, Object> templateData = getMap(signupUser);
+//            templateData.put("activationLink", activationLink); // add link to map
+//
+//            // Build HTML email with link
+//            String emailBody = helper.build(templateData, "account-activation-email");
+//
+//            // Send HTML email
+//            notificationService.sendEmailV3(
+//                    signupUser.getEmail(),
+//                    "Activate Your Account",
+//                    emailBody
+//            );
+//
+//            UserDTO responseDto = UserDTO.builder()
+//                    .firstName(signupUser.getFirstName())
+//                    .lastName(signupUser.getLastName())
+//                    .email(signupUser.getEmail())
+//                    .roles(signupUser.getRoleHashSet())
+//                    .build();
+//
+//            return ResponseUtil.success("Account successfully created", responseDto);
+//        } catch (Exception e) {
+//            log.error("Error during super admin sign-up: {}", e.getMessage(), e);
+//            return ResponseUtil.failed("Sign-up failed due to an unexpected error.", e);
+//        }
+//    }
+//
+
 
 }
+
+

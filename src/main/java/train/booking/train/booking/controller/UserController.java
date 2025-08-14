@@ -23,24 +23,38 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@Valid  @RequestBody UserDTO signUpRequest) throws UnirestException, RoleNotFoundException {
+    public ResponseEntity<?> registerUser(@Valid @RequestBody UserDTO signUpRequest) throws UnirestException, RoleNotFoundException {
         return new ResponseEntity<>(userService.signUpNewUser(signUpRequest), HttpStatus.CREATED);
     }
+
     @GetMapping("/{email}")
-    public ResponseEntity<?> findUserByEmail(@PathVariable  String email){
-       BaseResponse foundUser = userService.findUserByEmail(email);
-        return  ResponseEntity.ok(foundUser);
+    public ResponseEntity<?> findUserByEmail(@PathVariable String email) {
+        BaseResponse foundUser = userService.findUserByEmail(email);
+        return ResponseEntity.ok(foundUser);
     }
+
     @PutMapping("update-user-profile/{userId}")
-    public ResponseEntity<?> updateUserProfile(@RequestBody UserDTO userDTO, @PathVariable Long userId){      ;
+    public ResponseEntity<?> updateUserProfile(@RequestBody UserDTO userDTO, @PathVariable Long userId) {
+        ;
         return ResponseEntity.ok(userService.updateUserProfile(userDTO, userId));
 
     }
 
+    @GetMapping("/activate")
+    public ResponseEntity<String> activateAccount(@RequestParam("token") String token) {
+        try {
+            String result = userService.activateAccount(token);
+            return ResponseEntity.ok(result);
+        } catch (RuntimeException | UnirestException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        }
 
-
-
-
-
+    }
 
 }
+
+
+
+

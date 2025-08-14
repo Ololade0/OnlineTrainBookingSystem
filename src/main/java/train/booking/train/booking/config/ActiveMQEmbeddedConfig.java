@@ -10,8 +10,8 @@ public class ActiveMQEmbeddedConfig {
     @Bean
     public BrokerService broker() throws Exception {
         BrokerService broker = new BrokerService();
-        broker.addConnector("vm://localhost"); // in-JVM, no TCP
-        broker.setPersistent(false); // messages in memory only
+        broker.addConnector("vm://localhost");
+        broker.setPersistent(false);
         broker.setUseJmx(false);
         broker.start();
         return broker;
