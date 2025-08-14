@@ -57,7 +57,7 @@ public class BookingServiceImpl implements BookingService {
   private final TemplateEngine templateEngine;
 
 
-        @Value("${qrbase.Url}")
+        @Value("${qrbase.url}")
         private String qrbaseUrl;
 
 @Transactional
