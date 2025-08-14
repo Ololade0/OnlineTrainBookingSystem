@@ -108,14 +108,10 @@
         <p>Welcome to <strong>Ololade Train Booking System</strong>! To complete your registration, please activate your account by clicking the button below:</p>
     </div>
 
-
-
     <div class="button-container">
-        <a th:href="@{${base.url}${activation.url}(token=${activationToken})}" class="button">
-            Activate Account
+        <a th:href="${activationLink}" class="button">Activate Account</a>
         </a>
     </div>
-
 
 
     <div class="content">

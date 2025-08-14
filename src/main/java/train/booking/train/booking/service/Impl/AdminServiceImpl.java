@@ -44,7 +44,7 @@ public class AdminServiceImpl implements AdminService {
     private final NotificationService notificationService;
 
     private final Helper helper;
-    String activationToken;
+
 
 
 
@@ -56,8 +56,8 @@ public class AdminServiceImpl implements AdminService {
 //            validateStaffInfo(userDTO);
 //            validateStaffEmail(userDTO.getEmail());
 //            validateStaffPasswordStrength(userDTO.getPassword());
-            activationToken = UUID.randomUUID().toString();
-            String activationLink = BASE_URL + ACTIVATION_URL + activationToken;
+            String activationToken = UUID.randomUUID().toString();
+            String activationLink = BASE_URL + ACTIVATION_URL + "?token=" + activationToken;
             User signupUser = User.builder()
                     .firstName(userDTO.getFirstName())
                     .lastName(userDTO.getLastName())
@@ -69,14 +69,15 @@ public class AdminServiceImpl implements AdminService {
                     .password(userDTO.getPassword())
                     .idNumber(userDTO.getIdNumber())
                     .isVerified(false)
-                    .activationToken(activationLink)
+                    .activationToken(activationToken)
                     .roleHashSet(new HashSet<>())
                     .build();
             Role assignedRole = roleService.findByRoleType(RoleType.SUPERADMIN_ROLE);
             signupUser.getRoleHashSet().add(assignedRole);
             userRepository.save(signupUser);
-            Map m = getMap(signupUser);
+            Map m = getMap(signupUser, activationLink);
             notificationService.sendEmailV3(signupUser.getEmail(), "ACTIVATION LINK", helper.build(m, "account-activation-email"));
+            log.info("ACTIVATION LINK: {}", activationLink);
             UserDTO responseDto = UserDTO.builder()
                     .firstName(signupUser.getFirstName())
                     .lastName(signupUser.getLastName())
@@ -109,12 +110,13 @@ public class AdminServiceImpl implements AdminService {
         );
     }
 
-    private static Map getMap(User signupUser) {
+    private static Map getMap(User signupUser, String activationLink) {
         Map m = new HashMap<>();
         m.put("firstName", signupUser.getFirstName());
         m.put("lastName", signupUser.getLastName());
-        m.put("activationToken", signupUser.getActivationToken() );
+        m.put("activationLink",  activationLink);
         log.info("Email to send activation to: {}", signupUser.getEmail());
+        log.info("MAIL ACTIVATION LINK. {}", activationLink);
         return m;
     }
 
