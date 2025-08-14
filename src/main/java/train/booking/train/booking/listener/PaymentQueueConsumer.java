@@ -28,7 +28,7 @@ import java.util.Map;
 @Slf4j
 public class PaymentQueueConsumer {
 
-    @Value("${qrbase.Url}")
+    @Value("${qrbase.url}")
     private String qrbaseUrl;
 
     private final BookingService bookingService;
