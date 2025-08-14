@@ -31,6 +31,7 @@ public class PaymentQueueConsumer {
     @Value("${qrbase.url}")
     private String qrbaseUrl;
 
+
     private final BookingService bookingService;
     private final SeatService seatService;
     private final OtherPassengerService otherPassengerService;
