@@ -3,6 +3,7 @@ package train.booking.train.booking.service.Impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import train.booking.train.booking.dto.UserLoginDTO;
@@ -22,14 +23,14 @@ import java.util.Optional;
 public class AuthTokenServiceImpl implements AuthTokenService {
 
     private final UserService userService;
-//    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     private final AuthTokenRepository authTokenRepository;
 
     @Override
     public UserLoginResponse login(UserLoginDTO userLoginRequestModel) {
         User user = userService.findUserByEmailOrNull(userLoginRequestModel.getEmail());
-        if (user != null && userLoginRequestModel.getPassword().equals(user.getPassword())) {
+        if (user != null && bCryptPasswordEncoder.matches(userLoginRequestModel.getPassword(), user.getPassword())) {
             return buildSuccessfulLoginResponse(user);
         }
         throw new IllegalArgumentException("Invalid email or password");

@@ -6,6 +6,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import train.booking.train.booking.dto.UserDTO;
 import train.booking.train.booking.dto.UserLoginDTO;
@@ -33,7 +38,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserService, UserDetailsService {
     private final UserRepository userRepository;
     private final RoleService roleService;
 
@@ -315,26 +320,21 @@ public class UserServiceImpl implements UserService {
         return ResponseUtil.success("User updated successfully", null);
     }
 
+     @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Optional<User> userOptional = userRepository.findUserByEmail(username);
+        if (userOptional.isPresent()) {
+//            return new UserDetails.User(userOptional.get());
+            return new org.springframework.security.core.userdetails.User(userOptional.get().getEmail(), userOptional.get().getPassword(), getAuthorities(userOptional.get().getRoleHashSet()));// Custom UserDetails implementation
+        } else {
+            throw new UsernameNotFoundException("User not found: " + username);
+        }
+    }
 
 
-
-
-
-//     @Override
-//    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-//        Optional<User> userOptional = userRepository.findUserByEmail(username);
-//        if (userOptional.isPresent()) {
-////            return new UserDetails.User(userOptional.get());
-//            return new org.springframework.security.core.userdetails.User(userOptional.get().getEmail(), userOptional.get().getPassword(), getAuthorities(userOptional.get().getRoleHashSet()));// Custom UserDetails implementation
-//        } else {
-//            throw new UsernameNotFoundException("User not found: " + username);
-//        }
-//    }
-//
-//
-//    private Collection<? extends GrantedAuthority> getAuthorities(Set<Role> roleHashSet) {
-//        return roleHashSet.stream().map(role -> new SimpleGrantedAuthority(role.getRoleType().name())).collect(Collectors.toSet());
-//    }
+    private Collection<? extends GrantedAuthority> getAuthorities(Set<Role> roleHashSet) {
+        return roleHashSet.stream().map(role -> new SimpleGrantedAuthority(role.getRoleType().name())).collect(Collectors.toSet());
+    }
 
 }
 

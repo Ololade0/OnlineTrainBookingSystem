@@ -7,6 +7,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import train.booking.train.booking.dto.BookingRequestDTO;
 import train.booking.train.booking.dto.BookingResponse;
@@ -17,7 +19,7 @@ import train.booking.train.booking.service.BookingService;
 import java.io.IOException;
 import java.util.Optional;
 
-@RestController
+@Controller
 @RequiredArgsConstructor
 @Slf4j
 @RequestMapping("/api/v1/auth/booking")
@@ -71,12 +73,22 @@ public class BookingController {
         Page allBooking= bookingService.findAllBookingsBySchedule(size, page, scheduleId);
         return ResponseEntity.ok(allBooking);
     }
+        @GetMapping("/{userId}/bookings-history")
+        public String myBookings(
+                @PathVariable Long userId,
+                @RequestParam(defaultValue = "0") int page,
+                @RequestParam(defaultValue = "5") int size,
+                Model model) {
+            Page<Booking> pastBookings = bookingService.bookingHistory(userId, page, size);
+            model.addAttribute("pastBookings", pastBookings.getContent());
+            model.addAttribute("currentPage", page);
+            model.addAttribute("totalPages", pastBookings.getTotalPages());
+            model.addAttribute("userId", userId);
+            model.addAttribute("size", size);
+            return "booking-history";
+        }
 
 
-
-
-
-}
-
+    }
 
 

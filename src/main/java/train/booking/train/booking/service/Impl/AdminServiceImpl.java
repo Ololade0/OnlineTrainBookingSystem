@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import train.booking.train.booking.dto.FindAllByRolesDTO;
 import train.booking.train.booking.dto.UserDTO;
@@ -44,6 +46,7 @@ public class AdminServiceImpl implements AdminService {
     private final NotificationService notificationService;
 
     private final Helper helper;
+    private final PasswordEncoder passwordEncoder;
 
 
 
@@ -66,7 +69,7 @@ public class AdminServiceImpl implements AdminService {
                     .dateOfBirth(userDTO.getDateOfBirth())
                     .identificationType(userDTO.getIdentificationType())
                     .phoneNumber(userDTO.getPhoneNumber())
-                    .password(userDTO.getPassword())
+                    .password(passwordEncoder.encode(userDTO.getPassword()))
                     .idNumber(userDTO.getIdNumber())
                     .isVerified(false)
                     .activationToken(activationToken)

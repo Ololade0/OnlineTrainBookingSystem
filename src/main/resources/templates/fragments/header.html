@@ -1,11 +1,18 @@
-<!-- templates/fragments/header.html -->
+
 <nav th:fragment="siteHeader" class="bg-white shadow-md p-4 flex justify-between items-center">
-  <div class="text-2xl font-bold text-green-600">Ololade TrainBooking</div>
-  <div class="space-x-4">
-    <a th:href="@{/}" class="text-gray-700 hover:text-green-600">Home</a>
-    <a th:href="@{/api/v1/auth/schedule/schedule-route}" class="text-gray-700 hover:text-green-600">Train-TimeTable</a>
-    <a th:href="@{/bookings/my}" class="text-gray-700 hover:text-green-600">My Bookings</a>
-    <a th:href="@{/login}" class="text-gray-700 hover:text-green-600">Login</a>
-    <a th:href="@{/api/v1/auth/admin/display-registration-form}" class="text-gray-700 hover:text-green-600">Register</a>
-  </div>
+    <div class="text-2xl font-bold text-green-600">Ololade TrainBooking</div>
+    <div class="space-x-4">
+        <a th:href="@{/}" class="text-gray-700 hover:text-green-600">Home</a>
+        <a th:href="@{/api/v1/auth/schedule/schedule-route}" class="text-gray-700 hover:text-green-600">Train-TimeTable</a>
+<!--        <a th:href="@{/api/v1/auth/booking/{userId}/bookings-history(userId=${userId})}"-->
+<!--           class="text-gray-700 hover:text-green-600">-->
+<!--            My Bookings-->
+<!--        </a>-->
+        <a th:href="@{/api/v1/auth/booking/{userId}/bookings-history(userId=${#authentication.principal.id})}"
+           class="text-gray-700 hover:text-green-600">
+            My Bookings
+        </a>
+        <a th:href="@{/login}" class="text-gray-700 hover:text-green-600">Login</a>
+        <a th:href="@{/api/v1/auth/admin/display-registration-form}" class="text-gray-700 hover:text-green-600">Register</a>
+    </div>
 </nav>

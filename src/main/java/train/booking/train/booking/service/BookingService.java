@@ -31,4 +31,6 @@ public interface BookingService {
    BookingTicketDTO scanQRBookingCode(String bookingNumber);
 
     Page<Booking> findAllBookingsBySchedule(int size, int page, Long scheduleId);
+
+    Page<Booking>  bookingHistory(Long userId, int page, int size);
 }

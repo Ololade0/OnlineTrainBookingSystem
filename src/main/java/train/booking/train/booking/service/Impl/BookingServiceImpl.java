@@ -36,6 +36,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -281,6 +282,7 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepository.findAllByScheduleId(scheduleId, pageable);
     }
 
+
     private BookingTicketDTO mapToBookingTicketDTO(Booking booking) {
         BookingTicketDTO dto = new BookingTicketDTO();
         dto.setBookingNumber(booking.getBookingNumber());
@@ -299,6 +301,16 @@ public class BookingServiceImpl implements BookingService {
         dto.setOtherPassengers(passengers);
         return dto;
     }
+
+    @Override
+    public Page<Booking> bookingHistory(Long userId, int page, int size) {
+        User foundUser =userService.findUserById(userId);
+        LocalTime now = LocalTime.now();
+        Pageable pageable = PageRequest.of(page, size, Sort.by("travelTime"));
+       Page<Booking> pastBooking =  bookingRepository.findByUserAndTravelTimeBefore(foundUser, now, pageable);
+       return pastBooking;
+    }
+
 
 
 }
