@@ -32,5 +32,5 @@ public interface BookingService {
 
     Page<Booking> findAllBookingsBySchedule(int size, int page, Long scheduleId);
 
-    Page<Booking>  bookingHistory(Long userId, int page, int size);
+    Page<Booking>  bookingHistory(String email, int page, int size);
 }

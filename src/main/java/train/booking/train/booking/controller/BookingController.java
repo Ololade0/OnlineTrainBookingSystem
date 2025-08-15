@@ -7,6 +7,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -14,12 +20,13 @@ import train.booking.train.booking.dto.BookingRequestDTO;
 import train.booking.train.booking.dto.BookingResponse;
 import train.booking.train.booking.dto.BookingTicketDTO;
 import train.booking.train.booking.model.Booking;
+import train.booking.train.booking.model.User;
 import train.booking.train.booking.service.BookingService;
 
 import java.io.IOException;
 import java.util.Optional;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 @Slf4j
 @RequestMapping("/api/v1/auth/booking")
@@ -73,22 +80,30 @@ public class BookingController {
         Page allBooking= bookingService.findAllBookingsBySchedule(size, page, scheduleId);
         return ResponseEntity.ok(allBooking);
     }
-        @GetMapping("/{userId}/bookings-history")
-        public String myBookings(
-                @PathVariable Long userId,
-                @RequestParam(defaultValue = "0") int page,
-                @RequestParam(defaultValue = "5") int size,
-                Model model) {
-            Page<Booking> pastBookings = bookingService.bookingHistory(userId, page, size);
-            model.addAttribute("pastBookings", pastBookings.getContent());
-            model.addAttribute("currentPage", page);
-            model.addAttribute("totalPages", pastBookings.getTotalPages());
-            model.addAttribute("userId", userId);
-            model.addAttribute("size", size);
-            return "booking-history";
+
+
+    @GetMapping("/bookings-history")
+    public ResponseEntity<?> myBookings(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            Model model,
+            @AuthenticationPrincipal User user) {
+
+        if (user == null) {
+            throw new AccessDeniedException("You must login first!");
         }
 
+        String authenticatedEmail = user.getEmail();
+
+        Page<Booking> pastBookings = bookingService.bookingHistory(authenticatedEmail, page, size);
+        return ResponseEntity.ok(pastBookings);
 
     }
+
+
+
+
+
+}
 
 

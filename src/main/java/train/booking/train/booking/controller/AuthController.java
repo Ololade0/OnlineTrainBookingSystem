@@ -8,6 +8,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import train.booking.train.booking.dto.UserLoginDTO;
 import train.booking.train.booking.dto.response.UserLoginResponse;
@@ -21,7 +22,7 @@ import train.booking.train.booking.service.UserService;
 
 import java.time.Instant;
 @RequiredArgsConstructor
-@Controller
+@RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
     private final UserService userService;
@@ -55,6 +56,8 @@ public class AuthController {
 
         return new ResponseEntity<>(new UserLoginResponse(jwtToken, user.getFirstName(), user.getEmail()), HttpStatus.OK);
     }
+
+
 
     @PostMapping("/logout")
     public void logout(@RequestParam String token) {

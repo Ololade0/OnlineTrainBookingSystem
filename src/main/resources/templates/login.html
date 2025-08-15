@@ -1,109 +1,156 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Template</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            margin: 0;
-        }
-        .header, .footer {
-            background-color: #4CAF50;
-            color: white;
-            text-align: center;
-            padding: 1rem 0;
-        }
-        .login-container {
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            width: 300px;
-            margin: auto;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        h2 {
-            text-align: center;
-            color: #4CAF50;
-        }
-        .input-group {
-            margin-bottom: 1.5rem;
-        }
-        .input-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #333;
-        }
-        .input-group input {
-            width: 100%;
-            padding: 0.5rem;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            transition: border-color 0.3s;
-        }
-        .input-group input:focus {
-            border-color: #4CAF50;
-            outline: none;
-        }
-        .button {
-            width: 100%;
-            padding: 0.5rem;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .button:hover {
-            background-color: #45a049;
-        }
-        .links {
-            text-align: center;
-            margin-top: 1rem;
-        }
-        .links a {
-            color: #4CAF50;
-            text-decoration: none;
-        }
-        .links a:hover {
-            text-decoration: underline;
-        }
-    </style>
-</head>
-<body>
+<!--<!DOCTYPE html>-->
+<!--<html lang="en" xmlns:th="http://www.thymeleaf.org">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+<!--    <title>Login Template</title>-->
+<!--    <style>-->
+<!--        body {-->
+<!--            font-family: Arial, sans-serif;-->
+<!--            background-color: #f4f4f4;-->
+<!--            display: flex;-->
+<!--            flex-direction: column;-->
+<!--            min-height: 100vh;-->
+<!--            margin: 0;-->
+<!--        }-->
+<!--        .header, .footer {-->
+<!--            background-color: #4CAF50;-->
+<!--            color: white;-->
+<!--            text-align: center;-->
+<!--            padding: 1rem 0;-->
+<!--        }-->
+<!--        .login-container {-->
+<!--            background: white;-->
+<!--            padding: 2rem;-->
+<!--            border-radius: 10px;-->
+<!--            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);-->
+<!--            width: 300px;-->
+<!--            margin: auto;-->
+<!--            flex: 1;-->
+<!--            display: flex;-->
+<!--            flex-direction: column;-->
+<!--            justify-content: center;-->
+<!--        }-->
+<!--        h2 {-->
+<!--            text-align: center;-->
+<!--            color: #4CAF50;-->
+<!--        }-->
+<!--        .input-group {-->
+<!--            margin-bottom: 1.5rem;-->
+<!--        }-->
+<!--        .input-group label {-->
+<!--            display: block;-->
+<!--            margin-bottom: 0.5rem;-->
+<!--            color: #333;-->
+<!--        }-->
+<!--        .input-group input {-->
+<!--            width: 100%;-->
+<!--            padding: 0.5rem;-->
+<!--            border: 1px solid #ccc;-->
+<!--            border-radius: 5px;-->
+<!--            transition: border-color 0.3s;-->
+<!--        }-->
+<!--        .input-group input:focus {-->
+<!--            border-color: #4CAF50;-->
+<!--            outline: none;-->
+<!--        }-->
+<!--        .button {-->
+<!--            width: 100%;-->
+<!--            padding: 0.5rem;-->
+<!--            background-color: #4CAF50;-->
+<!--            color: white;-->
+<!--            border: none;-->
+<!--            border-radius: 5px;-->
+<!--            cursor: pointer;-->
+<!--            transition: background-color 0.3s;-->
+<!--        }-->
+<!--        .button:hover {-->
+<!--            background-color: #45a049;-->
+<!--        }-->
+<!--        .links {-->
+<!--            text-align: center;-->
+<!--            margin-top: 1rem;-->
+<!--        }-->
+<!--        .links a {-->
+<!--            color: #4CAF50;-->
+<!--            text-decoration: none;-->
+<!--        }-->
+<!--        .links a:hover {-->
+<!--            text-decoration: underline;-->
+<!--        }-->
+<!--    </style>-->
+<!--</head>-->
+<!--<body>-->
 
-<div class="header" th:replace="fragments/header :: siteHeader">
-</div>
+<!--&lt;!&ndash; Header fragment &ndash;&gt;-->
+<!--<div class="header" th:replace="~{fragments/header :: siteHeader}"></div>-->
+
+<!--<div class="login-container">-->
+<!--    <h2>Login</h2>-->
+<!--    <form th:action="@{/login}" method="post">-->
+<!--        <div class="input-group">-->
+<!--            <label for="username">Username</label>-->
+<!--            <input type="text" id="username" name="username" placeholder="Enter your username" required>-->
+<!--        </div>-->
+<!--        <div class="input-group">-->
+<!--            <label for="password">Password</label>-->
+<!--            <input type="password" id="password" name="password" placeholder="Enter your password" required>-->
+<!--        </div>-->
+<!--        <button type="submit" class="button">Login</button>-->
+<!--    </form>-->
+<!--    <div class="links">-->
+<!--        <a th:href="@{/forgot-password}">Forgot Password?</a> |-->
+<!--        <a th:href="@{/register}">Create Account</a>-->
+<!--    </div>-->
+<!--</div>-->
+
+<!--&lt;!&ndash; Footer fragment &ndash;&gt;-->
+<!--<div class="footer" th:replace="~{fragments/footer :: siteFooter}"></div>-->
+
+<!--</body>-->
+<!--</html>-->
+
 
 <div class="login-container">
     <h2>Login</h2>
-    <div class="input-group">
-        <label for="username">Username</label>
-        <input type="text" id="username" placeholder="Enter your username" required>
-    </div>
-    <div class="input-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" placeholder="Enter your password" required>
-    </div>
-    <button class="button">Login</button>
+    <form id="loginForm">
+        <div class="input-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" placeholder="Enter your username" required>
+        </div>
+        <div class="input-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+        </div>
+        <button type="submit" class="button">Login</button>
+    </form>
     <div class="links">
-        <a href="#">Forgot Password?</a> |
-        <a href="#">Create Account</a>
+        <a th:href="@{/forgot-password}">Forgot Password?</a> |
+        <a th:href="@{/register}">Create Account</a>
     </div>
 </div>
 
-<div class="footer" th:replace="fragments/footer :: siteFooter">
-</div>
+<script>
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
 
-</body>
-</html>
+        try {
+            const response = await fetch('/api/v1/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+
+            if (!response.ok) throw new Error('Invalid credentials');
+
+            const data = await response.json();
+            localStorage.setItem('jwtToken', data.token); // Save JWT
+            alert('Login successful!');
+            window.location.href = '/'; // Redirect after login
+        } catch (err) {
+            alert(err.message);
+        }
+    });
+</script>

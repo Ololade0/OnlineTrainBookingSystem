@@ -126,7 +126,13 @@ public class ApplicationSecurityConfig {
                 .cors().and().csrf().disable()
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints
-                        .requestMatchers("/api/v1/auth/**").permitAll()
+                        .requestMatchers("/api/v1/auth/schedule/schedule-route",
+                                "/",
+                                "/api/v1/auth/login",
+                                "/api/v1/auth/admin/register-superadmin",
+                                "/api/v1/auth/user/register",
+                                "/api/v1/auth/notification/activate")
+                        .permitAll()
 
                         // Everything else requires authentication
                         .anyRequest().authenticated()

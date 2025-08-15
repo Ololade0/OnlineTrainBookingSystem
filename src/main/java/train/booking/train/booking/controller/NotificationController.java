@@ -13,7 +13,7 @@ import train.booking.train.booking.service.UserService;
 
 @Controller
 @Slf4j
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/api/v1/auth/notification")
 @RequiredArgsConstructor
 public class NotificationController {
 

@@ -17,7 +17,7 @@ import train.booking.train.booking.service.AdminService;
 
 import javax.management.relation.RoleNotFoundException;
 
-@Controller
+@RestController
 @Slf4j
 @RequestMapping("/api/v1/auth/admin")
 public class AdminController {

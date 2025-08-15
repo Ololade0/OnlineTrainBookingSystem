@@ -78,42 +78,20 @@ public class ScheduleController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/schedule-routes")
-    public String findScheduleByRoute(
-            @RequestParam("route") Route route,
-            Model model) {
-        List<Schedule> scheduleList = scheduleService.findByRouteName(route);
 
-        model.addAttribute("scheduleList", scheduleList);
-        return "schedule-route";
-    }
-
-
-    @GetMapping("/schedule-route")
-    public String getSchedulesByRoute(@RequestParam(value = "route", required = false) Route route,
-                                      Model model) {
-        model.addAttribute("allRoutes", Route.values());
-        model.addAttribute("selectedRoute", route);
-        List<Schedule> schedules = new ArrayList<>();
-        String errorMessage = null;
-
-        if (route != null) {
-            try {
-                schedules = scheduleService.findByRouteName(route);
-            } catch (ScheduleCannotBeFoundException ex) {
-                errorMessage = ex.getMessage();
-            }
+    @GetMapping("/api/schedule-route")
+    public ResponseEntity<?> getScheduleTimeTable(@RequestParam(value = "route", required = false) Route route) {
+        if (route == null) {
+            return ResponseEntity.badRequest().body("Route parameter is required.");
         }
-        model.addAttribute("scheduleList", schedules);
-        model.addAttribute("errorMessage", errorMessage);
 
-        return "schedule-route";
+        try {
+            List<Schedule> schedules = scheduleService.findByRouteName(route);
+            return ResponseEntity.ok(schedules);
+        } catch (ScheduleCannotBeFoundException ex) {
+            return ResponseEntity.status(404).body(ex.getMessage());
+        }
     }
-
-
-
-
-
 
 
 }
