@@ -1,141 +1,48 @@
+
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Activate Your Account</title>
-    <style>
-        body {
-          font-family: 'Segoe UI', Arial, sans-serif;
-          background-color: #f4f4f4;
-          margin: 0;
-          padding: 0;
-        }
-
-        .email-wrapper {
-          max-width: 600px;
-          margin: 30px auto;
-          background-color: #ffffff;
-          padding: 30px;
-          border-radius: 12px;
-          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
-        }
-
-        .header {
-          text-align: center;
-          border-bottom: 3px solid #16A34A;
-          padding-bottom: 15px;
-          margin-bottom: 25px;
-        }
-
-        .logo {
-          max-width: 160px;
-          margin-bottom: 10px;
-        }
-
-        .header h1 {
-          font-size: 22px;
-          color: #16A34A;
-          margin: 0;
-        }
-
-        .content {
-          font-size: 16px;
-          color: #444;
-          line-height: 1.6;
-        }
-
-        .button-container {
-          text-align: center;
-          margin: 35px 0;
-        }
-
-        .button {
-          background-color: #16A34A;
-          color: #ffffff;
-          padding: 14px 28px;
-          text-decoration: none;
-          border-radius: 6px;
-          font-weight: bold;
-          font-size: 16px;
-          display: inline-block;
-          transition: background-color 0.2s ease;
-        }
-
-        .button:hover {
-          background-color: #15803d;
-        }
-
-        .footer {
-          text-align: center;
-          color: #888888;
-          font-size: 13px;
-          margin-top: 40px;
-          border-top: 1px solid #eaeaea;
-          padding-top: 15px;
-        }
-
-        .socials {
-          text-align: center;
-          margin-top: 25px;
-        }
-
-        .socials img {
-          width: 28px;
-          margin: 0 6px;
-        }
-
-        /* Mobile Responsive */
-        @media only screen and (max-width: 600px) {
-          .email-wrapper {
-            padding: 20px;
-          }
-          .button {
-            padding: 12px 20px;
-            font-size: 14px;
-          }
-        }
-    </style>
+    <title>Ololade TrainBooking | Home</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+<!--    <style>-->
+<!--        body {-->
+<!--            background-image: url('/static/images/train.jpg');-->
+<!--            background-size: cover;-->
+<!--            background-position: center 10%;-->
+<!--            background-repeat: no-repeat;-->
+<!--        }-->
+<!--    </style>-->
 </head>
-<body>
-<div class="email-wrapper">
-    <div class="header">
-        <img class="logo" src="http://localhost:8080/images/train.jpg" alt="Train Logo">
-        <h1>Ololade Train Booking System</h1>
-    </div>
+<body class="bg-gray-100 font-sans leading-relaxed tracking-wide flex flex-col">
 
-    <div class="content">
-        <p>Hi <strong th:text="${firstName + ' ' + lastName}">User</strong>,</p>
-        <p>Welcome to <strong>Ololade Train Booking System</strong>! To complete your registration, please activate your account by clicking the button below:</p>
-    </div>
+<!-- Include Navbar -->
+<div th:replace="fragments/header :: siteHeader"></div>
 
-    <div class="button-container">
-        <a th:href="@{'http://localhost:8080/api/v1/auth/activate?token=' + ${activationToken}}" class="button">
-            Activate Account
-        </a>
-    </div>
+<section class="text-center py-20 bg-green-50">
+    <h1 class="text-4xl font-bold text-green-700 mb-4">Welcome to Ololade TrainBooking 🚆</h1>
+    <p class="text-gray-600 text-lg mb-6">Book your train tickets easily and securely</p>
+    <a th:href="@{/bookings/search}" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition">Book Ticket Now</a>
+</section>
 
-    <div class="content">
-        <p>If you didn’t sign up for this account, you can safely ignore this email.</p>
-        <p>— The Ololade Train Booking System Team</p>
+<!-- Features Section -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6 px-8 py-12">
+    <div class="bg-white shadow-md p-6 rounded-lg text-center">
+        <h3 class="text-xl font-semibold mb-2">📅 Train Timetable</h3>
+        <p class="text-gray-600">Check upcoming train routes and timings.</p>
     </div>
+    <div class="bg-white shadow-md p-6 rounded-lg text-center">
+        <h3 class="text-xl font-semibold mb-2">💳 Available Payment Option</h3>
+        <p class="text-gray-600">Learn more about payment options and security.</p>
+    </div>
+    <div class="bg-white shadow-md p-6 rounded-lg text-center">
+        <h3 class="text-xl font-semibold mb-2">📞 Contact Us</h3>
+        <p class="text-gray-600">Need help? Reach out to our support team.</p>
+    </div>
+</section>
 
-    <div class="socials">
-        <a href="https://facebook.com/yourapp">
-            <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook">
-        </a>
-        <a href="https://twitter.com/yourapp">
-            <img src="https://cdn-icons-png.flaticon.com/512/733/733579.png" alt="Twitter">
-        </a>
-        <a href="https://linkedin.com/company/yourapp">
-            <img src="https://cdn-icons-png.flaticon.com/512/145/145807.png" alt="LinkedIn">
-        </a>
-    </div>
+<!-- Include Footer -->
+<div th:replace="fragments/footer :: siteFooter"></div>
 
-    <div class="footer">
-        &copy; 2025 Ololade Train Booking System. All rights reserved.<br>
-        123 Business Ave, Tech City, NG<br>
-        <a href="mailto:support@yourdomain.com">support@yourdomain.com</a>
-    </div>
-</div>
 </body>
 </html>

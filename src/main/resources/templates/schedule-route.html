@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Train Timetable</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans leading-relaxed">
+
+<!-- Include Navbar -->
+<div th:replace="fragments/header :: siteHeader"></div>
+
+<!-- Page Heading -->
+<section class="text-center py-10 bg-green-50">
+    <h1 class="text-3xl font-bold text-green-700">Train Timetable</h1>
+    <p class="text-gray-600">Select a route to view its schedule</p>
+</section>
+
+<!-- Route Selector -->
+<div class="max-w-4xl mx-auto px-4 py-6">
+    <form th:action="@{/api/v1/auth/schedule/schedule-route}" method="get" class="flex gap-4 items-center">
+        <select name="route" class="p-2 border rounded-lg flex-1">
+            <option value="">-- Select a Route --</option>
+            <option th:each="route : ${allRoutes}"
+                    th:value="${route}"
+                    th:selected="${route == selectedRoute}"
+                    th:text="${#strings.replace(route.name(), '_', ' ')}">
+            </option>
+        </select>
+        <button type="submit"
+                class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+            View Schedule
+        </button>
+    </form>
+</div>
+
+<!-- Schedule Table -->
+<div class="max-w-6xl mx-auto px-4 py-8" th:if="${selectedRoute != null}">
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+
+        <div class="bg-green-600 text-white px-6 py-3 text-lg font-semibold"
+             th:text="${#strings.replace(selectedRoute.name(), '_', ' ')}">
+            Route Name
+        </div>
+
+        <table class="w-full border-collapse">
+            <thead class="bg-green-100">
+            <tr>
+                <th class="p-3 text-left">#</th>
+                <th class="p-3 text-left">Departure</th>
+                <th class="p-3 text-left">Arrival</th>
+                <th class="p-3 text-left">Train</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="schedule, iterStat : ${scheduleList}" class="hover:bg-green-50 transition">
+                <td class="p-3" th:text="${iterStat.index + 1}"></td>
+                <td class="p-3" th:text="${schedule.departureTime}"></td>
+                <td class="p-3" th:text="${schedule.arrivalTime}"></td>
+                <td class="p-3" th:text="${schedule.trainId}"></td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(scheduleList)}">
+                <td colspan="5" class="p-6 text-center text-gray-500"
+                    th:text="${errorMessage != null} ? ${errorMessage} : 'No schedules available for this route.'">
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Include Footer -->
+<div th:replace="fragments/footer :: siteFooter"></div>
+
+</body>
+</html>

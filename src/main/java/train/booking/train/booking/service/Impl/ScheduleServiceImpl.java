@@ -288,11 +288,13 @@ public class ScheduleServiceImpl implements ScheduleService {
     public List<Schedule> findByRouteName(Route route) {
        List<Schedule> foundSchedule =  scheduleRepository.findByRoute(route);
        if(foundSchedule.isEmpty()){
-           throw new ScheduleCannotBeFoundException("Schedule with this roue cannot be found");
+           throw new ScheduleCannotBeFoundException("Schedule with this route cannot be found");
        }
        return foundSchedule;
 
     }
+
+
 
 }
 
