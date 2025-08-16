@@ -73,16 +73,16 @@ public class ApplicationSecurityConfig {
                 );
 
         // ✅ Add JWT and Exception filters
-        http.addFilterBefore(jwtAuthenticationFilterBean(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         http.addFilterAfter(exceptionHandlerFilterBean(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-
-    @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilterBean() {
-        return new JwtAuthenticationFilter();
-    }
+//
+//    @Bean
+//    public JwtAuthenticationFilter jwtAuthenticationFilterBean() {
+//        return new JwtAuthenticationFilter();
+//    }
 
     @Bean
     public ExceptionHandlerFilter exceptionHandlerFilterBean() {
