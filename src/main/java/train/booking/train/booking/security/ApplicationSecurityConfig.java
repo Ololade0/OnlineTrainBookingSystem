@@ -31,7 +31,16 @@ public class ApplicationSecurityConfig{
         http.cors().and().csrf().disable()
                 .authorizeHttpRequests(authorize -> {
                     try {
-                        authorize.requestMatchers("/**/auth/**").permitAll()
+                        authorize
+                                .requestMatchers("/**/auth/**").permitAll()
+                                .requestMatchers(
+                                        "/api/v1/auth/schedule/schedule-route",
+                                        "/",
+                                        "/api/v1/auth/login",
+                                        "/api/v1/auth/admin/register-superadmin",
+                                        "/api/v1/auth/user/register",
+                                        "/api/v1/auth/notification/activate",
+                                        "/api/v1/auth/role/create-role").permitAll()
                                 .requestMatchers("/customError").permitAll()
                                 .requestMatchers("/access-denied").permitAll()
                                 .anyRequest().authenticated()
