@@ -43,7 +43,8 @@ public class ApplicationSecurityConfig {
                             "/api/v1/auth/login",
                             "/api/v1/auth/admin/register-superadmin",
                             "/api/v1/auth/user/register",
-                            "/api/v1/auth/notification/activate"
+                            "/api/v1/auth/notification/activate",
+                            "/api/v1/auth/role/create-role"
                     ).permitAll();
                     if ("dev".equalsIgnoreCase(appEnv)) {
                         auth.requestMatchers(
