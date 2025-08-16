@@ -21,18 +21,19 @@ import java.util.stream.Collectors;
 
 @Component
 @Slf4j
-public  class TokenProviderImpl implements TokenProvider {
+class TokenProviderImpl implements TokenProvider {
 
     private final static Long TOKEN_VALIDITY_PERIOD = (long) (24 * 10 * 3600);
 
 //    public final String SIGNING_KEY = System.getenv("SIGNING_KEY");
 //    public final String AUTHORITIES_KEY = System.getenv("AUTHORITIES_KEY");
 
-    @Value("${SIGNING_KEY}")
+    @Value("${signing_key}")
     private String SIGNING_KEY;
 
-    @Value("${AUTHORITIES_KEY}")
+    @Value("${authorities_key}")
     private String AUTHORITIES_KEY;
+
 
     public String getSigningKey() {
         return SIGNING_KEY;
