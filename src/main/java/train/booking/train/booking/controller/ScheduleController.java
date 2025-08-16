@@ -20,7 +20,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-@Controller
+@RestController
 @Slf4j
 @RequestMapping("/api/v1/auth/schedule")
 @RequiredArgsConstructor

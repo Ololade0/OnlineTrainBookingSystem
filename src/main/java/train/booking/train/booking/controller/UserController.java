@@ -2,6 +2,7 @@ package train.booking.train.booking.controller;
 
 
 import com.mashape.unirest.http.exceptions.UnirestException;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,10 +17,11 @@ import train.booking.train.booking.service.UserService;
 
 import javax.management.relation.RoleNotFoundException;
 
-@Controller
+@RestController
 @Slf4j
 @RequestMapping("/api/v1/auth/user")
 @RequiredArgsConstructor
+@Tag(name = "User Management", description = "APIs for managing users")
 public class UserController {
 
     private final UserService userService;
