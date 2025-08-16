@@ -2,6 +2,7 @@ package train.booking.train.booking.security.jwt;
 
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -22,11 +23,15 @@ import java.util.stream.Collectors;
 class TokenProviderImpl implements TokenProvider {
 
     private final static Long TOKEN_VALIDITY_PERIOD = (long) (24 * 10 * 3600);
+//
+//    public final String SIGNING_KEY = System.getenv("SIGNING_KEY");
+//    public final String AUTHORITIES_KEY = System.getenv("AUTHORITIES_KEY");
+//
+@Value("${signing.key}")
+public String SIGNING_KEY;
 
-    public final String SIGNING_KEY = System.getenv("SIGNING_KEY");
-    public final String AUTHORITIES_KEY = System.getenv("AUTHORITIES_KEY");
-
-
+    @Value("${authorities.key}")
+    public String AUTHORITIES_KEY;
     @Override
     public String getUsernameFromJWTToken(String token) {
 
