@@ -1,6 +1,5 @@
 package train.booking.train.booking.security.jwt;
 
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Header;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

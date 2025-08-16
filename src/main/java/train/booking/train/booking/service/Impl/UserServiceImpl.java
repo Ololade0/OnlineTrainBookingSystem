@@ -320,21 +320,20 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return ResponseUtil.success("User updated successfully", null);
     }
 
-     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> userOptional = userRepository.findUserByEmail(username);
-        if (userOptional.isPresent()) {
-//            return new UserDetails.User(userOptional.get());
-            return new org.springframework.security.core.userdetails.User(userOptional.get().getEmail(), userOptional.get().getPassword(), getAuthorities(userOptional.get().getRoleHashSet()));// Custom UserDetails implementation
-        } else {
-            throw new UsernameNotFoundException("User not found: " + username);
-        }
-    }
 
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = userRepository.findUserByEmail(username).orElse(null);
+        if(user!= null){
+            return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), getAuthorities(user.getRoleHashSet()));
+        }
+        return null;
+    }
 
     private Collection<? extends GrantedAuthority> getAuthorities(Set<Role> roleHashSet) {
         return roleHashSet.stream().map(role -> new SimpleGrantedAuthority(role.getRoleType().name())).collect(Collectors.toSet());
     }
+
 
 }
 
