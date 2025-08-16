@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 @Component
 @Slf4j
-class TokenProviderImpl implements TokenProvider {
+public  class TokenProviderImpl implements TokenProvider {
 
     private final static Long TOKEN_VALIDITY_PERIOD = (long) (24 * 10 * 3600);
 

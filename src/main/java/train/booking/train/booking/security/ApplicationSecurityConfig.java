@@ -20,14 +20,16 @@ import train.booking.train.booking.security.jwt.JwtAuthenticationFilter;
 public class ApplicationSecurityConfig {
 
     private final UnAuthorizedEntryPoint unAuthorizedEntryPoint;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Value("${spring.profiles.active:dev}")
     private String appEnv;
 
 
-
-    public ApplicationSecurityConfig(UnAuthorizedEntryPoint unAuthorizedEntryPoint) {
+    public ApplicationSecurityConfig(UnAuthorizedEntryPoint unAuthorizedEntryPoint,
+                                     JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.unAuthorizedEntryPoint = unAuthorizedEntryPoint;
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
     @Bean
