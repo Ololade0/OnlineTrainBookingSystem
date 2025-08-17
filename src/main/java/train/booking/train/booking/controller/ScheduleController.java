@@ -79,7 +79,7 @@ public class ScheduleController {
     }
 
 
-    @GetMapping("/api/schedule-route")
+    @GetMapping("/schedule-route")
     public ResponseEntity<?> getScheduleTimeTable(@RequestParam(value = "route", required = false) Route route) {
         if (route == null) {
             return ResponseEntity.badRequest().body("Route parameter is required.");
