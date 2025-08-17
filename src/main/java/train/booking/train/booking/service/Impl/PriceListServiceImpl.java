@@ -8,6 +8,7 @@ import train.booking.train.booking.exceptions.PriceAlreadyExist;
 import train.booking.train.booking.exceptions.PriceListException;
 import train.booking.train.booking.model.PriceList;
 import train.booking.train.booking.model.Schedule;
+import train.booking.train.booking.model.enums.AgeRange;
 import train.booking.train.booking.model.enums.TrainClass;
 import train.booking.train.booking.repository.PriceListServiceRepository;
 import train.booking.train.booking.service.PriceListService;
@@ -80,7 +81,7 @@ public class PriceListServiceImpl implements PriceListService {
 
     @Override
 
-    public PriceList getSpecificPrice(Long scheduleId, Long stationId, TrainClass trainClass, String ageRange) {
+    public PriceList getSpecificPrice(Long scheduleId, Long stationId, TrainClass trainClass, AgeRange ageRange) {
         return priceListServiceRepository
                 .findByScheduleIdAndStationIdAndTrainClassAndAgeRange(scheduleId, stationId, trainClass, ageRange)
                 .orElseThrow(() -> new PriceListException("Price not found for given criteria"));

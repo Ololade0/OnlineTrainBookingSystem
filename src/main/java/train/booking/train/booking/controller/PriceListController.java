@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import train.booking.train.booking.dto.PriceListDTO;
 import train.booking.train.booking.dto.UpdatePriceDTO;
 import train.booking.train.booking.model.PriceList;
+import train.booking.train.booking.model.enums.AgeRange;
 import train.booking.train.booking.model.enums.TrainClass;
 import train.booking.train.booking.service.PriceListService;
 
@@ -47,7 +48,7 @@ public class PriceListController {
                 @RequestParam Long scheduleId,
                 @RequestParam Long stationId,
                 @RequestParam TrainClass trainClass,
-                @RequestParam String ageRange
+                @RequestParam AgeRange ageRange
         ) {
             return ResponseEntity.ok(priceListService.getSpecificPrice(scheduleId, stationId, trainClass, ageRange));
         }

@@ -10,30 +10,5 @@
 <!--</nav>-->
 
 
-<nav th:fragment="siteHeader" class="bg-white shadow-md p-4 flex justify-between items-center">
-    <div class="text-2xl font-bold text-green-600">Ololade TrainBooking</div>
-    <div class="space-x-4">
-        <a th:href="@{/}" class="text-gray-700 hover:text-green-600">Home</a>
-        <a th:href="@{/api/v1/auth/schedule/schedule-route}" class="text-gray-700 hover:text-green-600">Train-TimeTable</a>
-        <a href="#" onclick="handleMyBookings()" class="text-gray-700 hover:text-green-600">My Bookings</a>
-        <a th:href="@{/api/v1/auth/login}" class="text-gray-700 hover:text-green-600">Login</a>
-        <a th:href="@{/api/v1/auth/admin/display-registration-form}" class="text-gray-700 hover:text-green-600">Register</a>
-    </div>
-</nav>
-
-<a href="#" onclick="handleMyBookings(event)" class="text-gray-700 hover:text-green-600">My Bookings</a>
-
-<script>
-    function handleMyBookings(event) {
-        event.preventDefault(); // Prevent the default href="#" action
-        const token = localStorage.getItem('jwtToken'); // check for JWT
-        if (!token) {
-            alert('You must login first!');
-            window.location.href = '/api/v1/auth/login';
-        } else {
-            window.location.href = '/bookings-history/me';
-        }
-    }
-</script>
 
 
