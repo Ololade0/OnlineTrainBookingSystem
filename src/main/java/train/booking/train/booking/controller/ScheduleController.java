@@ -89,7 +89,7 @@ public class ScheduleController {
             List<Schedule> schedules = scheduleService.findByRouteName(route);
             return ResponseEntity.ok(schedules);
         } catch (ScheduleCannotBeFoundException ex) {
-            return ResponseEntity.status(404).body(ex.getMessage());
+            return ResponseEntity.badRequest().body(ex.getMessage());
         }
     }
 

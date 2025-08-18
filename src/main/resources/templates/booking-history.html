@@ -57,43 +57,4 @@
 <!--</body>-->
 <!--</html>-->
 
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>My Bookings</title>
-</head>
-<body>
-<!-- Include header fragment -->
-<div th:replace="~{fragments/header :: siteHeader}"></div>
-
-<h2>My Bookings</h2>
-<table border="1" cellpadding="10">
-    <thead>
-    <tr>
-        <th>Booking ID</th>
-        <th>Train</th>
-        <th>Date</th>
-        <th>Seat</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="booking : ${pastBookings}">
-        <td th:text="${booking.id}"></td>
-        <td th:text="${booking.trainName}"></td>
-        <td th:text="${booking.date}"></td>
-        <td th:text="${booking.seatNumber}"></td>
-    </tr>
-    </tbody>
-</table>
-
-<!-- Pagination -->
-<div>
-    <span>Page <span th:text="${currentPage + 1}"></span> of <span th:text="${totalPages}"></span></span>
-</div>
-
-<!-- Footer -->
-<div th:replace="~{fragments/footer :: siteFooter}"></div>
-</body>
-</html>
 
