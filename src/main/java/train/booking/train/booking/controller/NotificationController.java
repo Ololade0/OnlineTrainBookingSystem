@@ -19,21 +19,23 @@ public class NotificationController {
 
     private final NotificationService notificationService;
     private final UserService userService;
-            @GetMapping("/activate")
-            public String activateAccount(@RequestParam("token") String token, Model model) {
-                try {
-                    String result = userService.activateAccount(token);
-                    model.addAttribute("message", result);
-                    return "activation-success";
-                } catch (RuntimeException ex) {
-                    model.addAttribute("message", ex.getMessage());
-                    return "activation-failed";
-                } catch (Exception ex) {
-                    model.addAttribute("message", "An unexpected error occurred during activation.");
-                    return "activation-failed";
-                }
-            }
 
+
+//            @GetMapping("/activate")
+//            public String activateAccount(@RequestParam("token") String token, Model model) {
+//                try {
+//                    String result = userService.activateAccount(token);
+//                    model.addAttribute("message", result);
+//                    return "activation-success";
+//                } catch (RuntimeException ex) {
+//                    model.addAttribute("message", ex.getMessage());
+//                    return "activation-failed";
+//                } catch (Exception ex) {
+//                    model.addAttribute("message", "An unexpected error occurred during activation.");
+//                    return "activation-failed";
+//                }
+//            }
+//
 
 
     @PostMapping("/trigger-websocket")

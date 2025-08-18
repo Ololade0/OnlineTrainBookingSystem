@@ -207,6 +207,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setVerified(true);
         user.setActivationToken(null);
         userRepository.save(user);
+//        notificationService.sendEmailV3(user.getEmail(),"ACCOUNT ACTIVATION", "" );
         return "Account as been sucessfully activated";
 
     }
