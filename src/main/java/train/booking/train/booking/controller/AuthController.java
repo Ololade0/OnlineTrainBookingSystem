@@ -8,6 +8,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -22,91 +23,104 @@ import train.booking.train.booking.service.AuthTokenService;
 import train.booking.train.booking.service.UserService;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.Optional;
 
-@RequiredArgsConstructor
+
 @RestController
-@RequestMapping("/api/v1/auth")
-public class AuthController {
-    private final UserService userService;
+    @RequestMapping("/api/v1/auth")
+    @RequiredArgsConstructor
+    public class AuthController {
 
-    private final AuthenticationManager authenticationManager;
-    private final TokenProvider tokenProvider;
-    private final AuthTokenService authTokenService;
+        private final AuthenticationManager authenticationManager;
+        private final TokenProvider tokenProvider;
+        private final UserService userService;
+        private final PasswordEncoder passwordEncoder;
+        private final AuthTokenService authTokenService;
 
+        @PostMapping("/login")
+        public ResponseEntity<?> login(@RequestBody UserLoginDTO loginRequest) {
+            Optional<User> optionalUser = Optional.ofNullable(userService.findUserByEmail(loginRequest.getEmail()));
 
-    // AuthController.java
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserLoginDTO loginRequest) {
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            loginRequest.getEmail(),
-                            loginRequest.getPassword()
-                    )
-            );
-
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-
-            User user = userService.findUserByEmail(loginRequest.getEmail());
-            if (user.isVerified()) {
+            if (optionalUser.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(Map.of("message", "User not found"));
             }
 
-            String jwtToken = tokenProvider.generateJWTToken(authentication);
-            Instant expiryDate = Instant.now().plusSeconds(3600);
+            User user = optionalUser.get();
 
-            AuthToken authToken = AuthToken.builder()
-                    .token(jwtToken)
-                    .name(user.getFirstName())
-                    .email(user.getEmail())
-                    .expiryDate(expiryDate)
-                    .authTokenStatus(AuthTokenStatus.ACTIVE)
-                    .build();
+            if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("message", "Invalid password"));
+            }
 
-            authTokenService.saveToken(authToken);
+            if (!user.isVerified()) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of("message", "Account not verified"));
+            }
+
+            String jwtToken = tokenProvider.generateJWTToken(
+                    new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword(), new ArrayList<>())
+            );
 
             return ResponseEntity.ok(Map.of(
                     "token", jwtToken,
                     "firstName", user.getFirstName(),
                     "email", user.getEmail()
             ));
-        } catch (BadCredentialsException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("message", "Invalid email or password"));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("message", "An error occurred. Please try again."));
         }
-    }
 
+
+//    private final AuthTokenService authTokenService;
 
 //
+//    // AuthController.java
 //    @PostMapping("/login")
-//    public ResponseEntity<?> login(@RequestBody UserLoginDTO loginRequest) throws UserCannotBeFoundException {
-//        Authentication authentication = authenticationManager.authenticate(
-//                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),
-//                        loginRequest.getPassword())
-//        );
-//        SecurityContextHolder.getContext().setAuthentication(authentication);
+//    public ResponseEntity<?> login(@RequestBody UserLoginDTO loginRequest) {
+//        try {
+//            Authentication authentication = authenticationManager.authenticate(
+//                    new UsernamePasswordAuthenticationToken(
+//                            loginRequest.getEmail(),
+//                            loginRequest.getPassword()
+//                    )
+//            );
 //
-//        String jwtToken = tokenProvider.generateJWTToken(authentication);
-//        User user = userService.findUserByEmailOrNull(loginRequest.getEmail());
-//        Instant expiryDate = Instant.now().plusSeconds(3600);
-//        AuthToken authToken = AuthToken.builder()
-//                .token(jwtToken)
-//                .name(user.getFirstName())
-//                .email(user.getEmail())
-//                .expiryDate(expiryDate)
-//                .authTokenStatus(AuthTokenStatus.ACTIVE)
-//                .build();
-//        authTokenService.saveToken(authToken);
-//        authTokenService.login(loginRequest);
+//            SecurityContextHolder.getContext().setAuthentication(authentication);
 //
+//            User user = userService.findUserByEmail(loginRequest.getEmail());
+//            if (user.isVerified()) {
+//                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+//                        .body(Map.of("message", "User not found"));
+//            }
 //
-//        return new ResponseEntity<>(new UserLoginResponse(jwtToken, user.getFirstName(), user.getEmail()), HttpStatus.OK);
+//            String jwtToken = tokenProvider.generateJWTToken(authentication);
+//            Instant expiryDate = Instant.now().plusSeconds(3600);
+//
+//            AuthToken authToken = AuthToken.builder()
+//                    .token(jwtToken)
+//                    .name(user.getFirstName())
+//                    .email(user.getEmail())
+//                    .expiryDate(expiryDate)
+//                    .authTokenStatus(AuthTokenStatus.ACTIVE)
+//                    .build();
+//
+//            authTokenService.saveToken(authToken);
+//
+//            return ResponseEntity.ok(Map.of(
+//                    "token", jwtToken,
+//                    "firstName", user.getFirstName(),
+//                    "email", user.getEmail()
+//            ));
+//        } catch (BadCredentialsException e) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+//                    .body(Map.of("message", "Invalid email or password"));
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                    .body(Map.of("message", "An error occurred. Please try again."));
+//        }
 //    }
+
 
 
 

@@ -51,48 +51,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
 
 
-//    @Override
-//    public BaseResponse superAdminSignUp(UserDTO userDTO) throws UnirestException {
-//        try{
-//            validateUserInfo(userDTO);
-//            validateEmail(userDTO.getEmail());
-//            validatePasswordStrength(userDTO.getPassword());
-//            String activationToken = UUID.randomUUID().toString();
-//            User signupUser = User.builder()
-//                    .firstName(userDTO.getFirstName())
-//                    .lastName(userDTO.getLastName())
-//                    .email(userDTO.getEmail())
-//                    .gender(userDTO.getGender())
-//                    .dateOfBirth(userDTO.getDateOfBirth())
-//                    .identificationType(userDTO.getIdentificationType())
-//                    .phoneNumber(userDTO.getPhoneNumber())
-//                    .password(bCryptPasswordEncoder.encode(userDTO.getPassword()))
-//                    .idNumber(userDTO.getIdNumber())
-//                    .isVerified(false)
-//                    .activationToken(activationToken)
-//                    .roleHashSet(new HashSet<>())
-//                    .build();
-//            Role assignedRole = roleService.findByRoleType(RoleType.SUPERADMIN_ROLE);
-//            signupUser.getRoleHashSet().add(assignedRole);
-//            userRepository.save(signupUser);
-//            Map m = getMap(signupUser);
-//            notificationService.sendEmailV3(signupUser.getEmail(), "ACTIVATION LINK", helper.build(m, "account-activation-email"));
-//            UserDTO responseDto = UserDTO.builder()
-//                    .firstName(signupUser.getFirstName())
-//                    .lastName(signupUser.getLastName())
-//                    .email(signupUser.getEmail())
-//                    .roles(signupUser.getRoleHashSet())
-//                    .build();
-//            return ResponseUtil.success("Account sucessfully created", responseDto);
-//        }
-//        catch (Exception e) {
-//            log.error("Error during super admin sign-up: {}", e.getMessage());
-//            return ResponseUtil.failed("Sign-up failed due to an unexpected error.", e);
-//        }
-//
-//    }
-
-
 
     @Override
     @Transactional
