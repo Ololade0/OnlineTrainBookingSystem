@@ -13,6 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import train.booking.train.booking.dto.UserDTO;
 import train.booking.train.booking.dto.response.BaseResponse;
+import train.booking.train.booking.model.User;
 import train.booking.train.booking.service.UserService;
 
 import javax.management.relation.RoleNotFoundException;
@@ -33,7 +34,7 @@ public class UserController {
 
     @GetMapping("/{email}")
     public ResponseEntity<?> findUserByEmail(@PathVariable String email) {
-        BaseResponse foundUser = userService.findUserByEmail(email);
+        User foundUser = userService.findUserByEmail(email);
         return ResponseEntity.ok(foundUser);
     }
 

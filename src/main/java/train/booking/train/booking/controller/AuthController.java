@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,6 +22,8 @@ import train.booking.train.booking.service.AuthTokenService;
 import train.booking.train.booking.service.UserService;
 
 import java.time.Instant;
+import java.util.Map;
+
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -32,30 +35,78 @@ public class AuthController {
     private final AuthTokenService authTokenService;
 
 
+    // AuthController.java
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserLoginDTO loginRequest) throws UserCannotBeFoundException {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),
-                        loginRequest.getPassword())
-        );
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+    public ResponseEntity<?> login(@RequestBody UserLoginDTO loginRequest) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequest.getEmail(),
+                            loginRequest.getPassword()
+                    )
+            );
 
-        String jwtToken = tokenProvider.generateJWTToken(authentication);
-        User user = userService.findUserByEmailOrNull(loginRequest.getEmail());
-        Instant expiryDate = Instant.now().plusSeconds(3600);
-        AuthToken authToken = AuthToken.builder()
-                .token(jwtToken)
-                .name(user.getFirstName())
-                .email(user.getEmail())
-                .expiryDate(expiryDate)
-                .authTokenStatus(AuthTokenStatus.ACTIVE)
-                .build();
-        authTokenService.saveToken(authToken);
-        authTokenService.login(loginRequest);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
+            User user = userService.findUserByEmail(loginRequest.getEmail());
+            if (user.isVerified()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("message", "User not found"));
+            }
 
-        return new ResponseEntity<>(new UserLoginResponse(jwtToken, user.getFirstName(), user.getEmail()), HttpStatus.OK);
+            String jwtToken = tokenProvider.generateJWTToken(authentication);
+            Instant expiryDate = Instant.now().plusSeconds(3600);
+
+            AuthToken authToken = AuthToken.builder()
+                    .token(jwtToken)
+                    .name(user.getFirstName())
+                    .email(user.getEmail())
+                    .expiryDate(expiryDate)
+                    .authTokenStatus(AuthTokenStatus.ACTIVE)
+                    .build();
+
+            authTokenService.saveToken(authToken);
+
+            return ResponseEntity.ok(Map.of(
+                    "token", jwtToken,
+                    "firstName", user.getFirstName(),
+                    "email", user.getEmail()
+            ));
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Invalid email or password"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "An error occurred. Please try again."));
+        }
     }
+
+
+//
+//    @PostMapping("/login")
+//    public ResponseEntity<?> login(@RequestBody UserLoginDTO loginRequest) throws UserCannotBeFoundException {
+//        Authentication authentication = authenticationManager.authenticate(
+//                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),
+//                        loginRequest.getPassword())
+//        );
+//        SecurityContextHolder.getContext().setAuthentication(authentication);
+//
+//        String jwtToken = tokenProvider.generateJWTToken(authentication);
+//        User user = userService.findUserByEmailOrNull(loginRequest.getEmail());
+//        Instant expiryDate = Instant.now().plusSeconds(3600);
+//        AuthToken authToken = AuthToken.builder()
+//                .token(jwtToken)
+//                .name(user.getFirstName())
+//                .email(user.getEmail())
+//                .expiryDate(expiryDate)
+//                .authTokenStatus(AuthTokenStatus.ACTIVE)
+//                .build();
+//        authTokenService.saveToken(authToken);
+//        authTokenService.login(loginRequest);
+//
+//
+//        return new ResponseEntity<>(new UserLoginResponse(jwtToken, user.getFirstName(), user.getEmail()), HttpStatus.OK);
+//    }
 
 
 

@@ -190,11 +190,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
 
-    public BaseResponse findUserByEmail(String email) {
-        User user = userRepository.findUserByEmail(email)
+    public User findUserByEmail(String email) {
+      return userRepository.findUserByEmail(email)
                 .orElseThrow(() -> new UserCannotBeFoundException("User with email " + email + " not found"));
-        UserDTO userDTO = new UserDTO(user.getEmail(), user.getFirstName(), user.getLastName());
-        return ResponseUtil.success("User found successfully", userDTO);
+
     }
 
 
@@ -321,18 +320,40 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
 
+//    @Override
+//    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+//        Optional<User> user = userRepository.findUserByEmail(username);
+//        if(user!= null){
+//            return new org.springframework.security.core.userdetails.User(user.get().getEmail(), user.get().getPassword(), getAuthorities(user.get().getRoleHashSet()));
+//        }
+//        return null;
+//    }
+//
+//    private Collection<? extends GrantedAuthority> getAuthorities(Set<Role> roleHashSet) {
+//        return roleHashSet.stream().map(role -> new SimpleGrantedAuthority(role.getRoleType().name())).collect(Collectors.toSet());
+//    }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> user = userRepository.findUserByEmail(username);
-        if(user!= null){
-            return new org.springframework.security.core.userdetails.User(user.get().getEmail(), user.get().getPassword(), getAuthorities(user.get().getRoleHashSet()));
-        }
-        return null;
+        Optional<User> optionalUser = userRepository.findUserByEmail(username);
+
+        User user = optionalUser.orElseThrow(
+                () -> new UsernameNotFoundException("User not found with email: " + username)
+        );
+
+        return new org.springframework.security.core.userdetails.User(
+                user.getEmail(),
+                user.getPassword(),
+                getAuthorities(user.getRoleHashSet())
+        );
     }
 
     private Collection<? extends GrantedAuthority> getAuthorities(Set<Role> roleHashSet) {
-        return roleHashSet.stream().map(role -> new SimpleGrantedAuthority(role.getRoleType().name())).collect(Collectors.toSet());
+        return roleHashSet.stream()
+                .map(role -> new SimpleGrantedAuthority(role.getRoleType().name()))
+                .collect(Collectors.toSet());
     }
+
 
 
 }

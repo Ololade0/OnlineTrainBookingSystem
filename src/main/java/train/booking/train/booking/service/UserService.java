@@ -13,8 +13,7 @@ import java.util.Optional;
 public interface UserService {
 
     BaseResponse signUpNewUser(UserDTO userDTO) throws UnirestException, RoleNotFoundException;
-    BaseResponse findUserByEmail(String email);
-
+    User findUserByEmail(String email);
     User findUserByEmailOrNull(String email);
     User findUserById(Long userId);
 
