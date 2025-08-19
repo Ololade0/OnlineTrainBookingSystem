@@ -39,37 +39,89 @@ import java.util.Optional;
         private final PasswordEncoder passwordEncoder;
         private final AuthTokenService authTokenService;
 
-        @PostMapping("/login")
-        public ResponseEntity<?> login(@RequestBody UserLoginDTO loginRequest) {
-            Optional<User> optionalUser = Optional.ofNullable(userService.findUserByEmail(loginRequest.getEmail()));
 
-            if (optionalUser.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(Map.of("message", "User not found"));
-            }
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody UserLoginDTO loginRequest) {
+        Optional<User> optionalUser = Optional.ofNullable(userService.findUserByEmail(loginRequest.getEmail()));
 
-            User user = optionalUser.get();
-
-            if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(Map.of("message", "Invalid password"));
-            }
-//
-//            if (!user.isVerified()) {
-//                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-//                        .body(Map.of("message", "Account not verified"));
-//            }
-
-            String jwtToken = tokenProvider.generateJWTToken(
-                    new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword(), new ArrayList<>())
-            );
-
-            return ResponseEntity.ok(Map.of(
-                    "token", jwtToken,
-                    "firstName", user.getFirstName(),
-                    "email", user.getEmail()
-            ));
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of(
+                            "error", "user_not_found",
+                            "message", "No account exists with this email."
+                    ));
         }
+
+        User user = optionalUser.get();
+
+        if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of(
+                            "error", "invalid_password",
+                            "message", "Incorrect password."
+                    ));
+        }
+
+//        if (!user.isVerified()) {
+//            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+//                    .body(Map.of(
+//                            "error", "account_not_verified",
+//                            "message", "Please verify your account before logging in."
+//                    ));
+//        }
+
+        String jwtToken = tokenProvider.generateJWTToken(
+                new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword(), new ArrayList<>())
+        );
+
+        return ResponseEntity.ok(Map.of(
+                "accessToken", jwtToken,
+                "firstName", user.getFirstName(),
+                "email", user.getEmail()
+        ));
+    }
+
+
+
+    @PostMapping("/logout")
+    public void logout(@RequestParam String token) {
+        authTokenService.logout(token);
+
+    }
+}
+
+
+//        @PostMapping("/login")
+//        public ResponseEntity<?> login(@RequestBody UserLoginDTO loginRequest) {
+//            Optional<User> optionalUser = Optional.ofNullable(userService.findUserByEmail(loginRequest.getEmail()));
+//
+//            if (optionalUser.isEmpty()) {
+//                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+//                        .body(Map.of("message", "User not found"));
+//            }
+//
+//            User user = optionalUser.get();
+//
+//            if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
+//                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+//                        .body(Map.of("message", "Invalid password"));
+//            }
+////
+////            if (!user.isVerified()) {
+////                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+////                        .body(Map.of("message", "Account not verified"));
+////            }
+//
+//            String jwtToken = tokenProvider.generateJWTToken(
+//                    new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword(), new ArrayList<>())
+//            );
+//
+//            return ResponseEntity.ok(Map.of(
+//                    "token", jwtToken,
+//                    "firstName", user.getFirstName(),
+//                    "email", user.getEmail()
+//            ));
+//        }
 
 
 //    private final AuthTokenService authTokenService;
@@ -122,15 +174,6 @@ import java.util.Optional;
 //    }
 
 
-
-
-    @PostMapping("/logout")
-    public void logout(@RequestParam String token) {
-        authTokenService.logout(token);
-
-    }
-
-}
 
 
 
