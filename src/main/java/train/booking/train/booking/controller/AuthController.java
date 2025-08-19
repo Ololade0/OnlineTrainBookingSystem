@@ -62,13 +62,6 @@ import java.util.Optional;
                     ));
         }
 
-//        if (!user.isVerified()) {
-//            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-//                    .body(Map.of(
-//                            "error", "account_not_verified",
-//                            "message", "Please verify your account before logging in."
-//                    ));
-//        }
 
         String jwtToken = tokenProvider.generateJWTToken(
                 new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword(), new ArrayList<>())
@@ -76,8 +69,10 @@ import java.util.Optional;
 
         return ResponseEntity.ok(Map.of(
                 "accessToken", jwtToken,
-                "firstName", user.getFirstName(),
-                "email", user.getEmail()
+                "email", user.getEmail(),
+                "role", user.getRoleHashSet()
+                        .stream().map(role -> role.getRoleType().name())
+                        .toList()
         ));
     }
 
