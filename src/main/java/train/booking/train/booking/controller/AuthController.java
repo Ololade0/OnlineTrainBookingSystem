@@ -54,11 +54,11 @@ import java.util.Optional;
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(Map.of("message", "Invalid password"));
             }
-
-            if (!user.isVerified()) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body(Map.of("message", "Account not verified"));
-            }
+//
+//            if (!user.isVerified()) {
+//                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+//                        .body(Map.of("message", "Account not verified"));
+//            }
 
             String jwtToken = tokenProvider.generateJWTToken(
                     new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword(), new ArrayList<>())
