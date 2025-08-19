@@ -16,44 +16,37 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(StationCannotBeFoundException.class)
     public ResponseEntity<Map<String, Object>> handleStationNotFoundException(StationCannotBeFoundException ex) {
-        Map<String, Object> response = createResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
-        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        return buildResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(UserAlreadyExistException.class)
     public ResponseEntity<Map<String, Object>> handleUserAlreadyExistException(UserAlreadyExistException ex) {
-        Map<String, Object> response = createResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return buildResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(StationAlreadyExistException.class)
-    public ResponseEntity<Map<String, Object>> handleStationAlreadyExistException(StationAlreadyExistException exception) {
-        Map<String, Object> response = createResponse(exception.getMessage(), HttpStatus.FOUND);
-        return new ResponseEntity<>(response, HttpStatus.FOUND);
+    public ResponseEntity<Map<String, Object>> handleStationAlreadyExistException(StationAlreadyExistException ex) {
+        return buildResponse(ex.getMessage(), HttpStatus.FOUND);
     }
 
     @ExceptionHandler(PasswordDoesNotMatchException.class)
     public ResponseEntity<Map<String, Object>> handlePasswordDoesNotMatchException(PasswordDoesNotMatchException ex) {
-        Map<String, Object> response = createResponse(ex.getMessage(), HttpStatus.EXPECTATION_FAILED);
-        return new ResponseEntity<>(response, HttpStatus.EXPECTATION_FAILED);
+        return buildResponse(ex.getMessage(), HttpStatus.EXPECTATION_FAILED);
     }
 
     @ExceptionHandler(InvalidIdNumber.class)
     public ResponseEntity<Map<String, Object>> handleInvalidIdNumber(InvalidIdNumber ex) {
-        Map<String, Object> response = createResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return buildResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(IdNumberAlreadyExist.class)
     public ResponseEntity<Map<String, Object>> handleIdNumberAlreadyExist(IdNumberAlreadyExist ex) {
-        Map<String, Object> response = createResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return buildResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(InvalidPassengerTypeException.class)
     public ResponseEntity<Map<String, Object>> handleInvalidPassengerType(InvalidPassengerTypeException ex) {
-        Map<String, Object> response = createResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return buildResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -67,16 +60,16 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGenericException(Exception ex) {
-        Map<String, Object> response = createResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        return buildResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    private Map<String, Object> createResponse(String message, HttpStatus status) {
+    // Utility method to reduce repetition
+    private ResponseEntity<Map<String, Object>> buildResponse(String message, HttpStatus status) {
         Map<String, Object> response = new HashMap<>();
         response.put("timestamp", LocalDateTime.now());
         response.put("message", message);
         response.put("status", status.value());
         response.put("error", status.getReasonPhrase());
-        return response;
+        return new ResponseEntity<>(response, status);
     }
 }

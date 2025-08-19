@@ -6,6 +6,7 @@ import train.booking.train.booking.model.Role;
 import train.booking.train.booking.model.enums.RoleType;
 
 import javax.management.relation.RoleNotFoundException;
+import java.util.List;
 
 public interface RoleService  {
     BaseResponse save(RoleDTo roleDTo);
@@ -13,4 +14,6 @@ public interface RoleService  {
     BaseResponse update(RoleDTo roleDTo);
 
     BaseResponse delete(RoleType roleType);
+
+    List<RoleType> getAllRoles();
 }

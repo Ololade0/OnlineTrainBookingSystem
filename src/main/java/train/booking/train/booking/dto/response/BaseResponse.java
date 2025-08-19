@@ -75,4 +75,7 @@ public class BaseResponse<E> implements Serializable {
   }
 
 
+    public boolean isSuccess() {
+      return true;
+    }
 }

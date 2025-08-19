@@ -52,6 +52,7 @@ public class ApplicationSecurityConfig {
                                         "/api/v1/auth/admin/register-superadmin",
                                         "/api/v1/auth/user/register",
                                         "/api/v1/auth/user/activate",
+                                        "/api/v1/auth/role/get-all-roles",
                                         "/api/v1/auth/role/create-role"
                                 ).permitAll()
                                 .requestMatchers("/customError").permitAll()

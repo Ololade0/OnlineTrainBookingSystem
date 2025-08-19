@@ -12,6 +12,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import train.booking.train.booking.dto.FindAllByRolesDTO;
 import train.booking.train.booking.dto.UserDTO;
+import train.booking.train.booking.dto.response.BaseResponse;
+import train.booking.train.booking.dto.response.ResponseUtil;
+import train.booking.train.booking.exceptions.*;
 import train.booking.train.booking.model.enums.RoleType;
 import train.booking.train.booking.service.AdminService;
 
@@ -19,31 +22,35 @@ import javax.management.relation.RoleNotFoundException;
 
 @RestController
 @Slf4j
+@RequiredArgsConstructor
 @RequestMapping("/api/v1/auth/admin")
 public class AdminController {
-    @Autowired
-        private  AdminService adminService;
 
-    public AdminController(AdminService adminService) {
-        this.adminService = adminService;
-    }
+    private final AdminService adminService;
 
+//
+//    @PostMapping("/register-superadmin")
+//    public ResponseEntity<?> superAdminSignUp(@Valid @RequestBody UserDTO signUpRequest) throws UnirestException, RoleNotFoundException {;
+//        return new ResponseEntity<>(adminService.superAdminSignUp(signUpRequest), HttpStatus.CREATED);
+//    }
 
     @PostMapping("/register-superadmin")
-    public ResponseEntity<?> superAdminSignUp(@Valid @RequestBody UserDTO signUpRequest) throws UnirestException, RoleNotFoundException {;
-        return new ResponseEntity<>(adminService.superAdminSignUp(signUpRequest), HttpStatus.CREATED);
+    public ResponseEntity<BaseResponse> superAdminSignUp(@RequestBody UserDTO signUpRequest) throws UnirestException, RoleNotFoundException {
+        BaseResponse response = adminService.superAdminSignUp(signUpRequest);
+        HttpStatus status = response.isSuccess() ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST;
+        return new ResponseEntity<>(response, status);
     }
+
     @GetMapping("/find-roles")
     public ResponseEntity<?> getAllByRoles(@RequestParam RoleType roleType,
-                                               @RequestParam(defaultValue = "0") int page,
-                                               @RequestParam (defaultValue = "50")int size){
-      Page<FindAllByRolesDTO> listOfAdmin =  adminService.findAllByRole(roleType, page, size);
+                                           @RequestParam(defaultValue = "0") int page,
+                                           @RequestParam(defaultValue = "50") int size) {
+        Page<FindAllByRolesDTO> listOfAdmin = adminService.findAllByRole(roleType, page, size);
         return new ResponseEntity<>(listOfAdmin.getContent(), HttpStatus.OK);
     }
 
-
-
-
-
-
 }
+
+
+
+

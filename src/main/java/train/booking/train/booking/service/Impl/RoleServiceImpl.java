@@ -14,6 +14,8 @@ import train.booking.train.booking.repository.RoleRepository;
 import train.booking.train.booking.service.RoleService;
 
 import javax.management.relation.RoleNotFoundException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 ;
@@ -79,7 +81,13 @@ public class RoleServiceImpl implements RoleService {
         log.info("Role deleted: {}", roleType);
         return ResponseUtil.success("Role successfully deleted", null);
     }
-
-
+    @Override
+    public List<RoleType> getAllRoles() {
+        List<RoleType> roles = Arrays.asList(RoleType.values());
+        if (roles.isEmpty()) {
+            throw new RuntimeException("No roles found"); // Or create custom exception
+        }
+        return roles;
+    }
 
 }

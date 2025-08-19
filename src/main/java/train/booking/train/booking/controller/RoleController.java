@@ -11,6 +11,9 @@ import train.booking.train.booking.dto.response.BaseResponse;
 import train.booking.train.booking.model.enums.RoleType;
 import train.booking.train.booking.service.RoleService;
 
+import java.util.Arrays;
+import java.util.List;
+
 @RestController
 @Slf4j
 @RequestMapping("/api/v1/auth/role")
@@ -22,6 +25,11 @@ public class RoleController {
     @PostMapping("/create-role")
     public ResponseEntity<?> createRole(@RequestBody RoleDTo roleDTo){
         return  ResponseEntity.ok(roleService.save((roleDTo)));
+    }
+    @GetMapping("/get-all-roles")
+    public ResponseEntity<List<RoleType>> getAllRoles() {
+        List<RoleType> roles = roleService.getAllRoles();
+        return ResponseEntity.ok(roles);
     }
 
     @PutMapping("/update-role")

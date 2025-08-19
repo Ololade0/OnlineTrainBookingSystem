@@ -24,6 +24,7 @@ import train.booking.train.booking.service.NotificationService;
 import train.booking.train.booking.service.RoleService;
 import train.booking.train.booking.utils.Helper;
 
+import javax.management.relation.RoleNotFoundException;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -52,49 +53,52 @@ public class AdminServiceImpl implements AdminService {
 
 
 
+    public BaseResponse superAdminSignUp(UserDTO userDTO) throws RoleNotFoundException {
+        validateStaffInfo(userDTO);
+        validateStaffEmail(userDTO.getEmail());
+        validateStaffPasswordStrength(userDTO.getPassword());
 
-    @Override
-    public BaseResponse superAdminSignUp(UserDTO userDTO) throws UnirestException {
-        try{
-//            validateStaffInfo(userDTO);
-//            validateStaffEmail(userDTO.getEmail());
-//            validateStaffPasswordStrength(userDTO.getPassword());
-            String activationToken = UUID.randomUUID().toString();
-            String activationLink = BASE_URL + ACTIVATION_URL + "?token=" + activationToken;
-            User signupUser = User.builder()
-                    .firstName(userDTO.getFirstName())
-                    .lastName(userDTO.getLastName())
-                    .email(userDTO.getEmail())
-                    .gender(userDTO.getGender())
-                    .dateOfBirth(userDTO.getDateOfBirth())
-                    .identificationType(userDTO.getIdentificationType())
-                    .phoneNumber(userDTO.getPhoneNumber())
-                    .password(passwordEncoder.encode(userDTO.getPassword()))
-                    .idNumber(userDTO.getIdNumber())
-                    .isVerified(false)
-                    .activationToken(activationToken)
-                    .roleHashSet(new HashSet<>())
-                    .build();
-            Role assignedRole = roleService.findByRoleType(RoleType.SUPERADMIN_ROLE);
-            signupUser.getRoleHashSet().add(assignedRole);
-            userRepository.save(signupUser);
-            Map m = getMap(signupUser, activationLink);
-            notificationService.sendEmailV3(signupUser.getEmail(), "ACTIVATION LINK", helper.build(m, "account-activation-email"));
+        String activationToken = UUID.randomUUID().toString();
+        String activationLink = BASE_URL + ACTIVATION_URL + "?token=" + activationToken;
+
+        User signupUser = User.builder()
+                .firstName(userDTO.getFirstName())
+                .lastName(userDTO.getLastName())
+                .email(userDTO.getEmail())
+                .gender(userDTO.getGender())
+                .dateOfBirth(userDTO.getDateOfBirth())
+                .identificationType(userDTO.getIdentificationType())
+                .phoneNumber(userDTO.getPhoneNumber())
+                .password(passwordEncoder.encode(userDTO.getPassword()))
+                .idNumber(userDTO.getIdNumber())
+                .isVerified(false)
+                .activationToken(activationToken)
+                .roleHashSet(new HashSet<>())
+                .build();
+
+            // 4. Assign SUPERADMIN role
+        Role assignedRole = roleService.findByRoleType(RoleType.SUPERADMIN_ROLE);
+        signupUser.getRoleHashSet().add(assignedRole);
+
+        userRepository.save(signupUser);
+            // 6. Send activation email
+            Map<String, Object> model = getMap(signupUser, activationLink);
+            notificationService.sendEmailV3(signupUser.getEmail(), "ACTIVATION LINK", helper.build(model, "account-activation-email"));
+
             log.info("ACTIVATION LINK: {}", activationLink);
-            UserDTO responseDto = UserDTO.builder()
-                    .firstName(signupUser.getFirstName())
-                    .lastName(signupUser.getLastName())
-                    .email(signupUser.getEmail())
-                    .roles(signupUser.getRoleHashSet())
-                    .build();
-            return ResponseUtil.success("Account sucessfully created", responseDto);
-        }
-        catch (Exception e) {
-            log.error("Error during super admin sign-up: {}", e.getMessage());
-            return ResponseUtil.failed("Sign-up failed due to an unexpected error.", e);
-        }
 
+        UserDTO responseDto = UserDTO.builder()
+                .firstName(signupUser.getFirstName())
+                .lastName(signupUser.getLastName())
+                .email(signupUser.getEmail())
+                .roles(signupUser.getRoleHashSet())
+                .build();
+
+        return ResponseUtil.success("Account successfully created", responseDto);
     }
+
+
+
 
     @Override
     public Page<FindAllByRolesDTO> findAllByRole(RoleType roleType, int page, int size) {

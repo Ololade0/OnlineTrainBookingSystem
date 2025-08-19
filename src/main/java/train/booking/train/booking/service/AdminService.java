@@ -7,8 +7,10 @@ import train.booking.train.booking.dto.UserDTO;
 import train.booking.train.booking.dto.response.BaseResponse;
 import train.booking.train.booking.model.enums.RoleType;
 
+import javax.management.relation.RoleNotFoundException;
+
 public interface AdminService  {
-    BaseResponse superAdminSignUp(UserDTO userDTO) throws UnirestException;
+    BaseResponse superAdminSignUp(UserDTO userDTO) throws UnirestException, RoleNotFoundException;
 
     Page<FindAllByRolesDTO> findAllByRole(RoleType roleType, int page, int size);
 
