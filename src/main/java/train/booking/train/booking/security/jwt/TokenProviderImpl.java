@@ -114,12 +114,31 @@ public String SIGNING_KEY;
         final Jws<Claims> claimsJws = jwtParser.parseClaimsJws(token);
         final Claims claims = claimsJws.getBody();
 
+//        final Collection<? extends GrantedAuthority> authorities =
+//                Arrays.stream(claims.get(AUTHORITIES_KEY)
+//                                .toString().split(","))
+//                        .map(SimpleGrantedAuthority::new)
+//                        .collect(Collectors.toSet());
+//        log.info("Authorities here --> {}", authorities);
+//        return new UsernamePasswordAuthenticationToken(userDetails, "", authorities);
+
         final Collection<? extends GrantedAuthority> authorities =
                 Arrays.stream(claims.get(AUTHORITIES_KEY)
                                 .toString().split(","))
-                        .map(SimpleGrantedAuthority::new)
+                        .filter(s -> !s.isBlank()) // avoid empty strings
+                        .map(role -> {
+                            // role will be "SUPERADMIN_ROLE"
+                            String springRole = role;
+                            if (!role.startsWith("ROLE_")) {
+                                // Convert SUPERADMIN_ROLE → ROLE_SUPERADMIN
+                                springRole = "ROLE_" + role.replace("_ROLE", "");
+                            }
+                            return new SimpleGrantedAuthority(springRole);
+                        })
                         .collect(Collectors.toSet());
+
         log.info("Authorities here --> {}", authorities);
         return new UsernamePasswordAuthenticationToken(userDetails, "", authorities);
+
     }
 }

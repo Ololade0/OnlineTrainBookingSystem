@@ -15,10 +15,12 @@ import train.booking.train.booking.dto.UserDTO;
 import train.booking.train.booking.dto.response.BaseResponse;
 import train.booking.train.booking.dto.response.ResponseUtil;
 import train.booking.train.booking.exceptions.*;
+import train.booking.train.booking.model.enums.IdentificationType;
 import train.booking.train.booking.model.enums.RoleType;
 import train.booking.train.booking.service.AdminService;
 
 import javax.management.relation.RoleNotFoundException;
+import java.util.List;
 
 @RestController
 @Slf4j
@@ -48,6 +50,13 @@ public class AdminController {
         Page<FindAllByRolesDTO> listOfAdmin = adminService.findAllByRole(roleType, page, size);
         return new ResponseEntity<>(listOfAdmin.getContent(), HttpStatus.OK);
     }
+
+    @GetMapping("/get-all-identificationTypes")
+    public ResponseEntity<List<IdentificationType>> getAllIdenticationTypes() {
+        List<IdentificationType> identificationTypes = adminService.getAllIdenticationTypes();
+        return ResponseEntity.ok(identificationTypes);
+    }
+
 
 }
 

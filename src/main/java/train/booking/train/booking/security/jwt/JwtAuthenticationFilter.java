@@ -54,7 +54,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 throw new JwtException(e.getMessage());
             }
         } else {
-            logger.warn("Couldn't find bearer string header will be ignored");
+            logger.warn("No Authorization");
         }
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             try {

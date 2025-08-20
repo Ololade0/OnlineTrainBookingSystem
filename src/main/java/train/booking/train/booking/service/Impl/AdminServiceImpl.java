@@ -7,9 +7,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
 import train.booking.train.booking.dto.FindAllByRolesDTO;
 import train.booking.train.booking.dto.UserDTO;
 import train.booking.train.booking.dto.response.BaseResponse;
@@ -17,6 +19,7 @@ import train.booking.train.booking.dto.response.ResponseUtil;
 import train.booking.train.booking.exceptions.*;
 import train.booking.train.booking.model.Role;
 import train.booking.train.booking.model.User;
+import train.booking.train.booking.model.enums.IdentificationType;
 import train.booking.train.booking.model.enums.RoleType;
 import train.booking.train.booking.repository.UserRepository;
 import train.booking.train.booking.service.AdminService;
@@ -117,6 +120,8 @@ public class AdminServiceImpl implements AdminService {
         );
     }
 
+
+
     private static Map getMap(User signupUser, String activationLink) {
         Map m = new HashMap<>();
         m.put("firstName", signupUser.getFirstName());
@@ -155,64 +160,19 @@ public class AdminServiceImpl implements AdminService {
         }
     }
 
-//
-//    @Override
-//    public BaseResponse superAdminSignUp(UserDTO userDTO) throws UnirestException {
-//        try {
-//            // Generate token and link
-//            String activationToken = UUID.randomUUID().toString();
-//            String activationLink = ACTIVATION_URL + activationToken;
-//
-//            // Create and save the user
-//            User signupUser = User.builder()
-//                    .firstName(userDTO.getFirstName())
-//                    .lastName(userDTO.getLastName())
-//                    .email(userDTO.getEmail())
-//                    .gender(userDTO.getGender())
-//                    .dateOfBirth(userDTO.getDateOfBirth())
-//                    .identificationType(userDTO.getIdentificationType())
-//                    .phoneNumber(userDTO.getPhoneNumber())
-//                    .password(passwordEncoder.encode(userDTO.getPassword())) // hash password
-//                    .idNumber(userDTO.getIdNumber())
-//                    .isVerified(false)
-//                    .activationToken(activationToken)
-//                    .roleHashSet(new HashSet<>())
-//                    .build();
-//
-//            Role assignedRole = roleService.findByRoleType(RoleType.SUPERADMIN_ROLE);
-//            signupUser.getRoleHashSet().add(assignedRole);
-//            userRepository.save(signupUser);
-//
-//            // Prepare template variables
-//            Map<String, Object> templateData = getMap(signupUser);
-//            templateData.put("activationLink", activationLink); // add link to map
-//
-//            // Build HTML email with link
-//            String emailBody = helper.build(templateData, "account-activation-email");
-//
-//            // Send HTML email
-//            notificationService.sendEmailV3(
-//                    signupUser.getEmail(),
-//                    "Activate Your Account",
-//                    emailBody
-//            );
-//
-//            UserDTO responseDto = UserDTO.builder()
-//                    .firstName(signupUser.getFirstName())
-//                    .lastName(signupUser.getLastName())
-//                    .email(signupUser.getEmail())
-//                    .roles(signupUser.getRoleHashSet())
-//                    .build();
-//
-//            return ResponseUtil.success("Account successfully created", responseDto);
-//        } catch (Exception e) {
-//            log.error("Error during super admin sign-up: {}", e.getMessage(), e);
-//            return ResponseUtil.failed("Sign-up failed due to an unexpected error.", e);
-//        }
-//    }
-//
 
-
+    @Override
+    public List<IdentificationType> getAllIdenticationTypes() {
+        List<IdentificationType> identificationTypes = Arrays.asList(IdentificationType.values());
+        if (identificationTypes.isEmpty()) {
+            throw new RoleException("No identification found");
+        }
+        return identificationTypes;
+    }
 }
+
+
+
+
 
 
