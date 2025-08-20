@@ -41,7 +41,6 @@ public class AdminServiceImpl implements AdminService {
     private String ACTIVATION_URL;
 
 
-
     @Value("${base.url}")
     private String BASE_URL;
 
@@ -52,9 +51,6 @@ public class AdminServiceImpl implements AdminService {
 
     private final Helper helper;
     private final PasswordEncoder passwordEncoder;
-
-
-
 
 
     public BaseResponse superAdminSignUp(UserDTO userDTO) throws RoleNotFoundException {
@@ -80,16 +76,16 @@ public class AdminServiceImpl implements AdminService {
                 .roleHashSet(new HashSet<>())
                 .build();
 
-            // 4. Assign SUPERADMIN role
+        // 4. Assign SUPERADMIN role
         Role assignedRole = roleService.findByRoleType(RoleType.SUPERADMIN_ROLE);
         signupUser.getRoleHashSet().add(assignedRole);
 
         userRepository.save(signupUser);
-            // 6. Send activation email
-            Map<String, Object> model = getMap(signupUser, activationLink);
-            notificationService.sendEmailV3(signupUser.getEmail(), "ACTIVATION LINK", helper.build(model, "account-activation-email"));
+        // 6. Send activation email
+        Map<String, Object> model = getMap(signupUser, activationLink);
+        notificationService.sendEmailV3(signupUser.getEmail(), "ACTIVATION LINK", helper.build(model, "account-activation-email"));
 
-            log.info("ACTIVATION LINK: {}", activationLink);
+        log.info("ACTIVATION LINK: {}", activationLink);
 
         UserDTO responseDto = UserDTO.builder()
                 .firstName(signupUser.getFirstName())
@@ -100,8 +96,6 @@ public class AdminServiceImpl implements AdminService {
 
         return ResponseUtil.success("Account successfully created", responseDto);
     }
-
-
 
 
     @Override
@@ -122,12 +116,11 @@ public class AdminServiceImpl implements AdminService {
     }
 
 
-
     private static Map getMap(User signupUser, String activationLink) {
         Map m = new HashMap<>();
         m.put("firstName", signupUser.getFirstName());
         m.put("lastName", signupUser.getLastName());
-        m.put("activationLink",  activationLink);
+        m.put("activationLink", activationLink);
         log.info("Email to send activation to: {}", signupUser.getEmail());
         log.info("MAIL ACTIVATION LINK. {}", activationLink);
         return m;
@@ -170,13 +163,18 @@ public class AdminServiceImpl implements AdminService {
         }
         return identificationTypes;
     }
+
     @Override
-    public List<GenderType> getAllGenders(){
+    public List<GenderType> getAllGenders() {
         List<GenderType> genderTypes = Arrays.asList(GenderType.values());
-        if(genderTypes.isEmpty()){
+        if (genderTypes.isEmpty()) {
             throw new GenderTypeException("No genders found");
         }
+        return genderTypes;
+
     }
+
+
 }
 
 
