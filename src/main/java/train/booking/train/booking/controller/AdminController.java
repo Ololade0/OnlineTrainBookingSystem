@@ -15,6 +15,7 @@ import train.booking.train.booking.dto.UserDTO;
 import train.booking.train.booking.dto.response.BaseResponse;
 import train.booking.train.booking.dto.response.ResponseUtil;
 import train.booking.train.booking.exceptions.*;
+import train.booking.train.booking.model.enums.GenderType;
 import train.booking.train.booking.model.enums.IdentificationType;
 import train.booking.train.booking.model.enums.RoleType;
 import train.booking.train.booking.service.AdminService;
@@ -56,6 +57,13 @@ public class AdminController {
         List<IdentificationType> identificationTypes = adminService.getAllIdenticationTypes();
         return ResponseEntity.ok(identificationTypes);
     }
+
+    @GetMapping("/get-all-genders")
+    public ResponseEntity<List<GenderType>> genderType() {
+        List<GenderType> allGenders = adminService.getAllGenders();
+        return ResponseEntity.ok(allGenders);
+    }
+
 
 
 }

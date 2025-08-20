@@ -19,7 +19,7 @@ public class GlobalExceptionHandler {
         return buildResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(UserAlreadyExistException.class)
+    @ExceptionHandler({UserAlreadyExistException.class, GenderTypeException.class})
     public ResponseEntity<Map<String, Object>> handleUserAlreadyExistException(UserAlreadyExistException ex) {
         return buildResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }

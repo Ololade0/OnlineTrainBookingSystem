@@ -19,6 +19,7 @@ import train.booking.train.booking.dto.response.ResponseUtil;
 import train.booking.train.booking.exceptions.*;
 import train.booking.train.booking.model.Role;
 import train.booking.train.booking.model.User;
+import train.booking.train.booking.model.enums.GenderType;
 import train.booking.train.booking.model.enums.IdentificationType;
 import train.booking.train.booking.model.enums.RoleType;
 import train.booking.train.booking.repository.UserRepository;
@@ -168,6 +169,13 @@ public class AdminServiceImpl implements AdminService {
             throw new RoleException("No identification found");
         }
         return identificationTypes;
+    }
+    @Override
+    public List<GenderType> getAllGenders(){
+        List<GenderType> genderTypes = Arrays.asList(GenderType.values());
+        if(genderTypes.isEmpty()){
+            throw new GenderTypeException("No genders found");
+        }
     }
 }
 
