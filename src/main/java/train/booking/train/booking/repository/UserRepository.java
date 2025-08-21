@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import train.booking.train.booking.model.User;
 import train.booking.train.booking.model.enums.RoleType;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -25,4 +26,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("SELECT u FROM users u JOIN u.roleHashSet r WHERE r.roleType = :roleType")
     Page<User> findAllByRoleType(@Param("roleType") RoleType roleType, Pageable pageable);
 
+    @Query("SELECT DISTINCT u FROM users u JOIN u.roleHashSet r WHERE r.roleType <> 'USER_ROLE'")
+    List<User> findAllWithAtLeastOneNonUserRole();
 }

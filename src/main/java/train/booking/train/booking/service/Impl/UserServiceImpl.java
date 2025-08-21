@@ -372,27 +372,55 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 //    }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> optionalUser = userRepository.findUserByEmail(username);
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userRepository.findUserByEmail(
+                email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
-        User user = optionalUser.orElseThrow(
-                () -> new UsernameNotFoundException("User not found with email: " + username)
-        );
+        // ✅ Convert RoleType to authorities (SUPERADMIN_ROLE → SUPERADMIN_ROLE)
+        Set<GrantedAuthority> authorities = user.getRoleHashSet().stream()
+                .map(Role::getRoleType)
+                .map(Enum::name)
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toSet());
 
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPassword(),
-                getAuthorities(user.getRoleHashSet())
+                authorities
         );
     }
 
-    private Collection<? extends GrantedAuthority> getAuthorities(Set<Role> roleHashSet) {
-        return roleHashSet.stream()
-                .map(role -> new SimpleGrantedAuthority(role.getRoleType().name()))
-                .collect(Collectors.toSet());
+//    @Override
+//    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+//        Optional<User> optionalUser = userRepository.findUserByEmail(username);
+//
+//        User user = optionalUser.orElseThrow(
+//                () -> new UsernameNotFoundException("User not found with email: " + username)
+//        );
+//
+//        return new org.springframework.security.core.userdetails.User(
+//                user.getEmail(),
+//                user.getPassword(),
+//                getAuthorities(user.getRoleHashSet())
+//        );
+//    }
+//
+//    private Collection<? extends GrantedAuthority> getAuthorities(Set<Role> roleHashSet) {
+//        return roleHashSet.stream()
+//                .map(role -> new SimpleGrantedAuthority(role.getRoleType().name()))
+//                .collect(Collectors.toSet());
+//    }
+
+
+    public List<User> getAllNonUserAccounts() {
+        return userRepository.findAll()
+                .stream()
+                .filter(user -> user.getRoleHashSet()
+                        .stream()
+                        .anyMatch(role -> role.getRoleType() != RoleType.USER_ROLE))
+                .toList();
     }
-
-
 
 }
 

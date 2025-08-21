@@ -8,15 +8,19 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import train.booking.train.booking.dto.UserDTO;
 import train.booking.train.booking.dto.response.BaseResponse;
+import train.booking.train.booking.dto.response.ResponseCodes;
+import train.booking.train.booking.dto.response.ResponseUtil;
 import train.booking.train.booking.model.User;
 import train.booking.train.booking.service.UserService;
 
 import javax.management.relation.RoleNotFoundException;
+import java.util.List;
 
 @RestController
 @Slf4j
@@ -56,10 +60,23 @@ public class UserController {
             model.addAttribute("message", e.getMessage());
             return "activation-failed";
         }
+
+    }
+
+    // ✅ Only authenticated + must have SUPERADMIN_ROLE
+    @GetMapping("/getAllNonUserAccounts")
+    @PreAuthorize("isAuthenticated() and hasRole('SUPERADMIN')")
+    public BaseResponse getAllNonUserAccounts() {
+        List<User> accounts = userService.getAllNonUserAccounts();
+        return ResponseUtil.response(
+                ResponseCodes.REQUEST_SUCCESSFUL,
+                "Accounts retrieved successfully",
+                accounts
+        );
+    }
     }
 
 
-}
 
 
 

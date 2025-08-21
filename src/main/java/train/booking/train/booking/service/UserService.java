@@ -8,6 +8,7 @@ import train.booking.train.booking.dto.response.UserLoginResponse;
 import train.booking.train.booking.model.User;
 
 import javax.management.relation.RoleNotFoundException;
+import java.util.List;
 import java.util.Optional;
 
 public interface UserService {
@@ -28,4 +29,5 @@ public interface UserService {
     void save(User user);
 
 
+    List<User> getAllNonUserAccounts();
 }
