@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -51,142 +52,79 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private final PasswordEncoder passwordEncoder;
 
 
-
-
-
-
-
-//    @Override
-//    @Transactional
-//    public BaseResponse signUpNewUser(UserDTO userDTO) throws UnirestException, RoleNotFoundException {
-//        try {
-//            validateUserInfo(userDTO);
-//            validateEmail(userDTO.getEmail());
-//            validatePasswordStrength(userDTO.getPassword());
-//            String activationToken = UUID.randomUUID().toString();
-//            RoleType requestedRoleType = Optional.ofNullable(userDTO.getRoleType()).orElse(RoleType.USER_ROLE);
-//
-//            log.info("Requested RoleType: {}", requestedRoleType);
-//
-//            if (requestedRoleType != RoleType.USER_ROLE) {
-//                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//                if (authentication == null || !authentication.isAuthenticated()) {
-//                    return ResponseUtil.response(ResponseCodes.ACCESS_DENIED, "Only SUPERADMIN can create accounts for roles other than USER_ROLE!", null);
-//                }
-//
-//                User currentUser = userRepository.findUserByEmail(authentication.getName())
-//                        .orElseThrow(() -> new UnAuthorizedException("Unauthorized"));
-//
-//                if (!currentUser.hasRole(RoleType.SUPERADMIN_ROLE)) {
-//                    return ResponseUtil.response(ResponseCodes.ACCESS_DENIED, "Only SUPERADMIN can create accounts for roles other than USER_ROLE!", null);
-//                }
-//            }
-//            User signupUser = User.builder()
-//                    .firstName(userDTO.getFirstName())
-//                    .lastName(userDTO.getLastName())
-//                    .email(userDTO.getEmail())
-//                    .gender(userDTO.getGender())
-//                    .dateOfBirth(userDTO.getDateOfBirth())
-//                    .identificationType(userDTO.getIdentificationType())
-//                    .phoneNumber(userDTO.getPhoneNumber())
-//                    .password(userDTO.getPassword())
-//                    .idNumber(userDTO.getIdNumber())
-//                    .isVerified(false)
-//                    .activationToken(activationToken)
-//                    .roleHashSet(new HashSet<>())
-//                    .build();
-//            Role assignedRole = roleService.findByRoleType(requestedRoleType);
-//            signupUser.getRoleHashSet().add(assignedRole);
-//            log.info("Assigning role {} to new user {}", requestedRoleType, userDTO.getEmail());
-//            userRepository.save(signupUser);
-//            Map m = getMap(signupUser);
-//            notificationService.sendEmailV3(signupUser.getEmail(), "ACTIVATION LINK", helper.build(m, "register-admin"));
-//            UserDTO responseDto = UserDTO.builder()
-//                    .firstName(signupUser.getFirstName())
-//                    .lastName(signupUser.getLastName())
-//                    .email(signupUser.getEmail())
-//                    .roles(signupUser.getRoleHashSet())
-//                    .build();
-//            return ResponseUtil.success("Account sucessfully created", responseDto);
-//        } catch (Exception e) {
-//            log.error("Error during super admin sign-up: {}", e.getMessage());
-//            return ResponseUtil.invalidOrNullInput("Sign-up failed due to an unexpected error.");
-//        }
-//    }
-
     @Override
     @Transactional
     public BaseResponse signUpNewUser(UserDTO userDTO) throws UnirestException, RoleNotFoundException {
-        try {
-            // Validate user details
-            validateUserInfo(userDTO);
-            validateEmail(userDTO.getEmail());
-            validatePasswordStrength(userDTO.getPassword());
+        // Validate user input
+        validateUserInfo(userDTO);
+        validateEmail(userDTO.getEmail());
+        validatePasswordStrength(userDTO.getPassword());
 
-            // Determine requested role
-            RoleType requestedRoleType = Optional.ofNullable(userDTO.getRoleType())
-                    .orElse(RoleType.USER_ROLE);
+        // Default role
+        RoleType requestedRoleType = Optional.ofNullable(userDTO.getRoleType())
+                .orElse(RoleType.USER_ROLE);
 
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-            // Default to USER_ROLE if unauthenticated
-            if (authentication == null || !authentication.isAuthenticated()) {
+        // Check if the user is authenticated AND not anonymous
+        boolean isRealUser = authentication != null
+                && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken);
+
+        if (isRealUser) {
+            User currentUser = userRepository.findUserByEmail(authentication.getName())
+                    .orElseThrow(() -> new UnAuthorizedException("Unauthorized"));
+
+            // Only SUPERADMIN can assign roles other than USER_ROLE
+            if (requestedRoleType != RoleType.USER_ROLE && !currentUser.hasRole(RoleType.SUPERADMIN_ROLE)) {
                 requestedRoleType = RoleType.USER_ROLE;
-            } else {
-                User currentUser = userRepository.findUserByEmail(authentication.getName())
-                        .orElseThrow(() -> new UnAuthorizedException("Unauthorized"));
-
-                // Only SUPERADMIN can assign roles other than USER_ROLE
-                if (requestedRoleType != RoleType.USER_ROLE && !currentUser.hasRole(RoleType.SUPERADMIN_ROLE)) {
-                    requestedRoleType = RoleType.USER_ROLE;
-                }
             }
-
-            // Build new user entity
-            String activationToken = UUID.randomUUID().toString();
-            User signupUser = User.builder()
-                    .firstName(userDTO.getFirstName())
-                    .lastName(userDTO.getLastName())
-                    .email(userDTO.getEmail())
-                    .gender(userDTO.getGender())
-                    .dateOfBirth(userDTO.getDateOfBirth())
-                    .identificationType(userDTO.getIdentificationType())
-                    .phoneNumber(userDTO.getPhoneNumber())
-                    .password(passwordEncoder.encode(userDTO.getPassword()))
-                    .idNumber(userDTO.getIdNumber())
-                    .isVerified(false)
-                    .activationToken(activationToken)
-                    .roleHashSet(new HashSet<>())
-                    .build();
-
-            // Assign the role
-            Role assignedRole = roleService.findByRoleType(requestedRoleType);
-            signupUser.getRoleHashSet().add(assignedRole);
-
-            log.info("Assigning role {} to new user {}", requestedRoleType, userDTO.getEmail());
-
-            // Save the user
-            userRepository.save(signupUser);
-
-            // Prepare activation email
-            Map<String, Object> emailMap = getMap(signupUser);
-            notificationService.sendEmailV3(signupUser.getEmail(), "ACTIVATION LINK", helper.build(emailMap, "register-admin"));
-
-            // Build response DTO
-            UserDTO responseDto = UserDTO.builder()
-                    .firstName(signupUser.getFirstName())
-                    .lastName(signupUser.getLastName())
-                    .email(signupUser.getEmail())
-                    .roles(signupUser.getRoleHashSet())
-                    .build();
-
-            return ResponseUtil.success("Account successfully created", responseDto);
-
-        } catch (Exception e) {
-            log.error("Error during user sign-up: {}", e.getMessage());
-            return ResponseUtil.invalidOrNullInput("Sign-up failed due to an unexpected error.");
+        } else {
+            // If not logged in, default to USER_ROLE
+            requestedRoleType = RoleType.USER_ROLE;
         }
+
+        // Build new user entity
+        String activationToken = UUID.randomUUID().toString();
+        User signupUser = User.builder()
+                .firstName(userDTO.getFirstName())
+                .lastName(userDTO.getLastName())
+                .email(userDTO.getEmail())
+                .gender(userDTO.getGender())
+                .dateOfBirth(userDTO.getDateOfBirth())
+                .identificationType(userDTO.getIdentificationType())
+                .phoneNumber(userDTO.getPhoneNumber())
+                .password(passwordEncoder.encode(userDTO.getPassword()))
+                .idNumber(userDTO.getIdNumber())
+                .isVerified(false)
+                .activationToken(activationToken)
+                .roleHashSet(new HashSet<>())
+                .build();
+
+        // Assign the role
+        Role assignedRole = roleService.findByRoleType(requestedRoleType);
+        signupUser.getRoleHashSet().add(assignedRole);
+
+        log.info("Assigning role {} to new user {}", requestedRoleType, userDTO.getEmail());
+
+        // Save the user
+        userRepository.save(signupUser);
+
+        // Send activation email
+        Map<String, Object> emailMap = getMap(signupUser);
+        notificationService.sendEmailV3(signupUser.getEmail(), "ACTIVATION LINK", helper.build(emailMap, "account-activation-email"));
+
+        // Build response DTO
+        UserDTO responseDto = UserDTO.builder()
+                .firstName(signupUser.getFirstName())
+                .lastName(signupUser.getLastName())
+                .email(signupUser.getEmail())
+                .roles(signupUser.getRoleHashSet())
+                .build();
+
+        return ResponseUtil.success("Account successfully created", responseDto);
     }
+
 
 
     private static Map getMap(User signupUser) {
@@ -247,20 +185,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 .orElseThrow(() -> new UserCannotBeFoundException("User with id " + userId + " not found"));
         return user;
     }
-
-//    @Override
-//    public UserLoginResponse login(UserLoginDTO userLoginRequestModel) {
-//        var user = userRepository.findUserByEmail(userLoginRequestModel.getEmail());
-////        if (user.isPresent() && userLoginRequestModel.getPassword(), user.get().getPassword() {
-//            if(user.isPresent() && userLoginRequestModel.getPassword().matches(user.get().getPassword())){
-//                return buildSuccessfulLoginResponse(user.get());
-////            }
-//
-//        }
-//        throw new IllegalArgumentException("Invalid email or password");
-//
-//    }
-
 
     @Override
     public Optional<User> findUserByActivationToken(String token) {
