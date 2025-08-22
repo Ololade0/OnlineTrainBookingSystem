@@ -1,6 +1,7 @@
 package train.booking.train.booking.service;
 
 import com.mashape.unirest.http.exceptions.UnirestException;
+import org.springframework.data.domain.Page;
 import train.booking.train.booking.dto.UserDTO;
 import train.booking.train.booking.dto.UserLoginDTO;
 import train.booking.train.booking.dto.response.BaseResponse;
@@ -29,5 +30,5 @@ public interface UserService {
     void save(User user);
 
 
-    List<User> getAllNonUserAccounts();
+    Page<User> getAllNonUserAccounts(int page, int size);
 }

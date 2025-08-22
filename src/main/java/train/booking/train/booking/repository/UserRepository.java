@@ -1,7 +1,5 @@
 package train.booking.train.booking.repository;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -12,6 +10,9 @@ import train.booking.train.booking.model.enums.RoleType;
 
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
@@ -25,7 +26,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT u FROM users u JOIN u.roleHashSet r WHERE r.roleType = :roleType")
     Page<User> findAllByRoleType(@Param("roleType") RoleType roleType, Pageable pageable);
-
-    @Query("SELECT DISTINCT u FROM users u JOIN u.roleHashSet r WHERE r.roleType <> 'USER_ROLE'")
-    List<User> findAllWithAtLeastOneNonUserRole();
+//    @Query("SELECT DISTINCT u FROM User u JOIN u.roleHashSet r WHERE r.roleType <>'USER_ROLE'")
+//    Page<User>findAllwithAtLeastOneNonUserRole(Pageable pageable);
+@Query("SELECT DISTINCT u FROM users u JOIN u.roleHashSet r WHERE r.roleType <> 'USER_ROLE'")
+Page<User> findAllWithAtLeastOneNonUserRole(Pageable pageable);
 }

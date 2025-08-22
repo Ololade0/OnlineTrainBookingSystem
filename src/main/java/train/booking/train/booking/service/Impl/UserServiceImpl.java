@@ -6,6 +6,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -24,6 +28,7 @@ import train.booking.train.booking.dto.response.ResponseUtil;
 import train.booking.train.booking.dto.response.UserLoginResponse;
 import train.booking.train.booking.exceptions.*;
 import train.booking.train.booking.model.Role;
+import train.booking.train.booking.model.Schedule;
 import train.booking.train.booking.model.User;
 import train.booking.train.booking.model.enums.RoleType;
 import train.booking.train.booking.repository.UserRepository;
@@ -315,35 +320,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         );
     }
 
-//    @Override
-//    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-//        Optional<User> optionalUser = userRepository.findUserByEmail(username);
-//
-//        User user = optionalUser.orElseThrow(
-//                () -> new UsernameNotFoundException("User not found with email: " + username)
-//        );
-//
-//        return new org.springframework.security.core.userdetails.User(
-//                user.getEmail(),
-//                user.getPassword(),
-//                getAuthorities(user.getRoleHashSet())
-//        );
-//    }
-//
-//    private Collection<? extends GrantedAuthority> getAuthorities(Set<Role> roleHashSet) {
-//        return roleHashSet.stream()
-//                .map(role -> new SimpleGrantedAuthority(role.getRoleType().name()))
-//                .collect(Collectors.toSet());
-//    }
 
-
-    public List<User> getAllNonUserAccounts() {
-        return userRepository.findAll()
-                .stream()
-                .filter(user -> user.getRoleHashSet()
-                        .stream()
-                        .anyMatch(role -> role.getRoleType() != RoleType.USER_ROLE))
-                .toList();
+    public Page<User> getAllNonUserAccounts(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return userRepository.findAllWithAtLeastOneNonUserRole(pageable);
     }
 
 }

@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -66,12 +67,13 @@ public class UserController {
     // ✅ Only authenticated + must have SUPERADMIN_ROLE
     @GetMapping("/getAllNonUserAccounts")
     @PreAuthorize("isAuthenticated() and hasRole('SUPERADMIN')")
-    public BaseResponse getAllNonUserAccounts() {
-        List<User> accounts = userService.getAllNonUserAccounts();
+    public BaseResponse getAllNonUserAccounts(@RequestParam(defaultValue = "0") int page,
+                                              @RequestParam(defaultValue = "10") int size) {
+        Page<User> accounts = userService.getAllNonUserAccounts(page, size);
         return ResponseUtil.response(
                 ResponseCodes.REQUEST_SUCCESSFUL,
                 "Accounts retrieved successfully",
-                accounts
+                accounts.getContent()
         );
     }
     }
