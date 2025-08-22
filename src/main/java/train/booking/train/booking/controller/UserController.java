@@ -73,7 +73,7 @@ public class UserController {
         return ResponseUtil.response(
                 ResponseCodes.REQUEST_SUCCESSFUL,
                 "Accounts retrieved successfully",
-                accounts.getContent()
+                accounts
         );
     }
     }
