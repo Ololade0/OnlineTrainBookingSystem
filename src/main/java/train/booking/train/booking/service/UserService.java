@@ -31,4 +31,8 @@ public interface UserService {
 
 
     Page<User> getAllNonUserAccounts(int page, int size);
+
+    Page<User> searchUsers(String query, int page, int size);
+
+    String deleteUser(Long userId);
 }

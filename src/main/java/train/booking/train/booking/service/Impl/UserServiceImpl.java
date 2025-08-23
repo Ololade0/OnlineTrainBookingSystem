@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -314,6 +315,24 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public Page<User> getAllNonUserAccounts(int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return userRepository.findAllWithAtLeastOneNonUserRole(pageable);
+    }
+
+    @Override
+    public Page<User> searchUsers(String query, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return userRepository.searchUsers(query.toLowerCase(), pageable);
+    }
+
+    @Override
+    public String deleteUser(Long userId) {
+        Optional<User> deletedUser = userRepository.findById(userId);
+        if (deletedUser.isPresent()){
+            userRepository.delete(deletedUser.get());
+            return "User has been sucessfully deleted";
+        }
+        throw new UserCannotBeFoundException("User cannot be found");
+
+
     }
 
 }

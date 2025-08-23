@@ -24,6 +24,7 @@ import train.booking.train.booking.service.UserService;
 
 import javax.management.relation.RoleNotFoundException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Slf4j
@@ -82,7 +83,6 @@ public class UserController {
     // ✅ Only authenticated + must have SUPERADMIN_ROLE
     @GetMapping("/getAllNonUserAccounts")
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_SUPERADMIN')")
-
     public BaseResponse getAllNonUserAccounts(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "50") int size) {
 
         Page<User> accounts = userService.getAllNonUserAccounts(page, size);
@@ -92,6 +92,30 @@ public class UserController {
                 accounts
         );
     }
+    @GetMapping("/searchUsers")
+    @PreAuthorize("isAuthenticated() and hasRole('ROLE_SUPERADMIN')")
+    public ResponseEntity<?> searchUsers(@RequestParam String query,
+                                         @RequestParam(defaultValue = "0")int page,
+                                         @RequestParam(defaultValue = "50")int size
+                                         ){
+        Page<User> searchedUsers = userService.searchUsers(query, page, size);
+        if (searchedUsers.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "No users found matching your query"));
+        }
+
+        return ResponseEntity.ok(searchedUsers);
+    }
+
+    @GetMapping("/delete-user")
+    public ResponseEntity<?> deleteUser(@PathVariable Long userId){
+       String deletedUser = userService.deleteUser(userId);
+       return ResponseEntity.ok(deletedUser);
+
+    }
+
+
     }
 
 
