@@ -44,6 +44,14 @@ public class UserController {
         return new ResponseEntity<>(userService.signUpNewUser(signUpRequest), HttpStatus.CREATED);
     }
 
+    @GetMapping("/{userId}")
+    @PreAuthorize("isAuthenticated() and hasRole('SUPERADMIN')")
+    public ResponseEntity<?> findUserById(@PathVariable Long userId) {
+        User foundUser = userService.findUserById(userId);
+        return ResponseEntity.ok(foundUser);
+    }
+
+
     @GetMapping("/{email}")
     public ResponseEntity<?> findUserByEmail(@PathVariable String email) {
         User foundUser = userService.findUserByEmail(email);
