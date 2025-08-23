@@ -76,19 +76,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 && authentication.isAuthenticated()
                 && !(authentication instanceof AnonymousAuthenticationToken);
 
-        if (isRealUser) {
-            User currentUser = userRepository.findUserByEmail(authentication.getName())
-                    .orElseThrow(() -> new UnAuthorizedException("Unauthorized"));
-
-            // Only SUPERADMIN can assign roles other than USER_ROLE
-            if (requestedRoleType != RoleType.USER_ROLE && !currentUser.hasRole(RoleType.SUPERADMIN_ROLE)) {
-                requestedRoleType = RoleType.USER_ROLE;
-            }
-        } else {
-            // If not logged in, default to USER_ROLE
+        if (!isRealUser) {
             requestedRoleType = RoleType.USER_ROLE;
         }
-
         // Build new user entity
         String activationToken = UUID.randomUUID().toString();
         User signupUser = User.builder()

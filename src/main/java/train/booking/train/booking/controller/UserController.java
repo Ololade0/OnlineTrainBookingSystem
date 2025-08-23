@@ -10,6 +10,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +35,12 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/register")
+    @PreAuthorize("isAuthenticated() and hasRole('SUPERADMIN')")
     public ResponseEntity<?> registerUser(@Valid @RequestBody UserDTO signUpRequest) throws UnirestException, RoleNotFoundException {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("Authenticated userssss: " + auth.getName());
+        System.out.println("Authoritiessssss: " + auth.getAuthorities());
+
         return new ResponseEntity<>(userService.signUpNewUser(signUpRequest), HttpStatus.CREATED);
     }
 
@@ -66,9 +73,10 @@ public class UserController {
 
     // ✅ Only authenticated + must have SUPERADMIN_ROLE
     @GetMapping("/getAllNonUserAccounts")
-    @PreAuthorize("isAuthenticated() and hasRole('SUPERADMIN')")
-    public BaseResponse getAllNonUserAccounts(@RequestParam(defaultValue = "0") int page,
-                                              @RequestParam(defaultValue = "10") int size) {
+    @PreAuthorize("isAuthenticated() and hasRole('ROLE_SUPERADMIN')")
+
+    public BaseResponse getAllNonUserAccounts(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "50") int size) {
+
         Page<User> accounts = userService.getAllNonUserAccounts(page, size);
         return ResponseUtil.response(
                 ResponseCodes.REQUEST_SUCCESSFUL,
