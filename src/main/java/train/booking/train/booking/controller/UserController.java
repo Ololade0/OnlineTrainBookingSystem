@@ -44,7 +44,7 @@ public class UserController {
         return new ResponseEntity<>(userService.signUpNewUser(signUpRequest), HttpStatus.CREATED);
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping("get-user/{userId}")
     @PreAuthorize("isAuthenticated() and hasRole('SUPERADMIN')")
     public ResponseEntity<?> findUserById(@PathVariable Long userId) {
         User foundUser = userService.findUserById(userId);
