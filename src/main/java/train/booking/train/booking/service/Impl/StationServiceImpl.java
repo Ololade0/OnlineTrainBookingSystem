@@ -9,6 +9,7 @@ import train.booking.train.booking.dto.response.BaseResponse;
 import train.booking.train.booking.dto.response.ResponseUtil;
 import train.booking.train.booking.exceptions.StationCannotBeFoundException;
 import train.booking.train.booking.model.Station;
+import train.booking.train.booking.model.User;
 import train.booking.train.booking.repository.StationRepository;
 import train.booking.train.booking.service.StationService;
 
@@ -86,6 +87,11 @@ public class StationServiceImpl implements StationService {
     @Override
     public Page<Station> getAllstations(int page, int size) {
         return stationRepository.findAll(PageRequest.of(page, size));
+    }
+
+    @Override
+    public Page<Station> searchStation(String query, int page, int size) {
+        return stationRepository.searchByNameOrCode(query,PageRequest.of(page, size));
     }
 }
 

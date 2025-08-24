@@ -11,7 +11,10 @@ import org.springframework.web.bind.annotation.*;
 import train.booking.train.booking.dto.StationDto;
 import train.booking.train.booking.dto.response.BaseResponse;
 import train.booking.train.booking.model.Station;
+import train.booking.train.booking.model.User;
 import train.booking.train.booking.service.StationService;
+
+import java.util.Map;
 
 @RestController
 @Slf4j
@@ -28,14 +31,18 @@ public class StationController {
         }
 
 
-
-
-
     @PutMapping("/update-station/{stationId}")
     public ResponseEntity<BaseResponse> updateStation(@PathVariable Long stationId,
                                                       @RequestBody @Validated StationDto stationDto) {
         BaseResponse response = stationService.updateStation(stationId, stationDto);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/get-station/{stationId}")
+    @PreAuthorize("isAuthenticated() and hasRole('ROLE_SUPERADMIN')")
+    public ResponseEntity<?> findStationById(@PathVariable Long stationId) {
+      Station stationsPage = stationService.findStationById(stationId);
+        return ResponseEntity.ok(stationsPage);
     }
 
     @GetMapping("/get-all-station")
@@ -50,6 +57,22 @@ public class StationController {
     public ResponseEntity<BaseResponse> deleteStation(@PathVariable Long stationId) {
         BaseResponse response = stationService.deleteStation(stationId);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/searchStations")
+    @PreAuthorize("isAuthenticated() and hasRole('ROLE_SUPERADMIN')")
+    public ResponseEntity<?> searchStation(@RequestParam String query,
+                                         @RequestParam(defaultValue = "0")int page,
+                                         @RequestParam(defaultValue = "50")int size
+    ){
+        Page<Station> searchStation = stationService.searchStation(query, page, size);
+        if (searchStation.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "No matching station found"));
+        }
+
+        return ResponseEntity.ok(searchStation);
     }
 
 
