@@ -2,12 +2,15 @@ package train.booking.train.booking.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import train.booking.train.booking.dto.StationDto;
 import train.booking.train.booking.dto.response.BaseResponse;
+import train.booking.train.booking.model.Station;
 import train.booking.train.booking.service.StationService;
 
 @RestController
@@ -34,6 +37,14 @@ public class StationController {
         BaseResponse response = stationService.updateStation(stationId, stationDto);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/get-all-station")
+    @PreAuthorize("isAuthenticated() and hasRole('ROLE_SUPERADMIN')")
+    public ResponseEntity<?> getAllStations(@RequestParam int page, @RequestParam int size) {
+      Page<Station> stationsPage = stationService.getAllstations(page, size);
+        return ResponseEntity.ok(stationsPage);
+    }
+
 
     @DeleteMapping("/delete-station/{stationId}")
     public ResponseEntity<BaseResponse> deleteStation(@PathVariable Long stationId) {

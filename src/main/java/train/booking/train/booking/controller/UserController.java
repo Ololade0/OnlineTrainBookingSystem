@@ -102,13 +102,14 @@ public class UserController {
         if (searchedUsers.isEmpty()) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message", "No users found matching your query"));
+                    .body(Map.of("message", "No matching user found"));
         }
 
         return ResponseEntity.ok(searchedUsers);
     }
 
-    @GetMapping("/delete-user")
+    @GetMapping("/delete-user/{userId}")
+    @PreAuthorize("isAuthenticated() and hasRole('ROLE_SUPERADMIN')")
     public ResponseEntity<?> deleteUser(@PathVariable Long userId){
        String deletedUser = userService.deleteUser(userId);
        return ResponseEntity.ok(deletedUser);
