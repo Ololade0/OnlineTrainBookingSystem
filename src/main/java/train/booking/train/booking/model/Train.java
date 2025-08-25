@@ -25,6 +25,7 @@ public class Train extends AuditBaseEntity {
     private String trainName;
     private String trainCode;
 
+
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     private Set<TrainClass> trainClasses = new HashSet<>();
