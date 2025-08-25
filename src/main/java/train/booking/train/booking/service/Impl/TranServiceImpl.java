@@ -2,6 +2,9 @@ package train.booking.train.booking.service.Impl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import train.booking.train.booking.dto.TrainDto;
@@ -56,12 +59,16 @@ public class TranServiceImpl implements TrainService {
     public BaseResponse deleteTrain(Long trainId) {
         Train train = trainRepository.findById(trainId)
                 .orElseThrow(() -> new TrainCannotBeFoundException("Train not found with id: " + trainId));
-
         trainRepository.delete(train);
         return ResponseUtil.success("Train deleted successfully", true);
     }
 
+    @Override
+    public Page<Train> getAllTrains(int page, int size) {
+        return trainRepository.findAll(PageRequest.of(page,size));
     }
+
+}
 
 
 
