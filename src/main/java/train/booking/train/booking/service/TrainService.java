@@ -15,4 +15,6 @@ public interface TrainService {
 
 
     Page<Train> getAllTrains(int page, int size);
+
+    Train getTrainById(Long trainId);
 }

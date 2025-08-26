@@ -68,6 +68,12 @@ public class TranServiceImpl implements TrainService {
         return trainRepository.findAll(PageRequest.of(page,size));
     }
 
+    @Override
+    public Train getTrainById(Long trainId) {
+      return  trainRepository.findById(trainId).orElseThrow(()
+              -> new TrainCannotBeFoundException("Train not found with id: " + trainId));
+    }
+
 }
 
 

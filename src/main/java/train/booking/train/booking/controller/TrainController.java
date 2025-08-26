@@ -38,6 +38,13 @@ public class TrainController {
         return ResponseEntity.ok(allTrains);
     }
 
+    @GetMapping("/get-train/{trainId}")
+    @PreAuthorize("isAuthenticated() and hasRole('ROLE_SUPERADMIN')")
+    public ResponseEntity<?> getTrainsById(@PathVariable Long trainId) {
+        Train foundTrain = trainService.getTrainById(trainId);
+        return ResponseEntity.ok(foundTrain);
+    }
+
 
     @PutMapping("/update-train/{trainId}")
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_SUPERADMIN')")
