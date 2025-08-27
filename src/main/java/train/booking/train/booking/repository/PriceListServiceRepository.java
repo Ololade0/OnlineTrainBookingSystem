@@ -18,11 +18,13 @@ public interface PriceListServiceRepository extends JpaRepository<PriceList, Lon
 
     boolean existsByTrainClassAndScheduleIdAndStationIdAndAgeRange(TrainClass trainClass, Long scheduleId, Long stationId, AgeRange ageRange);
 
-    List<PriceList> findByScheduleIdAndStationId(Long scheduleId, Long stationId);
+//    List<PriceList> findByScheduleIdAndStationId(Long scheduleId, Long stationId);
 
-    Optional<PriceList> findByScheduleIdAndStationIdAndTrainClassAndAgeRange(
-            Long scheduleId, Long stationId, TrainClass trainClass, AgeRange ageRange
-    );
+//    Optional<PriceList> findByScheduleIdAndStationIdAndTrainClassAndAgeRange(
+//            Long scheduleId, Long stationId, TrainClass trainClass, AgeRange ageRange
+//    );
 
     boolean existsByTrainClassAndScheduleIdAndAgeRange(TrainClass trainClass, Long scheduleId, AgeRange ageRange);
+
+    List<PriceList> findAllByScheduleId(Long scheduleId);
 }

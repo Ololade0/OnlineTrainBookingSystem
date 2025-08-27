@@ -8,12 +8,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import train.booking.train.booking.dto.PriceListDTO;
 import train.booking.train.booking.dto.ScheduleDTO;
 import train.booking.train.booking.dto.response.BaseResponse;
 import train.booking.train.booking.dto.response.ScheduleResponse;
 import train.booking.train.booking.exceptions.ScheduleCannotBeFoundException;
 import train.booking.train.booking.model.Schedule;
 import train.booking.train.booking.model.enums.Route;
+import train.booking.train.booking.model.enums.ScheduleType;
 import train.booking.train.booking.service.ScheduleService;
 
 import java.time.LocalDate;
@@ -76,6 +78,12 @@ public class ScheduleController {
     public ResponseEntity<BaseResponse> deleteSchedule(@PathVariable Long id) {
         BaseResponse response = scheduleService.deleteSchedule(id);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/get-scheduleType")
+    public ResponseEntity<?> getScheduleType(){
+       List<ScheduleType> scheduleTypeList = scheduleService.getScheduleType();
+       return ResponseEntity.ok(scheduleTypeList);
     }
 
 

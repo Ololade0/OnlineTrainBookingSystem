@@ -12,8 +12,11 @@ import train.booking.train.booking.dto.response.BaseResponse;
 import train.booking.train.booking.dto.response.ResponseUtil;
 import train.booking.train.booking.exceptions.TrainCannotBeFoundException;
 import train.booking.train.booking.model.Train;
+import train.booking.train.booking.model.enums.TrainClass;
 import train.booking.train.booking.repository.TrainRepository;
 import train.booking.train.booking.service.TrainService;
+
+import java.util.Set;
 
 
 @Service
@@ -27,6 +30,7 @@ public class TranServiceImpl implements TrainService {
 
     @Override
     public BaseResponse newTrain(TrainDto trainDto) {
+        verifyTrain(trainDto.getTrainName(), trainDto.getTrainClasses(), trainDto.getTrainCode());
         Train train = Train.builder()
                 .trainCode(trainDto.getTrainCode())
                 .trainName(trainDto.getTrainName())
@@ -40,7 +44,23 @@ public class TranServiceImpl implements TrainService {
                 .build();
         return ResponseUtil.success("Train sucessfully created", response);
     }
-@Override
+
+    private BaseResponse verifyTrain(String trainName, Set<TrainClass> trainClasses, String trainCode) {
+        if(trainRepository.existsByTrainName(trainName)){
+            return ResponseUtil.inputAlreadyExist("Train Name already exist");
+        }
+        if (trainRepository.existsByTrainCode(trainCode)){
+            return ResponseUtil.inputAlreadyExist("Train code already exist");
+
+        }
+        if (trainRepository.existsByTrainClasses(trainClasses)){
+            return ResponseUtil.inputAlreadyExist("Train classes already exist");
+
+        }
+        return ResponseUtil.success("Train verification passed", null);
+    }
+
+    @Override
     public Train findTrainById(Long trainId) {
         return trainRepository.findById(trainId)
                 .orElseThrow(() -> new TrainCannotBeFoundException("Train not found"));

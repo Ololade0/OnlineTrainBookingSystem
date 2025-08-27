@@ -159,7 +159,7 @@ public class AdminServiceImpl implements AdminService {
     public List<IdentificationType> getAllIdenticationTypes() {
         List<IdentificationType> identificationTypes = Arrays.asList(IdentificationType.values());
         if (identificationTypes.isEmpty()) {
-            throw new RoleException("No identification found");
+            throw new IdentificationException("No identification found");
         }
         return identificationTypes;
     }

@@ -21,7 +21,7 @@ import java.math.BigDecimal;
         private AgeRange ageRange;
         private BigDecimal price;
         private Long scheduleId;
-        private Long stationId;
+//        private Long stationId;
 
 
 

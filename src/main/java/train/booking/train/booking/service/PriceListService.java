@@ -9,11 +9,12 @@ import train.booking.train.booking.model.enums.TrainClass;
 import java.util.List;
 
 public interface PriceListService {
-   List<PriceList> createPrice(List<PriceListDTO> price, Long scheduleId);
-   List<PriceList> getPriceListByScheduleAndStation(Long scheduleId, Long stationId);
+//   List<PriceList> createPrice(List<PriceListDTO> price, Long scheduleId);
+    List<PriceList> createPrices(List<PriceListDTO> priceDtos, Long scheduleId);
+//   List<PriceList> getPriceListByScheduleAndStation(Long scheduleId, Long stationId);
 
-   PriceList getSpecificPrice(Long scheduleId, Long stationId, TrainClass trainClass, AgeRange ageRange);
+//   PriceList getSpecificPrice(Long scheduleId, Long stationId, TrainClass trainClass, AgeRange ageRange);
 
 
-   PriceList updatePriceList(Long priceId, UpdatePriceDTO updatePriceDTO);
+//   PriceList updatePriceList(Long priceId, UpdatePriceDTO updatePriceDTO);
 }
