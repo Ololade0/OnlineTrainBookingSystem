@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import train.booking.train.booking.dto.FindScheduleResponseDTO;
 import train.booking.train.booking.dto.PriceListDTO;
 import train.booking.train.booking.dto.ScheduleDTO;
 import train.booking.train.booking.dto.ScheduleDetailsDTO;
@@ -268,9 +269,37 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
 
+
+//    @Override
+//    public Page<Schedule> findAllSchedules(int page, int size) {
+//        return scheduleRepository.findAll(PageRequest.of(page, size));
+//    }
+
     @Override
-    public Page<Schedule> findAllSchedules(int page, int size) {
-        return scheduleRepository.findAll(PageRequest.of(page, size));
+    public Page<FindScheduleResponseDTO> findAllSchedules(int page, int size) {
+        Page<Schedule> schedules = scheduleRepository.findAll(PageRequest.of(page, size));
+        if(schedules.isEmpty()){
+            throw new ScheduleCannotBeFoundException("All schedules cannot be found");
+        }
+        return schedules.map(schedule -> {
+            FindScheduleResponseDTO dto = new FindScheduleResponseDTO();
+            dto.setId(schedule.getId());
+            dto.setDepartureDate(schedule.getDepartureDate());
+            dto.setArrivalDate(schedule.getArrivalDate());
+            dto.setDepartureTime(schedule.getDepartureTime());
+            dto.setArrivalTime(schedule.getArrivalTime());
+            dto.setDuration(schedule.getDuration());
+            dto.setDistance(schedule.getDistance());
+            dto.setScheduleType(schedule.getScheduleType());
+            dto.setRoute(schedule.getRoute());
+
+            // Fetch names from respective repositories
+            dto.setTrainName(trainService.getTrainNameById(schedule.getTrainId()));
+            dto.setArrivalStationName(stationService.getStationNameById(schedule.getArrivalStationId()));
+            dto.setDepartureStationName(stationService.getStationNameById(schedule.getDepartureStationId()));
+
+            return dto;
+        });
     }
 
 
@@ -410,6 +439,7 @@ public class ScheduleServiceImpl implements ScheduleService {
        }
        return scheduleTypeList;
     }
+
 
 
 

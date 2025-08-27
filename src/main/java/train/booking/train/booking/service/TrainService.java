@@ -8,13 +8,18 @@ import train.booking.train.booking.model.Train;
 
 public interface TrainService {
     BaseResponse newTrain(TrainDto trainDto);
-    Train  findTrainById(Long trainId);
+
+    Train findTrainById(Long trainId);
 
     BaseResponse updateTrain(Long trainId, TrainDto trainDto);
+
     BaseResponse deleteTrain(Long trainId);
 
 
     Page<Train> getAllTrains(int page, int size);
 
     Train getTrainById(Long trainId);
+
+    String getTrainNameById(Long id);
+
 }

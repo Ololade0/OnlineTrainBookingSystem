@@ -1,47 +1,30 @@
 package train.booking.train.booking.dto;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.persistence.Entity;
 import lombok.*;
 import train.booking.train.booking.model.enums.Route;
 import train.booking.train.booking.model.enums.ScheduleType;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.List;
 
-@Getter
 @Setter
+@Getter
+@Builder
+@ToString
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public class ScheduleDTO {
-    private Long scheduleId;
-
-    private Long trainId;
-    private String  trainName;
-
-    private Long arrivalStationId;
-    private Long departureStationId;
-
-    private String arrivalStationName;
-    private String departureStationName;
-
-
+public class FindScheduleResponseDTO {
+    private Long id;
     private LocalDate departureDate;
-
     private LocalDate arrivalDate;
-
     private LocalTime departureTime;
     private LocalTime arrivalTime;
-
-
     private String duration;
-    private ScheduleType scheduleType;
-
-    private Route route;
     private String distance;
-    private List<PriceListDTO> prices;
-
-
+    private ScheduleType scheduleType;
+    private Route route;
+    private String trainName;
+    private String arrivalStationName;
+    private String departureStationName;
 }

@@ -1,6 +1,7 @@
 package train.booking.train.booking.service;
 
 import org.springframework.data.domain.Page;
+import train.booking.train.booking.dto.FindScheduleResponseDTO;
 import train.booking.train.booking.dto.PriceListDTO;
 import train.booking.train.booking.dto.ScheduleDTO;
 import train.booking.train.booking.dto.response.BaseResponse;
@@ -22,8 +23,8 @@ BaseResponse newSchedule(ScheduleDTO scheduleDto);
     ScheduleResponse findSchedule(Long departureId, Long arrivalStationId, LocalDate departureDate);
 
 
-    Page<Schedule> findAllSchedules(int page, int size);
-
+//    Page<Schedule> findAllSchedules(int page, int size);
+Page<FindScheduleResponseDTO> findAllSchedules(int page, int size);
     BaseResponse updateSchedule(Long id, ScheduleDTO scheduleDTO);
 
     BaseResponse deleteSchedule(Long id);

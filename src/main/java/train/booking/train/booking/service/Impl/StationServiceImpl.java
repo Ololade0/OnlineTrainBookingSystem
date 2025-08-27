@@ -93,5 +93,12 @@ public class StationServiceImpl implements StationService {
     public Page<Station> searchStation(String query, int page, int size) {
         return stationRepository.searchByNameOrCode(query,PageRequest.of(page, size));
     }
+
+    @Override
+    public String getStationNameById(Long id) {
+        return stationRepository.findById(id)
+                .map(Station::getStationName)
+                .orElse("Unknown Station");
+    }
 }
 

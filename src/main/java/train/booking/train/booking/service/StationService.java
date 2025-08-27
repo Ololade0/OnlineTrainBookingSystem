@@ -23,4 +23,6 @@ public interface StationService {
     Page<Station> getAllstations(int page, int size);
 
     Page<Station> searchStation(String query, int page, int size);
+
+    String getStationNameById(Long arrivalStationId);
 }

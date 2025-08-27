@@ -94,6 +94,13 @@ public class TranServiceImpl implements TrainService {
               -> new TrainCannotBeFoundException("Train not found with id: " + trainId));
     }
 
+    @Override
+    public String getTrainNameById(Long id) {
+        return trainRepository.findById(id)
+                .map(Train::getTrainName)
+                .orElse("Unknown Train");
+    }
+
 }
 
 

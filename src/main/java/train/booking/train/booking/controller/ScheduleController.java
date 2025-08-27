@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import train.booking.train.booking.dto.FindScheduleResponseDTO;
 import train.booking.train.booking.dto.PriceListDTO;
 import train.booking.train.booking.dto.ScheduleDTO;
 import train.booking.train.booking.dto.response.BaseResponse;
@@ -60,13 +61,14 @@ public class ScheduleController {
     }
 
     @GetMapping("find-all-schedules")
-    public ResponseEntity<?>findAllSchedules(@RequestParam(defaultValue = "0") int page,
-                                             @RequestParam(defaultValue = "10") int size){
-        Page<Schedule>schedulePage = scheduleService.findAllSchedules(page, size);
-       return ResponseEntity.ok(schedulePage);
+    public ResponseEntity<?> findAllSchedules(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
 
-
+        Page<FindScheduleResponseDTO> schedulePage = scheduleService.findAllSchedules(page, size);
+        return ResponseEntity.ok(schedulePage);
     }
+
 
     @PutMapping("/update-schedule/{id}")
     public ResponseEntity<BaseResponse> updateSchedule(@PathVariable Long id, @RequestBody ScheduleDTO scheduleDTO) {
