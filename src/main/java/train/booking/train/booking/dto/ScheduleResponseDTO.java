@@ -1,6 +1,5 @@
 package train.booking.train.booking.dto;
 
-import jakarta.persistence.Entity;
 import lombok.*;
 import train.booking.train.booking.model.enums.Route;
 import train.booking.train.booking.model.enums.ScheduleType;
@@ -14,7 +13,7 @@ import java.time.LocalTime;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class FindScheduleResponseDTO {
+public class ScheduleResponseDTO {
     private Long id;
     private LocalDate departureDate;
     private LocalDate arrivalDate;

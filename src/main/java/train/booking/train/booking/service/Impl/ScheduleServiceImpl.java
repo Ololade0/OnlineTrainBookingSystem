@@ -5,9 +5,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import train.booking.train.booking.dto.FindScheduleResponseDTO;
+import train.booking.train.booking.dto.ScheduleResponseDTO;
 import train.booking.train.booking.dto.PriceListDTO;
 import train.booking.train.booking.dto.ScheduleDTO;
 import train.booking.train.booking.dto.ScheduleDetailsDTO;
@@ -27,6 +28,7 @@ import train.booking.train.booking.service.*;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.*;
 
 @Service
@@ -268,21 +270,14 @@ public class ScheduleServiceImpl implements ScheduleService {
                 });
     }
 
-
-
-//    @Override
-//    public Page<Schedule> findAllSchedules(int page, int size) {
-//        return scheduleRepository.findAll(PageRequest.of(page, size));
-//    }
-
     @Override
-    public Page<FindScheduleResponseDTO> findAllSchedules(int page, int size) {
+    public Page<ScheduleResponseDTO> findAllSchedules(int page, int size) {
         Page<Schedule> schedules = scheduleRepository.findAll(PageRequest.of(page, size));
         if(schedules.isEmpty()){
             throw new ScheduleCannotBeFoundException("All schedules cannot be found");
         }
         return schedules.map(schedule -> {
-            FindScheduleResponseDTO dto = new FindScheduleResponseDTO();
+            ScheduleResponseDTO dto = new ScheduleResponseDTO();
             dto.setId(schedule.getId());
             dto.setDepartureDate(schedule.getDepartureDate());
             dto.setArrivalDate(schedule.getArrivalDate());
@@ -297,7 +292,6 @@ public class ScheduleServiceImpl implements ScheduleService {
             dto.setTrainName(trainService.getTrainNameById(schedule.getTrainId()));
             dto.setArrivalStationName(stationService.getStationNameById(schedule.getArrivalStationId()));
             dto.setDepartureStationName(stationService.getStationNameById(schedule.getDepartureStationId()));
-
             return dto;
         });
     }
@@ -438,6 +432,21 @@ public class ScheduleServiceImpl implements ScheduleService {
            throw new ScheduleDetailsException("Schedule Type cannot be found");
        }
        return scheduleTypeList;
+    }
+
+
+    public Page<Schedule> searchSchedules(
+            ScheduleType scheduleType,
+            Route route,
+            LocalDate departureDate,
+            LocalDate arrivalDate,
+            LocalTime departureTime,
+            LocalTime arrivalTime,
+            Pageable pageable
+    ) {
+        return scheduleRepository.findSchedulesByCriteria(
+                scheduleType, route, departureDate, arrivalDate, departureTime, arrivalTime, pageable
+        );
     }
 
 
