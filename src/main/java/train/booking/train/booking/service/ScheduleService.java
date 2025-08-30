@@ -31,7 +31,7 @@ BaseResponse newSchedule(ScheduleDTO scheduleDto);
     List<Schedule> findByRouteName(Route route);
 
     List<ScheduleType> getScheduleType();
-    Page<Schedule> searchSchedules(ScheduleType scheduleType,
+    Page<ScheduleResponseDTO> searchSchedules(ScheduleType scheduleType,
             Route route,
             LocalDate departureDate,
             LocalDate arrivalDate,

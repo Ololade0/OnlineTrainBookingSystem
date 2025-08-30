@@ -106,7 +106,7 @@ public class ScheduleController {
 
 
         @GetMapping("/schedules/search")
-        public ResponseEntity<Page<Schedule>> searchSchedules(
+        public ResponseEntity<?> searchSchedules(
                 @RequestParam(required = false) ScheduleType scheduleType,
                 @RequestParam(required = false) Route route,
                 @RequestParam(required = false)
@@ -128,7 +128,7 @@ public class ScheduleController {
 
             Pageable pageable = PageRequest.of(page, size, sort);
 
-            Page<Schedule> schedules = scheduleService.searchSchedules(
+            Page<ScheduleResponseDTO> schedules = scheduleService.searchSchedules(
                     scheduleType, route, departureDate, arrivalDate, departureTime, arrivalTime, pageable
             );
 

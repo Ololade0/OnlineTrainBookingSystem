@@ -276,26 +276,8 @@ public class ScheduleServiceImpl implements ScheduleService {
         if(schedules.isEmpty()){
             throw new ScheduleCannotBeFoundException("All schedules cannot be found");
         }
-        return schedules.map(schedule -> {
-            ScheduleResponseDTO dto = new ScheduleResponseDTO();
-            dto.setId(schedule.getId());
-            dto.setDepartureDate(schedule.getDepartureDate());
-            dto.setArrivalDate(schedule.getArrivalDate());
-            dto.setDepartureTime(schedule.getDepartureTime());
-            dto.setArrivalTime(schedule.getArrivalTime());
-            dto.setDuration(schedule.getDuration());
-            dto.setDistance(schedule.getDistance());
-            dto.setScheduleType(schedule.getScheduleType());
-            dto.setRoute(schedule.getRoute());
-
-            // Fetch names from respective repositories
-            dto.setTrainName(trainService.getTrainNameById(schedule.getTrainId()));
-            dto.setArrivalStationName(stationService.getStationNameById(schedule.getArrivalStationId()));
-            dto.setDepartureStationName(stationService.getStationNameById(schedule.getDepartureStationId()));
-            return dto;
-        });
+        return getScheduleResponseDTOS(schedules);
     }
-
 
 
     @Override
@@ -435,7 +417,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
 
-    public Page<Schedule> searchSchedules(
+    public Page<ScheduleResponseDTO> searchSchedules(
             ScheduleType scheduleType,
             Route route,
             LocalDate departureDate,
@@ -444,10 +426,34 @@ public class ScheduleServiceImpl implements ScheduleService {
             LocalTime arrivalTime,
             Pageable pageable
     ) {
-        return scheduleRepository.findSchedulesByCriteria(
+       Page<Schedule> savedSchedule =  scheduleRepository.findSchedulesByCriteria(
                 scheduleType, route, departureDate, arrivalDate, departureTime, arrivalTime, pageable
         );
+         return getScheduleResponseDTOS(savedSchedule);
     }
+
+    private Page<ScheduleResponseDTO> getScheduleResponseDTOS(Page<Schedule> schedules) {
+        return schedules.map(schedule -> {
+            ScheduleResponseDTO dto = new ScheduleResponseDTO();
+            dto.setId(schedule.getId());
+            dto.setDepartureDate(schedule.getDepartureDate());
+            dto.setArrivalDate(schedule.getArrivalDate());
+            dto.setDepartureTime(schedule.getDepartureTime());
+            dto.setArrivalTime(schedule.getArrivalTime());
+            dto.setDuration(schedule.getDuration());
+            dto.setDistance(schedule.getDistance());
+            dto.setScheduleType(schedule.getScheduleType());
+            dto.setRoute(schedule.getRoute());
+
+            // Fetch names from respective repositories
+            dto.setTrainName(trainService.getTrainNameById(schedule.getTrainId()));
+            dto.setArrivalStationName(stationService.getStationNameById(schedule.getArrivalStationId()));
+            dto.setDepartureStationName(stationService.getStationNameById(schedule.getDepartureStationId()));
+            return dto;
+        });
+    }
+
+
 
 
 
