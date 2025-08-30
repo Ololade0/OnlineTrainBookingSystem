@@ -83,11 +83,18 @@ public class ScheduleController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/get-scheduleType")
+    @GetMapping("/get-all-scheduleType")
     public ResponseEntity<?> getScheduleType(){
        List<ScheduleType> scheduleTypeList = scheduleService.getScheduleType();
        return ResponseEntity.ok(scheduleTypeList);
     }
+
+    @GetMapping("/get-all-route")
+    public ResponseEntity<?> getRoute(){
+        List<Route> routeList = scheduleService.getAllRoutes();
+        return ResponseEntity.ok(routeList);
+    }
+
 
 
     @GetMapping("/schedule-route")

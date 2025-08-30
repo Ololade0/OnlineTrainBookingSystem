@@ -415,6 +415,14 @@ public class ScheduleServiceImpl implements ScheduleService {
        }
        return scheduleTypeList;
     }
+    @Override
+    public List<Route> getAllRoutes() {
+        List<Route> routeList = Arrays.asList(Route.values());
+        if(routeList.isEmpty()){
+            throw new ScheduleDetailsException("Route Type cannot be found");
+        }
+        return routeList;
+    }
 
 
     public Page<ScheduleResponseDTO> searchSchedules(

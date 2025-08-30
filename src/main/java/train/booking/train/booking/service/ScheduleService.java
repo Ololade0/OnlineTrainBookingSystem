@@ -29,6 +29,7 @@ BaseResponse newSchedule(ScheduleDTO scheduleDto);
     BaseResponse deleteSchedule(Long id);
 
     List<Schedule> findByRouteName(Route route);
+    List<Route> getAllRoutes();
 
     List<ScheduleType> getScheduleType();
     Page<ScheduleResponseDTO> searchSchedules(ScheduleType scheduleType,
