@@ -28,24 +28,10 @@ public class ScheduleResponseDTO {
     private LocalTime arrivalTime;
     private ScheduleType scheduleType;
     private Route route;
-    private String duration;   // computed
-    private String distance;   // computed
+    private String duration;
+    private String distance;
     private List<PriceListDTO> prices;
 
     // getters & setters
 }
 
-//public class ScheduleResponseDTO {
-//    private Long id;
-//    private LocalDate departureDate;
-//    private LocalDate arrivalDate;
-//    private LocalTime departureTime;
-//    private LocalTime arrivalTime;
-//    private String duration;
-//    private String distance;
-//    private ScheduleType scheduleType;
-//    private Route route;
-//    private String trainName;
-//    private String arrivalStationName;
-//    private String departureStationName;
-//}

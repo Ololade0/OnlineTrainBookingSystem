@@ -19,6 +19,7 @@ import train.booking.train.booking.dto.response.ResponseUtil;
 import train.booking.train.booking.exceptions.*;
 import train.booking.train.booking.model.Role;
 import train.booking.train.booking.model.User;
+import train.booking.train.booking.model.enums.AgeRange;
 import train.booking.train.booking.model.enums.GenderType;
 import train.booking.train.booking.model.enums.IdentificationType;
 import train.booking.train.booking.model.enums.RoleType;
@@ -172,6 +173,15 @@ public class AdminServiceImpl implements AdminService {
         }
         return genderTypes;
 
+    }
+
+    @Override
+    public List<AgeRange> getAllAgeRange() {
+        List<AgeRange> ageRangeList = Arrays.asList(AgeRange.values());
+        if(ageRangeList.isEmpty()){
+            throw new AgeRangeExeption("No Age range found");
+        }
+        return ageRangeList;
     }
 
 

@@ -11,6 +11,7 @@ import train.booking.train.booking.dto.TrainDto;
 import train.booking.train.booking.dto.response.BaseResponse;
 import train.booking.train.booking.dto.response.ResponseUtil;
 import train.booking.train.booking.exceptions.TrainCannotBeFoundException;
+import train.booking.train.booking.exceptions.TrainClassCannotBeFoundException;
 import train.booking.train.booking.model.Train;
 import train.booking.train.booking.model.enums.TrainClass;
 import train.booking.train.booking.repository.TrainRepository;
@@ -99,6 +100,13 @@ public class TranServiceImpl implements TrainService {
         return trainRepository.findById(id)
                 .map(Train::getTrainName)
                 .orElse("Unknown Train");
+    }
+
+    @Override
+    public Set<TrainClass> getTrainClassesInAGivenTrain(Long trainId) {
+        Train foundTrain = trainRepository.findById(trainId).orElseThrow(() ->
+                new TrainClassCannotBeFoundException("Train not found"));
+        return foundTrain.getTrainClasses();
     }
 
 }

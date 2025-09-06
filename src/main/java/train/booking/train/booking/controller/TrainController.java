@@ -13,11 +13,15 @@ import train.booking.train.booking.dto.TrainDto;
 import train.booking.train.booking.dto.response.BaseResponse;
 import train.booking.train.booking.model.Station;
 import train.booking.train.booking.model.Train;
+import train.booking.train.booking.model.enums.TrainClass;
 import train.booking.train.booking.service.TrainService;
+
+import java.util.Set;
 
 @RestController
 @Slf4j
 @RequestMapping("/api/v1/auth/train")
+//@PreAuthorize("isAuthenticated() and hasRole('ROLE_SUPERADMIN')")
 @RequiredArgsConstructor
 
 public class TrainController {
@@ -43,6 +47,12 @@ public class TrainController {
     public ResponseEntity<?> getTrainsById(@PathVariable Long trainId) {
         Train foundTrain = trainService.getTrainById(trainId);
         return ResponseEntity.ok(foundTrain);
+    }
+    @GetMapping("/{trainId}/classes")
+    @PreAuthorize("isAuthenticated() and hasRole('ROLE_SUPERADMIN')")
+    public ResponseEntity<?> getTrainClassesInAGivenTrain(@PathVariable Long trainId){
+        Set<TrainClass> getTrainClassesInAGivenTrain = trainService.getTrainClassesInAGivenTrain(trainId);
+        return ResponseEntity.ok(getTrainClassesInAGivenTrain);
     }
 
 
