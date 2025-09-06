@@ -1,8 +1,10 @@
 
 package train.booking.train.booking.dto.response;
 
-import java.io.Serializable;
+import lombok.Builder;
 
+import java.io.Serializable;
+@Builder
 public class BaseResponse<E> implements Serializable {
   
   private Status status;

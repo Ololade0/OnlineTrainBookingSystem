@@ -11,6 +11,8 @@ import java.util.List;
 public interface PriceListService {
 //   List<PriceList> createPrice(List<PriceListDTO> price, Long scheduleId);
     List<PriceList> createPrices(List<PriceListDTO> priceDtos, Long scheduleId);
+
+    List<PriceListDTO> getPricesByScheduleId(Long id);
 //   List<PriceList> getPriceListByScheduleAndStation(Long scheduleId, Long stationId);
 
 //   PriceList getSpecificPrice(Long scheduleId, Long stationId, TrainClass trainClass, AgeRange ageRange);

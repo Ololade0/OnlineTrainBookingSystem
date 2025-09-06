@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @Setter
 @Getter
 @Builder
+@AllArgsConstructor
 @ToString
 @Entity(name = "stations")
 @NoArgsConstructor
@@ -22,12 +23,12 @@ public class Station extends AuditBaseEntity {
     @NotBlank(message = "Station Code cannot be blank")
     private String stationCode;
 
+    @Column(nullable = false)
+    private double latitude;
 
-    public Station(Long stationId, String stationName, String stationCode) {
-        this.stationId = stationId;
-        this.stationName = stationName;
-        this.stationCode = stationCode;
-    }
+    @Column(nullable = false)
+    private double longitude;
+
 
     public Station(LocalDateTime createdAt, LocalDateTime updatedAt, Long stationId, String stationName, String stationCode) {
         super(createdAt, updatedAt);

@@ -11,7 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import train.booking.train.booking.dto.ScheduleResponseDTO;
-import train.booking.train.booking.dto.ScheduleDTO;
+import train.booking.train.booking.dto.ScheduleRequestDTO;
 import train.booking.train.booking.dto.response.BaseResponse;
 import train.booking.train.booking.dto.response.ScheduleResponse;
 import train.booking.train.booking.exceptions.ScheduleCannotBeFoundException;
@@ -35,7 +35,7 @@ public class ScheduleController {
 
 
    @PostMapping("create-schedule")
-    public ResponseEntity<BaseResponse> createSchedule(@RequestBody ScheduleDTO scheduleDTO) {
+    public ResponseEntity<BaseResponse> createSchedule(@RequestBody ScheduleRequestDTO scheduleDTO) {
         log.info("Received request: {}", scheduleDTO);
         BaseResponse response = scheduleService.newSchedule(scheduleDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -72,7 +72,7 @@ public class ScheduleController {
 
 
     @PutMapping("/update-schedule/{id}")
-    public ResponseEntity<BaseResponse> updateSchedule(@PathVariable Long id, @RequestBody ScheduleDTO scheduleDTO) {
+    public ResponseEntity<BaseResponse> updateSchedule(@PathVariable Long id, @RequestBody ScheduleRequestDTO scheduleDTO) {
         BaseResponse response = scheduleService.updateSchedule(id, scheduleDTO);
         return ResponseEntity.ok(response);
     }

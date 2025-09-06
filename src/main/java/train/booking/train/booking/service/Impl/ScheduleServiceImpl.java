@@ -10,11 +10,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import train.booking.train.booking.dto.ScheduleResponseDTO;
 import train.booking.train.booking.dto.PriceListDTO;
-import train.booking.train.booking.dto.ScheduleDTO;
+import train.booking.train.booking.dto.ScheduleRequestDTO;
 import train.booking.train.booking.dto.ScheduleDetailsDTO;
 import train.booking.train.booking.dto.response.BaseResponse;
 import train.booking.train.booking.dto.response.ResponseUtil;
 import train.booking.train.booking.dto.response.ScheduleResponse;
+import train.booking.train.booking.dto.response.Status;
 import train.booking.train.booking.exceptions.ScheduleCannotBeFoundException;
 import train.booking.train.booking.exceptions.ScheduleDetailsException;
 import train.booking.train.booking.model.Schedule;
@@ -41,146 +42,100 @@ public class ScheduleServiceImpl implements ScheduleService {
     private final TrainService trainService;
     private final StationService stationService;
     private final PriceListService priceListService;
-    String durationString;
-
-    @Transactional
-    public BaseResponse newSchedule(ScheduleDTO scheduleDto) {
-        if (scheduleDto == null) {
-            throw new ScheduleDetailsException("ScheduleDto cannot be null.");
-        }
-
-        validateScheduleDetails(scheduleDto);
-
-        try {
-            Train train = trainService.findTrainById(scheduleDto.getTrainId());
-            Station arrivalStation = stationService.findStationById(scheduleDto.getArrivalStationId());
-            Station departureStation = stationService.findStationById(scheduleDto.getDepartureStationId());
-
-            if (scheduleDto.getDepartureTime() == null || scheduleDto.getArrivalTime() == null) {
-                throw new ScheduleDetailsException("Departure time and arrival time must not be null.");
-            }
-
-            Duration duration = Duration.between(scheduleDto.getDepartureTime(), scheduleDto.getArrivalTime());
-            String durationString = formatDurationToString(duration);
-
-            Schedule schedule = Schedule.builder()
-                    .trainId(train.getId())
-                    .departureStationId(departureStation.getStationId())
-                    .arrivalStationId(arrivalStation.getStationId())
-                    .departureTime(scheduleDto.getDepartureTime())
-                    .arrivalTime(scheduleDto.getArrivalTime())
-                    .departureDate(scheduleDto.getDepartureDate())
-                    .arrivalDate(scheduleDto.getArrivalDate())
-                    .duration(durationString)
-                    .scheduleType(scheduleDto.getScheduleType())
-                    .route(scheduleDto.getRoute())
-                    .distance(distanceCalculatorService.calculateDistance())
-                    .build();
-
-            Schedule savedSchedule = scheduleRepository.save(schedule);
-
-//             ✅ if prices exist, validate classes against train’s enum set
-            if (scheduleDto.getPrices() != null && !scheduleDto.getPrices().isEmpty()) {
-
-                // Get the set of allowed classes from this train
-                Set<TrainClass> allowedClasses = train.getTrainClasses();
-
-                for (PriceListDTO price : scheduleDto.getPrices()) {
-                    // 🚨 Validate that the price’s class is one of the train’s classes
-                    if (!allowedClasses.contains(price.getTrainClass())) {
-                        throw new ScheduleDetailsException(
-                                "TrainClass " + price.getTrainClass() +
-                                        " is not assigned to Train " + train.getTrainName()
-                        );
-                    }
-                }
-
-                // ✅ safe to persist prices
-                priceListService.createPrices(scheduleDto.getPrices(), savedSchedule.getId());
-            }
 
 
-            return mapToResponseDTO(savedSchedule, "Schedule successfully created");
-
-        } catch (Exception e) {
-            log.error("❌ Error creating schedule: {}", e.getMessage(), e);
-            throw new ScheduleDetailsException("Failed to create schedule");
-        }
+@Transactional
+public BaseResponse newSchedule(ScheduleRequestDTO scheduleDto) {
+    if (scheduleDto == null) {
+        throw new ScheduleDetailsException("ScheduleDto cannot be null.");
     }
 
+    validateScheduleDetails(scheduleDto);
 
-//    @Transactional
-//    public BaseResponse newSchedule(ScheduleDTO scheduleDto) {
-//        if (scheduleDto == null) {
-//            throw new ScheduleDetailsException("ScheduleDto cannot be null.");
-//        }
-//
-//        // ✅ validate all required schedule details
-//        validateScheduleDetails(scheduleDto);
-//
-//        try {
-//            // ✅ fetch entities from DB
-//            Train train = trainService.findTrainById(scheduleDto.getTrainId());
-//            Station arrivalStation = stationService.findStationById(scheduleDto.getArrivalStationId());
-//            Station departureStation = stationService.findStationById(scheduleDto.getDepartureStationId());
-//
-//            // ✅ check mandatory times
-//            if (scheduleDto.getDepartureTime() == null || scheduleDto.getArrivalTime() == null) {
-//                throw new ScheduleDetailsException("Departure time and arrival time must not be null.");
-//            }
-//
-//            // ✅ compute duration between departure and arrival
-//            Duration duration = Duration.between(scheduleDto.getDepartureTime(), scheduleDto.getArrivalTime());
-//            String durationString = formatDurationToString(duration);
-//
-//            // ✅ build Schedule entity
-//            Schedule schedule = Schedule.builder()
-//                    .trainId(train.getId())
-//                    .departureStationId(departureStation.getStationId())
-//                    .arrivalStationId(arrivalStation.getStationId())
-//                    .departureTime(scheduleDto.getDepartureTime())
-//                    .arrivalTime(scheduleDto.getArrivalTime())
-//                    .departureDate(scheduleDto.getDepartureDate())
-//                    .arrivalDate(scheduleDto.getArrivalDate())
-//                    .duration(durationString)
-//                    .scheduleType(scheduleDto.getScheduleType())
-//                    .route(scheduleDto.getRoute())
-//                    .distance(distanceCalculatorService.calculateDistance()) // ← you’ll probably pass params here
-//                    .build();
-//
-//            // ✅ save schedule first
-//            Schedule savedSchedule = scheduleRepository.save(schedule);
-//
-//            // ✅ if prices exist, validate classes against train’s enum set
-//            if (scheduleDto.getPrices() != null && !scheduleDto.getPrices().isEmpty()) {
-//
-//                // Get the set of allowed classes from this train
-//                Set<TrainClass> allowedClasses = train.getTrainClasses();
-//
-//                for (PriceListDTO price : scheduleDto.getPrices()) {
-//                    // 🚨 Validate that the price’s class is one of the train’s classes
-//                    if (!allowedClasses.contains(price.getTrainClass())) {
-//                        throw new ScheduleDetailsException(
-//                                "TrainClass " + price.getTrainClass() +
-//                                        " is not assigned to Train " + train.getTrainName()
-//                        );
-//                    }
-//                }
-//
-//                // ✅ safe to persist prices
-//                priceListService.createPrices(scheduleDto.getPrices(), savedSchedule.getId());
-//            }
-//
-//            // ✅ return response
-//            return mapToResponseDTO(savedSchedule, "Schedule successfully created");
-//
-//        } catch (Exception e) {
-//            log.error("❌ Error creating schedule: {}", e.getMessage(), e);
-//            throw new ScheduleDetailsException("Failed to create schedule");
-//        }
-//    }
+    try {
+        Train train = trainService.findTrainById(scheduleDto.getTrainId());
+        Station arrivalStation = stationService.findStationById(scheduleDto.getArrivalStationId());
+        Station departureStation = stationService.findStationById(scheduleDto.getDepartureStationId());
 
+        if (scheduleDto.getDepartureTime() == null || scheduleDto.getArrivalTime() == null) {
+            throw new ScheduleDetailsException("Departure time and arrival time must not be null.");
+        }
 
+        // ✅ compute duration
+        Duration duration = Duration.between(scheduleDto.getDepartureTime(), scheduleDto.getArrivalTime());
+        String durationString = formatDurationToString(duration);
+
+        // ✅ compute distance
+        String distanceString = distanceCalculatorService.calculateDistance(
+                departureStation, arrivalStation
+        );
+
+        Schedule schedule = Schedule.builder()
+                .trainId(train.getId())
+                .departureStationId(departureStation.getStationId())
+                .arrivalStationId(arrivalStation.getStationId())
+                .departureTime(scheduleDto.getDepartureTime())
+                .arrivalTime(scheduleDto.getArrivalTime())
+                .departureDate(scheduleDto.getDepartureDate())
+                .arrivalDate(scheduleDto.getArrivalDate())
+                .duration(durationString)
+                .scheduleType(scheduleDto.getScheduleType())
+                .route(scheduleDto.getRoute())
+                .distance(distanceString)
+                .build();
+
+        Schedule savedSchedule = scheduleRepository.save(schedule);
+        if (scheduleDto.getPrices() != null && !scheduleDto.getPrices().isEmpty()) {
+            Set<TrainClass> allowedClasses = train.getTrainClasses();
+
+            for (PriceListDTO price : scheduleDto.getPrices()) {
+                if (!allowedClasses.contains(price.getTrainClass())) {
+                    throw new ScheduleDetailsException(
+                            "TrainClass " + price.getTrainClass() +
+                                    " is not assigned to Train " + train.getTrainName()
+                    );
+                }
+            }
+
+            priceListService.createPrices(scheduleDto.getPrices(), savedSchedule.getId());
+        }
+
+        ScheduleResponseDTO responseDTO = mapToResponseDTO(savedSchedule, train, departureStation, arrivalStation);
+
+        return BaseResponse.builder()
+                .status(new Status(200, "Schedule successfully created"))
+                .entity(responseDTO)
+                .build();
+
+    } catch (Exception e) {
+        log.error("❌ Error creating schedule: {}", e.getMessage(), e);
+        throw new ScheduleDetailsException("Failed to create schedule");
+    }
+}
+
+    // helper mapper
+    private ScheduleResponseDTO mapToResponseDTO(Schedule schedule, Train train, Station dep, Station arr) {
+        ScheduleResponseDTO dto = new ScheduleResponseDTO();
+        dto.setId(schedule.getId());
+        dto.setTrainId(train.getId());
+        dto.setTrainName(train.getTrainName());
+        dto.setDepartureStationId(dep.getStationId());
+        dto.setDepartureStationName(dep.getStationName());
+        dto.setArrivalStationId(arr.getStationId());
+        dto.setArrivalStationName(arr.getStationName());
+        dto.setDepartureDate(schedule.getDepartureDate());
+        dto.setArrivalDate(schedule.getArrivalDate());
+        dto.setDepartureTime(schedule.getDepartureTime());
+        dto.setArrivalTime(schedule.getArrivalTime());
+        dto.setScheduleType(schedule.getScheduleType());
+        dto.setRoute(schedule.getRoute());
+        dto.setDuration(schedule.getDuration());
+        dto.setDistance(schedule.getDistance());
+        List<PriceListDTO> prices = priceListService.getPricesByScheduleId(schedule.getId());
+        dto.setPrices(prices);
+
+        return dto;
+    }
     private String formatDurationToString(Duration duration) {
         long hours = duration.toHours();
         long minutes = duration.toMinutes() % 60;
@@ -199,23 +154,9 @@ public class ScheduleServiceImpl implements ScheduleService {
 
         return formattedDuration.toString();
     }
+//
 
-    private static BaseResponse mapToResponseDTO(Schedule savedSchedule, String message) {
-        ScheduleDTO response = new ScheduleDTO();
-        response.setDepartureTime(savedSchedule.getDepartureTime());
-        response.setArrivalTime(savedSchedule.getArrivalTime());
-        response.setDepartureDate(savedSchedule.getDepartureDate());
-        response.setArrivalDate(savedSchedule.getArrivalDate());
-        response.setDuration(savedSchedule.getDuration());
-        response.setDistance(savedSchedule.getDistance());
-        response.setScheduleType(savedSchedule.getScheduleType());
-        response.setRoute(savedSchedule.getRoute());
-        return ResponseUtil.success(message, response);
-    }
-
-
-
-    public void validateScheduleDetails(ScheduleDTO scheduleDTO) {
+    public void validateScheduleDetails(ScheduleRequestDTO scheduleDTO) {
         if (scheduleDTO == null) {
             throw new ScheduleDetailsException("ScheduleDto cannot be null.");
         }
@@ -304,10 +245,10 @@ public class ScheduleServiceImpl implements ScheduleService {
             }
 
             // Group flat details into per-schedule DTOs
-            Map<Long, ScheduleDTO> groupedSchedules = groupBySchedule_IdAndPrice(scheduleDetails);
+            Map<Long, ScheduleRequestDTO> groupedSchedules = groupBySchedule_IdAndPrice(scheduleDetails);
 
             // Extract the first schedule DTO and its ID
-            List<ScheduleDTO> scheduleList = new ArrayList<>(groupedSchedules.values());
+            List<ScheduleRequestDTO> scheduleList = new ArrayList<>(groupedSchedules.values());
             Long scheduleId = scheduleList.get(0).getScheduleId();
 
             return scheduleResponses(scheduleId, scheduleList);
@@ -323,26 +264,26 @@ public class ScheduleServiceImpl implements ScheduleService {
 
 
     // Helper to construct the response DTO
-    private ScheduleResponse scheduleResponses(Long id, List<ScheduleDTO> schedules) {
+    private ScheduleResponse scheduleResponses(Long id, List<ScheduleRequestDTO> schedules) {
         return new ScheduleResponse(id, schedules);
     }
 
     // Groups a flat list of ScheduleDetailsDTO into ScheduleDTOs keyed by scheduleId
-    private static Map<Long, ScheduleDTO> groupBySchedule_IdAndPrice(List<ScheduleDetailsDTO> flatList) {
-        Map<Long, ScheduleDTO> groupedSchedules = new LinkedHashMap<>();
+    private static Map<Long, ScheduleRequestDTO> groupBySchedule_IdAndPrice(List<ScheduleDetailsDTO> flatList) {
+        Map<Long, ScheduleRequestDTO> groupedSchedules = new LinkedHashMap<>();
 
         for (ScheduleDetailsDTO dto : flatList) {
-            ScheduleDTO grouped = groupedSchedules.get(dto.getScheduleId());
+            ScheduleRequestDTO grouped = groupedSchedules.get(dto.getScheduleId());
             if (grouped == null) {
-                grouped = new ScheduleDTO();
+                grouped = new ScheduleRequestDTO();
                 grouped.setScheduleId(dto.getScheduleId());
                 grouped.setTrainId(dto.getTrainId());
                 grouped.setDepartureStationId(dto.getDepartureStation());
                 grouped.setArrivalStationId(dto.getArrivalStation());
                 grouped.setRoute(dto.getRoute());
                 grouped.setScheduleType(dto.getScheduleType());
-                grouped.setDistance(dto.getDistance());
-                grouped.setDuration(dto.getDuration());
+//                grouped.setDistance(dto.getDistance());
+//                grouped.setDuration(dto.getDuration());
                 grouped.setDepartureDate(dto.getDepartureDate());
                 grouped.setArrivalDate(dto.getArrivalDate());
                 grouped.setDepartureTime(dto.getDepartureTime());
@@ -361,7 +302,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 
 
     @Override
-    public BaseResponse updateSchedule(Long scheduleId, ScheduleDTO scheduleDTO) {
+    public BaseResponse updateSchedule(Long scheduleId, ScheduleRequestDTO scheduleDTO) {
         Schedule existingSchedule = scheduleRepository.findById(scheduleId)
                 .orElseThrow(() -> new ScheduleCannotBeFoundException("Schedule not found with ID: " + scheduleId));
 

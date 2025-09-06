@@ -145,6 +145,21 @@ public class PriceListServiceImpl implements PriceListService {
 
         return savedPrices;
     }
+
+    public List<PriceListDTO> getPricesByScheduleId(Long scheduleId) {
+        List<PriceList> prices = priceListServiceRepository.findAllByScheduleId(scheduleId);
+
+        return prices.stream()
+                .map(price -> PriceListDTO.builder()
+                        .id(price.getId())
+                        .trainClass(price.getTrainClass())
+                        .ageRange(price.getAgeRange())
+                        .price(price.getPrice())
+                        .scheduleId(price.getScheduleId())
+                        .build()
+                )
+                .toList();
+    }
 }
 
 

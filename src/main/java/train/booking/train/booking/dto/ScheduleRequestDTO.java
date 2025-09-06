@@ -15,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ScheduleDTO {
+public class ScheduleRequestDTO {
     private Long scheduleId;
 
     private Long trainId;
@@ -36,11 +36,11 @@ public class ScheduleDTO {
     private LocalTime arrivalTime;
 
 
-    private String duration;
+//    private String duration;
     private ScheduleType scheduleType;
 
     private Route route;
-    private String distance;
+//    private String distance;
     private List<PriceListDTO> prices;
 
 

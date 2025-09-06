@@ -1,7 +1,9 @@
 package train.booking.train.booking.exceptions.handler;
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.messaging.handler.annotation.support.MethodArgumentTypeMismatchException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -9,8 +11,10 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import train.booking.train.booking.exceptions.*;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -63,6 +67,29 @@ public class GlobalExceptionHandler {
         return buildResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, Object>> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
+        Throwable cause = ex.getCause();
+
+        if (cause instanceof InvalidFormatException invalidEx && invalidEx.getTargetType().isEnum()) {
+            Class<?> enumType = invalidEx.getTargetType();
+            Object[] enumConstants = enumType.getEnumConstants();
+
+            String allowedValues = Arrays.stream(enumConstants)
+                    .map(Object::toString)
+                    .collect(Collectors.joining(", "));
+
+            String message = String.format(
+                    "Invalid value '%s' for %s. Allowed values are: [%s]",
+                    invalidEx.getValue(), enumType.getSimpleName(), allowedValues
+            );
+
+            return buildResponse(message, HttpStatus.BAD_REQUEST);
+        }
+
+        return buildResponse("Invalid request body", HttpStatus.BAD_REQUEST);
+    }
     // Utility method to reduce repetition
     private ResponseEntity<Map<String, Object>> buildResponse(String message, HttpStatus status) {
         Map<String, Object> response = new HashMap<>();
