@@ -52,7 +52,7 @@ public BaseResponse newSchedule(ScheduleRequestDTO scheduleDto) {
 
     validateScheduleDetails(scheduleDto);
 
-    try {
+//    try {
         Train train = trainService.findTrainById(scheduleDto.getTrainId());
         Station arrivalStation = stationService.findStationById(scheduleDto.getArrivalStationId());
         Station departureStation = stationService.findStationById(scheduleDto.getDepartureStationId());
@@ -107,11 +107,12 @@ public BaseResponse newSchedule(ScheduleRequestDTO scheduleDto) {
                 .entity(responseDTO)
                 .build();
 
-    } catch (Exception e) {
-        log.error("❌ Error creating schedule: {}", e.getMessage(), e);
-        throw new ScheduleDetailsException("Failed to create schedule");
     }
-}
+//    catch (Exception e) {
+//        log.error("❌ Error creating schedule: {}", e.getMessage(), e);
+//        throw new ScheduleDetailsException("Failed to create schedule");
+//    }
+//}
 
     // helper mapper
     private ScheduleResponseDTO mapToResponseDTO(Schedule schedule, Train train, Station dep, Station arr) {
