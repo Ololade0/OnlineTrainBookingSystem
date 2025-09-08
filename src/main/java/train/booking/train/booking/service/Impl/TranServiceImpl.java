@@ -67,14 +67,36 @@ public class TranServiceImpl implements TrainService {
                 .orElseThrow(() -> new TrainCannotBeFoundException("Train not found"));
     }
 
+//    @Override
+//    public BaseResponse updateTrain(Long trainId, TrainDto trainDto) {
+//        Train train = findTrainById(trainId);
+//        train.setTrainName(trainDto.getTrainName());
+//        train.setTrainCode(trainDto.getTrainCode());
+//        trainRepository.save(train);
+//        return  ResponseUtil.success("Train updated successfully", true);
+//    }
+
     @Override
-    public BaseResponse updateTrain(Long trainId, TrainDto trainDto) {
-        Train train = findTrainById(trainId);
-        train.setTrainName(trainDto.getTrainName());
+    public BaseResponse updateTrain(Long id, TrainDto trainDto) {
+        Train train = trainRepository.findById(id)
+                .orElseThrow(() -> new TrainCannotBeFoundException("Train not found with id: " + id));
+
         train.setTrainCode(trainDto.getTrainCode());
-        trainRepository.save(train);
-        return  ResponseUtil.success("Train updated successfully", true);
+        train.setTrainName(trainDto.getTrainName());
+        train.setTrainClasses(trainDto.getTrainClasses());
+
+        Train savedTrain = trainRepository.save(train);
+
+        TrainDto response = TrainDto.builder()
+                .trainCode(savedTrain.getTrainCode())
+                .trainClasses(savedTrain.getTrainClasses())
+                .trainName(savedTrain.getTrainName())
+                .build();
+
+        return ResponseUtil.success("Train successfully updated", response);
     }
+
+
 
     @Override
     public BaseResponse deleteTrain(Long trainId) {
