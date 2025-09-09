@@ -17,7 +17,9 @@ import train.booking.train.booking.model.enums.TrainClass;
 import train.booking.train.booking.repository.TrainRepository;
 import train.booking.train.booking.service.TrainService;
 
+import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -47,19 +49,23 @@ public class TranServiceImpl implements TrainService {
     }
 
     private BaseResponse verifyTrain(String trainName, Set<TrainClass> trainClasses, String trainCode) {
-        if(trainRepository.existsByTrainName(trainName)){
+        if (trainRepository.existsByTrainName(trainName)) {
             return ResponseUtil.inputAlreadyExist("Train Name already exist");
         }
-        if (trainRepository.existsByTrainCode(trainCode)){
+        if (trainRepository.existsByTrainCode(trainCode)) {
             return ResponseUtil.inputAlreadyExist("Train code already exist");
-
         }
-        if (trainRepository.existsByTrainClasses(trainClasses)){
-            return ResponseUtil.inputAlreadyExist("Train classes already exist");
 
+        if (trainClasses == null || trainClasses.isEmpty()) {
+            return ResponseUtil.failed("Train must have at least one class", null);
         }
+        if (trainClasses.size() != new HashSet<>(trainClasses).size()) {
+            return ResponseUtil.failed("Duplicate train classes are not allowed", null);
+        }
+
         return ResponseUtil.success("Train verification passed", null);
     }
+
 
     @Override
     public Train findTrainById(Long trainId) {
@@ -67,14 +73,6 @@ public class TranServiceImpl implements TrainService {
                 .orElseThrow(() -> new TrainCannotBeFoundException("Train not found"));
     }
 
-//    @Override
-//    public BaseResponse updateTrain(Long trainId, TrainDto trainDto) {
-//        Train train = findTrainById(trainId);
-//        train.setTrainName(trainDto.getTrainName());
-//        train.setTrainCode(trainDto.getTrainCode());
-//        trainRepository.save(train);
-//        return  ResponseUtil.success("Train updated successfully", true);
-//    }
 
     @Override
     public BaseResponse updateTrain(Long id, TrainDto trainDto) {

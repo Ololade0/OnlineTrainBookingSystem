@@ -12,7 +12,4 @@ public interface TrainRepository extends JpaRepository<Train, Long> {
     boolean existsByTrainName(String trainName);
 
     boolean existsByTrainCode(String trainCode);
-
-    boolean existsByTrainClasses(Set<TrainClass> trainClasses);
-//    TrainClass findTrainByTrainClasses(Long trainId);
 }
