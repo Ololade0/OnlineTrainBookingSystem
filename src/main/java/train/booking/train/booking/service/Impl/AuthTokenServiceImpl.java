@@ -41,14 +41,18 @@ public class AuthTokenServiceImpl implements AuthTokenService {
     @Override
     @Transactional
     public void logout(String token) {
-        Optional<AuthToken> optionalAuthToken = authTokenRepository.findByToken(token);
-        if (optionalAuthToken.isPresent()) {
-            authTokenRepository.deleteByToken(token);
-        } else {
-            throw new AlreadyLoggoutTokenException("Already Loggout token");
+        if (token == null || token.isEmpty()) {
+            // Optional: ignore or throw an exception for missing token
+            return;
         }
 
+        // Find the auth token in the database
+        Optional<AuthToken> optionalAuthToken = authTokenRepository.findByToken(token);
+        optionalAuthToken.ifPresent(authTokenRepository::delete);
+
+        // Always succeed even if the token was already deleted
     }
+
 
     @Override
     public void saveToken(AuthToken token) {

@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import train.booking.train.booking.dto.TrainDto;
@@ -105,7 +106,7 @@ public class TranServiceImpl implements TrainService {
 
     @Override
     public Page<Train> getAllTrains(int page, int size) {
-        return trainRepository.findAll(PageRequest.of(page,size));
+        return trainRepository.findAll(PageRequest.of(page,size, Sort.by(Sort.Direction.DESC, "createdAt")));
     }
 
     @Override

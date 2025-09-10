@@ -20,6 +20,7 @@ import train.booking.train.booking.security.jwt.TokenProvider;
 import train.booking.train.booking.service.AuthTokenService;
 import train.booking.train.booking.service.UserService;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -106,13 +107,20 @@ import java.util.Optional;
         }
 
 
+        @PostMapping("/logout")
+            public ResponseEntity<Map<String, String>> logout(@RequestHeader("Authorization") String authHeader) {
+                String token = null;
+                if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                    token = authHeader.substring(7);
+                }
+                authTokenService.logout(token);
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Successfully logged out");
+                return ResponseEntity.ok(response);
+            }
 
-    @PostMapping("/logout")
-    public void logout(@RequestParam String token) {
-        authTokenService.logout(token);
 
     }
-}
 
 
 

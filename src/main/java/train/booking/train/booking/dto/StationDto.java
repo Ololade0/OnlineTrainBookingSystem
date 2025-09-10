@@ -1,6 +1,7 @@
 package train.booking.train.booking.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.persistence.Column;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,6 +14,7 @@ public class StationDto {
 
     private String stationCode;
     private String stationName;
-    private String stationTag;
+    private double latitude;
+    private double longitude;
 
 }
