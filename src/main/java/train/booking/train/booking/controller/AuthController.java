@@ -37,7 +37,6 @@ import java.util.Optional;
 
         @PostMapping("/login")
         public ResponseEntity<?> login(@RequestBody UserLoginDTO loginRequest) {
-            // ✅ Step 1: Basic null/blank check
             if (loginRequest.getEmail() == null || loginRequest.getEmail().isBlank()
                     || loginRequest.getPassword() == null || loginRequest.getPassword().isBlank()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -47,7 +46,6 @@ import java.util.Optional;
                         ));
             }
 
-            // ✅ Step 2: Find user by email
             Optional<User> optionalUser = Optional.ofNullable(userService.findUserByEmail(loginRequest.getEmail()));
             if (optionalUser.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -58,8 +56,6 @@ import java.util.Optional;
             }
 
             User user = optionalUser.get();
-
-            // ✅ Step 3: Password check
             if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(Map.of(
@@ -67,9 +63,6 @@ import java.util.Optional;
                                 "message", "Incorrect password."
                         ));
             }
-
-
-            // ✅ Step 5: Authenticate using AuthenticationManager (Spring Security context)
             try {
                 Authentication authentication = authenticationManager.authenticate(
                         new UsernamePasswordAuthenticationToken(
@@ -78,8 +71,6 @@ import java.util.Optional;
                         )
                 );
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-
-                // ✅ Step 6: Generate JWT
                 String jwtToken = tokenProvider.generateJWTToken(authentication);
 
                 return ResponseEntity.ok(Map.of(

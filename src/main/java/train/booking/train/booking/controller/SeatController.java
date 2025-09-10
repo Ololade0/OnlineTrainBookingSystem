@@ -28,8 +28,8 @@ public class SeatController {
 
     @PostMapping("/generate")
 //    @PreAuthorize("hasAuthority('SUPERADMIN_ROLE')")
-    public ResponseEntity<?> generateSeats(@RequestBody List<GenerateSeatDto> seatDtos, @RequestParam long scheduleId) {
-      BaseResponse generatedSeats = seatService.generateSeats(seatDtos, scheduleId);
+    public ResponseEntity<?> generateSeats(@RequestBody List<GenerateSeatDto> seatDtos, @RequestParam long trainId) {
+      BaseResponse generatedSeats = seatService.generateSeats(seatDtos, trainId);
         return new ResponseEntity<>(generatedSeats, HttpStatus.CREATED);
     }
 

@@ -313,7 +313,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
 
     public Page<User> getAllNonUserAccounts(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         return userRepository.findAllWithAtLeastOneNonUserRole(pageable);
     }
 

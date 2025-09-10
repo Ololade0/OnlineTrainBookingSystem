@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface SeatService {
- BaseResponse generateSeats(List<GenerateSeatDto> seatDtos, Long scheduleId);
+ BaseResponse generateSeats(List<GenerateSeatDto> seatDtos, Long  trainId);
 String   lockSeatTemporarilyForPayment(int seatNumber, Long scheduleId, TrainClass trainClass, Booking bookingId);
   void releaseLockedSeatAfterExpiration();
     void checkSeatAvailability(int seatNumber, Long scheduleId, TrainClass trainClass);

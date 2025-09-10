@@ -28,8 +28,6 @@ public interface UserService {
     BaseResponse updateUserProfile(UserDTO userDTO, Long userId);
 
     void save(User user);
-
-
     Page<User> getAllNonUserAccounts(int page, int size);
 
     Page<User> searchUsers(String query, int page, int size);

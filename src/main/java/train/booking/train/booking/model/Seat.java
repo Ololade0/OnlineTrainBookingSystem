@@ -34,7 +34,9 @@ public class Seat {
     @JoinColumn(name = "booking_id")
     @JsonIgnore
     private Booking booking ;
-    private Long scheduleId;
+//    private Long scheduleId;
+
+    private Long trainId;
 
 
 }

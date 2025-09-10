@@ -12,7 +12,7 @@ import train.booking.train.booking.model.enums.SeatStatus;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class GenerateSeatDto {
-    private Long scheduleId;
+//    private Long scheduleId;
     private int startSeat;
     private int endSeat;
     private SeatStatus seatStatus;

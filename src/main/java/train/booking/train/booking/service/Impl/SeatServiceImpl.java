@@ -16,16 +16,16 @@ import train.booking.train.booking.exceptions.*;
 import train.booking.train.booking.model.Booking;
 import train.booking.train.booking.model.Schedule;
 import train.booking.train.booking.model.Seat;
+import train.booking.train.booking.model.Train;
 import train.booking.train.booking.model.enums.SeatStatus;
 import train.booking.train.booking.model.enums.TrainClass;
 import train.booking.train.booking.repository.SeatRepository;
 import train.booking.train.booking.service.ScheduleService;
 import train.booking.train.booking.service.SeatService;
+import train.booking.train.booking.service.TrainService;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -34,17 +34,15 @@ public class SeatServiceImpl implements SeatService {
 
 private final SeatRepository seatRepository;
 
-private final ScheduleService scheduleService;
-
+private final TrainService trainService;
 
     @Async
-    public BaseResponse generateSeats(List<GenerateSeatDto> seatDtos, Long scheduleId) {
-       Schedule foundSchedule = scheduleService.findSchedulesById(scheduleId);
-        if(foundSchedule == null){
-            throw new ScheduleCannotBeFoundException("Schedule cannot be found");
-        }
+    public BaseResponse  generateSeats(List<GenerateSeatDto> seatDtos, Long trainId) {
+        Train foundTrain = trainService.findTrainById(trainId);
+        validateSeatGeneration(seatDtos, foundTrain);
+
         try {
-            List<Seat> seats = new ArrayList<>();
+            List<Seat> seatsToSave = new ArrayList<>();
 
             for (GenerateSeatDto seatDto : seatDtos) {
                 for (int i = seatDto.getStartSeat(); i <= seatDto.getEndSeat(); i++) {
@@ -52,12 +50,11 @@ private final ScheduleService scheduleService;
                     seat.setSeatNumber(i);
                     seat.setSeatStatus(SeatStatus.AVAILABLE);
                     seat.setTrainClass(seatDto.getTrainClass());
-                    seat.setScheduleId(foundSchedule.getId());
-                    seats.add(seat);
+                    seat.setTrainId(foundTrain.getId());
+                    seatsToSave.add(seat);
                 }
             }
-            List<Seat> savedSeats = seatRepository.saveAll(seats);
-
+            List<Seat> savedSeats = seatRepository.saveAll(seatsToSave);
             List<GenerateSeatDto> seatDtoList = savedSeats.stream().map(seat -> {
                 GenerateSeatDto dto = new GenerateSeatDto();
                 dto.setSeatNumber(seat.getSeatNumber());
@@ -65,11 +62,12 @@ private final ScheduleService scheduleService;
                 dto.setTrainClass(seat.getTrainClass());
                 return dto;
             }).toList();
-            return ResponseUtil.success("Seats have been successfully generated", savedSeats);
+
+            return ResponseUtil.success("Seats successfully generated.", null);
 
         } catch (Exception e) {
-            log.error("Error during processing: {}", e.getMessage());
-            return ResponseUtil.invalidOrNullInput("Error generating seat.");
+            log.error("Error generating seats: {}", e.getMessage());
+            return ResponseUtil.invalidOrNullInput("Error generating seats: " + e.getMessage());
         }
     }
 
@@ -104,8 +102,8 @@ private final ScheduleService scheduleService;
 
 
     @Override
-    public void checkSeatAvailability(int seatNumber, Long scheduleId, TrainClass trainClass) {
-    Seat seat = seatRepository.findBySeatNumberAndScheduleIdAndTrainClass(seatNumber, scheduleId, trainClass)
+    public void checkSeatAvailability(int seatNumber, Long trainId, TrainClass trainClass) {
+    Seat seat = seatRepository.findBySeatNumberAndTrainIdAndTrainClass(seatNumber, trainId, trainClass)
             .orElseThrow(() -> new SeatCannotBeFoundException("Seat not found for this schedule"));
 
     if (seat.getSeatStatus() == SeatStatus.BOOKED) {
@@ -206,7 +204,57 @@ public Seat bookSeat(BookSeatDTO bookSeatDTO) {
 }
 
 
+    private void validateSeatGeneration(List<GenerateSeatDto> seatDtos, Train train) {
+        if (train == null) {
+            throw new TrainException("Train cannot be found.");
+        }
 
+        if (seatDtos == null || seatDtos.isEmpty()) {
+            throw new TrainException("Seat generation list cannot be empty.");
+        }
 
+        for (GenerateSeatDto seatDto : seatDtos) {
+            if (seatDto.getTrainClass() == null) {
+                throw new TrainClassException("TrainClass cannot be null.");
+            }
+
+            if (!train.getTrainClasses().contains(seatDto.getTrainClass())) {
+                throw new TrainException("TrainClass " + seatDto.getTrainClass() + " does not exist for this train.");
+            }
+
+            if (seatDto.getStartSeat() <= 0 || seatDto.getEndSeat() <= 0) {
+                throw new TrainException("Seat numbers must be greater than zero.");
+            }
+            if (seatDto.getStartSeat() > seatDto.getEndSeat()) {
+                throw new TrainException(
+                        String.format("Start seat (%d) cannot be greater than end seat (%d) for class %s.",
+                                seatDto.getStartSeat(), seatDto.getEndSeat(), seatDto.getTrainClass()));
+            }
+            Set<Integer> seatRange = new HashSet<>();
+            for (int i = seatDto.getStartSeat(); i <= seatDto.getEndSeat(); i++) {
+                if (!seatRange.add(i)) {
+                    throw new TrainException(
+                            String.format("Duplicate seat number %d found in DTO for class %s.", i, seatDto.getTrainClass()));
+                }
+            }
+            Set<Integer> existingSeats = seatRepository
+                    .findSeatNumbersByTrainIdAndTrainClass(train.getId(), seatDto.getTrainClass());
+
+            for (int i = seatDto.getStartSeat(); i <= seatDto.getEndSeat(); i++) {
+                if (existingSeats.contains(i)) {
+                    throw new TrainException(String.format(
+                            "Seat number %d already exists for class %s in  %s.",
+                            i, seatDto.getTrainClass(), train.getTrainName()));
+                }
+            }
+        }
+    }
 
 }
+
+
+
+
+
+
+

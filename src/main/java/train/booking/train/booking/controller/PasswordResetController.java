@@ -23,6 +23,7 @@ public class PasswordResetController {
 
     @GetMapping("/reset-password/validate")
     public void  validateToken(@RequestParam String token) {
+
         passwordResetService.validatePasswordResetToken(token);
     }
 
