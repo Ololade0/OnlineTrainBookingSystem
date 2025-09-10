@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import train.booking.train.booking.dto.BookSeatDTO;
 import train.booking.train.booking.dto.GenerateSeatDto;
@@ -16,6 +17,7 @@ import train.booking.train.booking.model.enums.TrainClass;
 import train.booking.train.booking.service.SeatService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Slf4j
@@ -27,7 +29,7 @@ public class SeatController {
 
 
     @PostMapping("/generate")
-//    @PreAuthorize("hasAuthority('SUPERADMIN_ROLE')")
+    @PreAuthorize("isAuthenticated() and hasRole('ROLE_SUPERADMIN')")
     public ResponseEntity<?> generateSeats(@RequestBody List<GenerateSeatDto> seatDtos, @RequestParam long trainId) {
       BaseResponse generatedSeats = seatService.generateSeats(seatDtos, trainId);
         return new ResponseEntity<>(generatedSeats, HttpStatus.CREATED);
@@ -40,7 +42,7 @@ public class SeatController {
     }
     @GetMapping("/find-all-seat")
     public ResponseEntity<?> findAllSeat(@RequestParam(defaultValue = " 0" ) int page,
-                                         @RequestParam(defaultValue = "10") int size){
+                                         @RequestParam(defaultValue = "50") int size){
      Page<Seat> foundSeat = seatService.findAllSeat(page, size);
      return new ResponseEntity<>(foundSeat, HttpStatus.FOUND);
 
@@ -55,6 +57,13 @@ public class SeatController {
         seatService.releaseLockedSeatAfterExpiration();
         return ResponseEntity.ok().build();
     }
+
+        @GetMapping("/{trainId}/seats/summary")
+        public ResponseEntity<?> getSeatSummary(@PathVariable Long trainId) {
+            List<Map<String, Object>>  list = seatService.getSeatSummary(trainId);
+           return ResponseEntity.ok(list);
+    }
+
 
 
 }

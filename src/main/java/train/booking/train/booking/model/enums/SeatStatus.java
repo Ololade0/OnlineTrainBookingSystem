@@ -3,5 +3,6 @@ package train.booking.train.booking.model.enums;
 public enum SeatStatus {
     AVAILABLE,
     BOOKED,
-    TEMPORARILY_LOCKED
+    TEMPORARILY_LOCKED,
+    UNAVAILABLE
 }

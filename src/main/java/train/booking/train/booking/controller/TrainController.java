@@ -21,7 +21,6 @@ import java.util.Set;
 @RestController
 @Slf4j
 @RequestMapping("/api/v1/auth/train")
-//@PreAuthorize("isAuthenticated() and hasRole('ROLE_SUPERADMIN')")
 @RequiredArgsConstructor
 
 public class TrainController {

@@ -1,6 +1,7 @@
 package train.booking.train.booking.service;
 
 import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.PathVariable;
 import train.booking.train.booking.dto.BookSeatDTO;
 import train.booking.train.booking.dto.GenerateSeatDto;
 import train.booking.train.booking.dto.response.BaseResponse;
@@ -9,6 +10,7 @@ import train.booking.train.booking.model.Seat;
 import train.booking.train.booking.model.enums.TrainClass;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface SeatService {
@@ -22,6 +24,6 @@ String   lockSeatTemporarilyForPayment(int seatNumber, Long scheduleId, TrainCla
 Seat findSeatBySeatNumber(int seatNumber);
 Optional<Seat> findSeatById(Long seatId);
 
-
+    List<Map<String, Object>> getSeatSummary(Long trainId);
     void updateSeat(Seat bookedSeat);
 }

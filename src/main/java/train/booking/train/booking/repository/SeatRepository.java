@@ -26,6 +26,8 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
     Set<Integer> findSeatNumbersByTrainIdAndTrainClass(@Param("trainId") Long trainId,
                                                        @Param("trainClass") TrainClass trainClass);
 
+    List<Seat> findByTrainId(Long trainId);
+
     ;
 
 }

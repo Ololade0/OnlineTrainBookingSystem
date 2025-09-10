@@ -8,6 +8,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
 import train.booking.train.booking.dto.BookSeatDTO;
 import train.booking.train.booking.dto.GenerateSeatDto;
 import train.booking.train.booking.dto.response.BaseResponse;
@@ -26,6 +27,7 @@ import train.booking.train.booking.service.TrainService;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -70,8 +72,62 @@ private final TrainService trainService;
             return ResponseUtil.invalidOrNullInput("Error generating seats: " + e.getMessage());
         }
     }
+//    public List<Map<String, Object>> getSeatSummary(@PathVariable Long trainId) {
+//        List<Seat> seats = seatRepository.findByTrainId(trainId);
+//        Map<TrainClass, List<Seat>> grouped = seats.stream()
+//                .collect(Collectors.groupingBy(Seat::getTrainClass));
+//
+//        // Build summary
+//        List<Map<String, Object>> summary = new ArrayList<>();
+//        grouped.forEach((trainClass, seatList) -> {
+//            long available = seatList.stream()
+//                    .filter(s -> s.getSeatStatus() == SeatStatus.AVAILABLE)
+//                    .count();
+//            Map<String, Object> map = new HashMap<>();
+//            map.put("trainClass", trainClass);
+//            map.put("totalSeats", seatList.size());
+//            map.put("availableSeats", available);
+//            summary.add(map);
+//        });
+//
+//        return summary;
+//
+//    }
 
+    public List<Map<String, Object>> getSeatSummary(@PathVariable Long trainId) {
+        List<Seat> seats = seatRepository.findByTrainId(trainId);
+        Map<TrainClass, List<Seat>> grouped = seats.stream()
+                .collect(Collectors.groupingBy(Seat::getTrainClass));
 
+        List<Map<String, Object>> summary = new ArrayList<>();
+
+        for (TrainClass trainClass : TrainClass.values()) {
+            List<Seat> seatList = grouped.getOrDefault(trainClass, Collections.emptyList());
+            long available = seatList.stream()
+                    .filter(s -> s.getSeatStatus() == SeatStatus.AVAILABLE)
+                    .count();
+            long booked = seatList.stream()
+                    .filter(s -> s.getSeatStatus() == SeatStatus.BOOKED)
+                    .count();
+
+            long locked = seatList.stream()
+                    .filter(s -> s.getSeatStatus() == SeatStatus. TEMPORARILY_LOCKED)
+                    .count();
+            long unAvailable = seatList.stream()
+                    .filter(s -> s.getSeatStatus() == SeatStatus. UNAVAILABLE)
+                    .count();
+            Map<String, Object> map = new HashMap<>();
+            map.put("trainClass", trainClass);
+            map.put("totalSeats", seatList.size());
+            map.put("availableSeats", available);
+            map.put("Booked", booked);
+            map.put("locked", locked);
+            map.put("unAvailable", unAvailable);
+            summary.add(map);
+        }
+
+        return summary;
+    }
 
     @Transactional
     public String   lockSeatTemporarilyForPayment(int seatNumber, Long scheduleId, TrainClass trainClass, Booking booking) {
