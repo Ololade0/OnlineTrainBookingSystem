@@ -48,6 +48,7 @@ public class ApplicationSecurityConfig {
                                 .requestMatchers(
                                         "/api/v1/auth/schedule/schedule-route",
                                         "/",
+                                        "/health",
                                         "/api/v1/auth/login",
                                         "/api/v1/auth/admin/register-superadmin",
                                         "/api/v1/auth/user/register",

@@ -15,13 +15,11 @@ import train.booking.train.booking.dto.response.BaseResponse;
 import train.booking.train.booking.dto.response.ResponseUtil;
 import train.booking.train.booking.exceptions.*;
 import train.booking.train.booking.model.Booking;
-import train.booking.train.booking.model.Schedule;
 import train.booking.train.booking.model.Seat;
 import train.booking.train.booking.model.Train;
 import train.booking.train.booking.model.enums.SeatStatus;
 import train.booking.train.booking.model.enums.TrainClass;
 import train.booking.train.booking.repository.SeatRepository;
-import train.booking.train.booking.service.ScheduleService;
 import train.booking.train.booking.service.SeatService;
 import train.booking.train.booking.service.TrainService;
 
@@ -119,10 +117,10 @@ private final TrainService trainService;
             Map<String, Object> map = new HashMap<>();
             map.put("trainClass", trainClass);
             map.put("totalSeats", seatList.size());
-            map.put("availableSeats", available);
-            map.put("Booked", booked);
-            map.put("locked", locked);
-            map.put("unAvailable", unAvailable);
+//            map.put("availableSeats", available);
+//            map.put("Booked", booked);
+//            map.put("locked", locked);
+//            map.put("unAvailable", unAvailable);
             summary.add(map);
         }
 
@@ -160,7 +158,7 @@ private final TrainService trainService;
     @Override
     public void checkSeatAvailability(int seatNumber, Long trainId, TrainClass trainClass) {
     Seat seat = seatRepository.findBySeatNumberAndTrainIdAndTrainClass(seatNumber, trainId, trainClass)
-            .orElseThrow(() -> new SeatCannotBeFoundException("Seat not found for this schedule"));
+            .orElseThrow(() -> new SeatException("Seat not found for this schedule"));
 
     if (seat.getSeatStatus() == SeatStatus.BOOKED) {
         throw new SeatAlreadyBookedException("Seat is already booked");
@@ -198,13 +196,13 @@ private final TrainService trainService;
     @Override
     public Seat findSeatBySeatNumber(int seatNumber) {
         return seatRepository.findBySeatNumber(seatNumber).orElseThrow(()->
-                new SeatCannotBeFoundException("Seat with number" + seatNumber + "cannot be found"));
+                new SeatException("Seat with number" + seatNumber + "cannot be found"));
     }
 
     @Override
     public Optional<Seat> findSeatById(Long seatId) {
         return Optional.ofNullable(seatRepository.findById(seatId).orElseThrow(() ->
-                new SeatCannotBeFoundException("Seat cannot be found")));
+                new SeatException("Seat cannot be found")));
     }
 
     @Override
@@ -292,6 +290,16 @@ public Seat bookSeat(BookSeatDTO bookSeatDTO) {
                     throw new TrainException(
                             String.format("Duplicate seat number %d found in DTO for class %s.", i, seatDto.getTrainClass()));
                 }
+            }
+
+            int seatsToCreate = seatDtos.stream()
+                    .mapToInt(dto -> dto.getEndSeat() - dto.getStartSeat() + 1)
+                    .sum();
+            int countedSeat  = seatRepository.countByTrainId(train.getId());
+
+            if (countedSeat + seatsToCreate > train.getTotalSeat()) {
+                throw new SeatException("Cannot generate seats. Total seat limit ("
+                        + train.getTotalSeat() + ") exceeded.");
             }
             Set<Integer> existingSeats = seatRepository
                     .findSeatNumbersByTrainIdAndTrainClass(train.getId(), seatDto.getTrainClass());

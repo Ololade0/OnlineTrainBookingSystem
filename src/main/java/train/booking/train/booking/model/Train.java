@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.*;
 import train.booking.train.booking.model.enums.TrainClass;
 
@@ -28,6 +29,8 @@ public class Train extends AuditBaseEntity {
     private String trainName;
     @NotBlank(message = "Train code is required ")
     private String trainCode;
+    @Positive(message = "Total seats must be greater than 0")
+    private int totalSeat;
 
     @NotEmpty(message = "Train Class is required")
     @ElementCollection(fetch = FetchType.EAGER)

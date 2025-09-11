@@ -28,6 +28,8 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
 
     List<Seat> findByTrainId(Long trainId);
 
+    int countByTrainId(Long id);
+
     ;
 
 }
