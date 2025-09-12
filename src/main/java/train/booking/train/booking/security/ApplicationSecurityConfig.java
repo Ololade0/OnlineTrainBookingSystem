@@ -55,7 +55,7 @@ public class ApplicationSecurityConfig {
                                         "/api/v1/auth/user/activate",
                                         "/api/v1/auth/role/get-all-roles",
                                         "/api/v1/auth/role/create-role",
-                                        "/api/v1/auth/schedule/get-all-routes?route"
+                                        "/api/v1/auth/schedule/get-all-route"
                                 ).permitAll()
                                 .requestMatchers("/customError").permitAll()
                                 .requestMatchers("/access-denied").permitAll()
