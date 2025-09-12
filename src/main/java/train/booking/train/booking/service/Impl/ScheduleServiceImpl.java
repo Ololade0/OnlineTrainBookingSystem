@@ -31,6 +31,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -340,14 +341,31 @@ public BaseResponse newSchedule(ScheduleRequestDTO scheduleDto) {
     }
 
     @Override
-    public List<Schedule> findByRouteName(Route route) {
-        List<Schedule> foundSchedule =  scheduleRepository.findByRoute(route);
-        if(foundSchedule.isEmpty()){
+    public List<ScheduleResponseDTO> findByRouteName(Route route) {
+        List<Schedule> foundSchedule = scheduleRepository.findByRoute(route);
+        if (foundSchedule.isEmpty()) {
             throw new ScheduleCannotBeFoundException("Schedule with this route cannot be found");
         }
-        return foundSchedule;
 
+        return foundSchedule.stream().map(schedule -> {
+            ScheduleResponseDTO dto = ScheduleResponseDTO.builder()
+                    .id(schedule.getId())
+                    .departureDate(schedule.getDepartureDate())
+                    .arrivalDate(schedule.getArrivalDate())
+                    .departureTime(schedule.getDepartureTime())
+                    .arrivalTime(schedule.getArrivalTime())
+                    .duration(schedule.getDuration())
+                    .distance(schedule.getDistance())
+                    .scheduleType(schedule.getScheduleType())
+                    .route(schedule.getRoute())
+                    .trainName(trainService.getTrainNameById(schedule.getTrainId())) // fetch train name
+                    .arrivalStationName(stationService.getStationNameById(schedule.getArrivalStationId()))
+                    .departureStationName(stationService.getStationNameById(schedule.getDepartureStationId())) // fetch departure station name
+                    .build();
+            return dto;
+        }).collect(Collectors.toList());
     }
+
 
     @Override
     public List<ScheduleType> getScheduleType() {

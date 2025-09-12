@@ -104,7 +104,7 @@ public class ScheduleController {
         }
 
         try {
-            List<Schedule> schedules = scheduleService.findByRouteName(route);
+            List<ScheduleResponseDTO> schedules = scheduleService.findByRouteName(route);
             return ResponseEntity.ok(schedules);
         } catch (ScheduleCannotBeFoundException ex) {
             return ResponseEntity.badRequest().body(ex.getMessage());

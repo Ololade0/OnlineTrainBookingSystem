@@ -260,12 +260,10 @@ public Seat bookSeat(BookSeatDTO bookSeatDTO) {
 
 
     private void validateSeatGeneration(List<GenerateSeatDto> seatDtos, Train train) {
-        // Check train exists
         if (train == null) {
             throw new TrainException("Train cannot be found.");
         }
 
-        // Check DTO list is not empty
         if (seatDtos == null || seatDtos.isEmpty()) {
             throw new TrainException("Seat generation list cannot be empty.");
         }
@@ -273,31 +271,28 @@ public Seat bookSeat(BookSeatDTO bookSeatDTO) {
         // Map to track seat numbers per class across all DTOs in this request
         Map<TrainClass, Set<Integer>> classSeatMap = new HashMap<>();
 
-        // Iterate over each DTO
         for (GenerateSeatDto seatDto : seatDtos) {
-            // Check train class is not null
+
             if (seatDto.getTrainClass() == null) {
                 throw new TrainClassException("TrainClass cannot be null.");
             }
 
-            // Check train class exists in train allocations
             if (!train.getTrainClasses().contains(seatDto.getTrainClass())) {
                 throw new TrainException("TrainClass " + seatDto.getTrainClass() + " does not exist for this train.");
             }
 
-            // Check seat numbers are positive
             if (seatDto.getStartSeat() <= 0 || seatDto.getEndSeat() <= 0) {
                 throw new TrainException("Seat numbers must be greater than zero.");
             }
 
-            // Check startSeat <= endSeat
+
             if (seatDto.getStartSeat() > seatDto.getEndSeat()) {
                 throw new TrainException(
                         String.format("Start seat (%d) cannot be greater than end seat (%d) for class %s.",
                                 seatDto.getStartSeat(), seatDto.getEndSeat(), seatDto.getTrainClass()));
             }
 
-            // Check for duplicates within the same DTO
+
             Set<Integer> localSeatSet = new HashSet<>();
             for (int i = seatDto.getStartSeat(); i <= seatDto.getEndSeat(); i++) {
                 if (!localSeatSet.add(i)) {
@@ -305,8 +300,6 @@ public Seat bookSeat(BookSeatDTO bookSeatDTO) {
                             String.format("Duplicate seat number %d found in DTO for class %s.", i, seatDto.getTrainClass()));
                 }
             }
-
-            // Check seat range does not exceed allocation for this class
             int allocationSeats = train.getAllocations().stream()
                     .filter(a -> a.getTrainClass() == seatDto.getTrainClass())
                     .findFirst()
@@ -319,8 +312,8 @@ public Seat bookSeat(BookSeatDTO bookSeatDTO) {
                         seatDto.getStartSeat(), seatDto.getEndSeat(), allocationSeats, seatDto.getTrainClass()));
             }
 
-            // Track seats across all DTOs to check cross-DTO duplicates
-            Set<Integer> crossDtoSeats = classSeatMap.computeIfAbsent(seatDto.getTrainClass(), k -> new HashSet<>());
+            Set<Integer> crossDtoSeats = classSeatMap.computeIfAbsent(seatDto.getTrainClass(),
+                    k -> new HashSet<>());
             for (int i = seatDto.getStartSeat(); i <= seatDto.getEndSeat(); i++) {
                 if (!crossDtoSeats.add(i)) {
                     throw new TrainException(
@@ -329,7 +322,6 @@ public Seat bookSeat(BookSeatDTO bookSeatDTO) {
             }
         }
 
-        // Check total seats across this request + existing seats does not exceed train total
         int seatsToCreate = seatDtos.stream()
                 .mapToInt(dto -> dto.getEndSeat() - dto.getStartSeat() + 1)
                 .sum();
@@ -338,7 +330,6 @@ public Seat bookSeat(BookSeatDTO bookSeatDTO) {
             throw new SeatException("Cannot generate seats. Total seat limit (" + train.getTotalSeat() + ") exceeded.");
         }
 
-        // Check for overlaps with existing seats in DB per class
         for (GenerateSeatDto seatDto : seatDtos) {
             Set<Integer> existingSeats = seatRepository
                     .findSeatNumbersByTrainIdAndTrainClass(train.getId(), seatDto.getTrainClass());

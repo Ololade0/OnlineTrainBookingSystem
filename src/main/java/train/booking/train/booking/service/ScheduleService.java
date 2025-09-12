@@ -25,7 +25,7 @@ public interface ScheduleService {
     Page<ScheduleResponseDTO> findAllSchedules(int page, int size);
     BaseResponse updateSchedule(Long id, ScheduleRequestDTO scheduleDTO);
     BaseResponse deleteSchedule(Long id);
-    List<Schedule> findByRouteName(Route route);
+    List<ScheduleResponseDTO> findByRouteName(Route route);
     List<Route> getAllRoutes();
     List<ScheduleType> getScheduleType();
     Page<ScheduleResponseDTO> searchSchedules(ScheduleType scheduleType,
