@@ -17,6 +17,7 @@ import train.booking.train.booking.exceptions.*;
 import train.booking.train.booking.model.Booking;
 import train.booking.train.booking.model.Seat;
 import train.booking.train.booking.model.Train;
+import train.booking.train.booking.model.TrainClassAllocation;
 import train.booking.train.booking.model.enums.SeatStatus;
 import train.booking.train.booking.model.enums.TrainClass;
 import train.booking.train.booking.repository.SeatRepository;
@@ -259,55 +260,93 @@ public Seat bookSeat(BookSeatDTO bookSeatDTO) {
 
 
     private void validateSeatGeneration(List<GenerateSeatDto> seatDtos, Train train) {
+        // Check train exists
         if (train == null) {
             throw new TrainException("Train cannot be found.");
         }
 
+        // Check DTO list is not empty
         if (seatDtos == null || seatDtos.isEmpty()) {
             throw new TrainException("Seat generation list cannot be empty.");
         }
 
+        // Map to track seat numbers per class across all DTOs in this request
+        Map<TrainClass, Set<Integer>> classSeatMap = new HashMap<>();
+
+        // Iterate over each DTO
         for (GenerateSeatDto seatDto : seatDtos) {
+            // Check train class is not null
             if (seatDto.getTrainClass() == null) {
                 throw new TrainClassException("TrainClass cannot be null.");
             }
 
+            // Check train class exists in train allocations
             if (!train.getTrainClasses().contains(seatDto.getTrainClass())) {
                 throw new TrainException("TrainClass " + seatDto.getTrainClass() + " does not exist for this train.");
             }
 
+            // Check seat numbers are positive
             if (seatDto.getStartSeat() <= 0 || seatDto.getEndSeat() <= 0) {
                 throw new TrainException("Seat numbers must be greater than zero.");
             }
+
+            // Check startSeat <= endSeat
             if (seatDto.getStartSeat() > seatDto.getEndSeat()) {
                 throw new TrainException(
                         String.format("Start seat (%d) cannot be greater than end seat (%d) for class %s.",
                                 seatDto.getStartSeat(), seatDto.getEndSeat(), seatDto.getTrainClass()));
             }
-            Set<Integer> seatRange = new HashSet<>();
+
+            // Check for duplicates within the same DTO
+            Set<Integer> localSeatSet = new HashSet<>();
             for (int i = seatDto.getStartSeat(); i <= seatDto.getEndSeat(); i++) {
-                if (!seatRange.add(i)) {
+                if (!localSeatSet.add(i)) {
                     throw new TrainException(
                             String.format("Duplicate seat number %d found in DTO for class %s.", i, seatDto.getTrainClass()));
                 }
             }
 
-            int seatsToCreate = seatDtos.stream()
-                    .mapToInt(dto -> dto.getEndSeat() - dto.getStartSeat() + 1)
-                    .sum();
-            int countedSeat  = seatRepository.countByTrainId(train.getId());
+            // Check seat range does not exceed allocation for this class
+            int allocationSeats = train.getAllocations().stream()
+                    .filter(a -> a.getTrainClass() == seatDto.getTrainClass())
+                    .findFirst()
+                    .map(TrainClassAllocation::getSeatCount)
+                    .orElse(0);
 
-            if (countedSeat + seatsToCreate > train.getTotalSeat()) {
-                throw new SeatException("Cannot generate seats. Total seat limit ("
-                        + train.getTotalSeat() + ") exceeded.");
+            if ((seatDto.getEndSeat() - seatDto.getStartSeat() + 1) > allocationSeats) {
+                throw new TrainException(String.format(
+                        "Seat range (%d-%d) exceeds allocated seats (%d) for class %s.",
+                        seatDto.getStartSeat(), seatDto.getEndSeat(), allocationSeats, seatDto.getTrainClass()));
             }
+
+            // Track seats across all DTOs to check cross-DTO duplicates
+            Set<Integer> crossDtoSeats = classSeatMap.computeIfAbsent(seatDto.getTrainClass(), k -> new HashSet<>());
+            for (int i = seatDto.getStartSeat(); i <= seatDto.getEndSeat(); i++) {
+                if (!crossDtoSeats.add(i)) {
+                    throw new TrainException(
+                            String.format("Duplicate seat number %d found for class %s across DTOs.", i, seatDto.getTrainClass()));
+                }
+            }
+        }
+
+        // Check total seats across this request + existing seats does not exceed train total
+        int seatsToCreate = seatDtos.stream()
+                .mapToInt(dto -> dto.getEndSeat() - dto.getStartSeat() + 1)
+                .sum();
+        int countedSeat = seatRepository.countByTrainId(train.getId());
+        if (countedSeat + seatsToCreate > train.getTotalSeat()) {
+            throw new SeatException("Cannot generate seats. Total seat limit (" + train.getTotalSeat() + ") exceeded.");
+        }
+
+        // Check for overlaps with existing seats in DB per class
+        for (GenerateSeatDto seatDto : seatDtos) {
             Set<Integer> existingSeats = seatRepository
                     .findSeatNumbersByTrainIdAndTrainClass(train.getId(), seatDto.getTrainClass());
 
             for (int i = seatDto.getStartSeat(); i <= seatDto.getEndSeat(); i++) {
                 if (existingSeats.contains(i)) {
                     throw new TrainException(String.format(
-                            "Seat number %d already exists for class %s in  %s.",
+                            "Seat number %d already exists for class %s in %s.",
                             i, seatDto.getTrainClass(), train.getTrainName()));
                 }
             }

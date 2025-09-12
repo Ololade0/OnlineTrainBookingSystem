@@ -119,9 +119,6 @@ public class TranServiceImpl implements TrainService {
         return foundTrain.getTrainClasses();
     }
 
-    /**
-     * Validates train name/code uniqueness and allocations/classes correctness
-     */
     private void verifyTrain(String trainName, String trainCode, List<TrainClassAllocation> allocations) {
         if (trainRepository.existsByTrainName(trainName)) {
             throw new TrainException("Train Name already exists");
