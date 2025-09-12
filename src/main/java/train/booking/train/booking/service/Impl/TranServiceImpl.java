@@ -71,13 +71,14 @@ public class TranServiceImpl implements TrainService {
 
         train.setTrainCode(trainDto.getTrainCode());
         train.setTrainName(trainDto.getTrainName());
+        train.setAllocations(trainDto.getAllocations());
         train.setTrainClasses(trainDto.getTrainClasses());
-
         Train savedTrain = trainRepository.save(train);
 
         TrainDto response = TrainDto.builder()
                 .trainCode(savedTrain.getTrainCode())
                 .trainClasses(savedTrain.getTrainClasses())
+                .allocations(savedTrain.getAllocations())
                 .trainName(savedTrain.getTrainName())
                 .build();
 

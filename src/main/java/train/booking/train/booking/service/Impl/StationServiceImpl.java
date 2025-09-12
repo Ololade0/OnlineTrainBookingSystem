@@ -3,6 +3,7 @@ package train.booking.train.booking.service.Impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import train.booking.train.booking.dto.StationDto;
 import train.booking.train.booking.dto.response.BaseResponse;
@@ -86,7 +87,7 @@ public class StationServiceImpl implements StationService {
 
     @Override
     public Page<Station> getAllstations(int page, int size) {
-        return stationRepository.findAll(PageRequest.of(page, size));
+        return stationRepository.findAll(PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")));
     }
 
     @Override
