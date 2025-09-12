@@ -13,11 +13,13 @@ import train.booking.train.booking.dto.response.ResponseUtil;
 import train.booking.train.booking.exceptions.TrainException;
 import train.booking.train.booking.exceptions.TrainClassException;
 import train.booking.train.booking.model.Train;
+import train.booking.train.booking.model.TrainClassAllocation;
 import train.booking.train.booking.model.enums.TrainClass;
 import train.booking.train.booking.repository.TrainRepository;
 import train.booking.train.booking.service.TrainService;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
@@ -30,42 +32,30 @@ public class TranServiceImpl implements TrainService {
 
     private final TrainRepository trainRepository;
 
+
+
     @Override
     public BaseResponse newTrain(TrainDto trainDto) {
-        verifyTrain(trainDto.getTrainName(), trainDto.getTrainClasses(), trainDto.getTrainCode());
+        verifyTrain(trainDto.getTrainName(),trainDto.getTrainCode(), trainDto.getAllocations());
         Train train = Train.builder()
-                .trainCode(trainDto.getTrainCode())
                 .trainName(trainDto.getTrainName())
-                .trainClasses(trainDto.getTrainClasses())
+                .trainCode(trainDto.getTrainCode())
+                .allocations(trainDto.getAllocations())
                 .build();
-          Train savedTrain =  trainRepository.save(train);
+
+        train.deriveTrainClassesFromAllocations();
+        train.computeTotalSeat();
+
+        Train savedTrain = trainRepository.save(train);
+
         TrainDto response = TrainDto.builder()
-                .trainCode(savedTrain.getTrainCode())
-                .trainClasses(savedTrain.getTrainClasses())
                 .trainName(savedTrain.getTrainName())
+                .trainCode(savedTrain.getTrainCode())
+                .allocations(savedTrain.getAllocations())
+                .trainClasses(savedTrain.getTrainClasses())
                 .build();
         return ResponseUtil.success("Train sucessfully created", response);
     }
-
-    private void verifyTrain(String trainName, Set<TrainClass> trainClasses, String trainCode) {
-        if (trainRepository.existsByTrainName(trainName)) {
-            throw new TrainException("Train Name already exist");
-        }
-
-        if (trainRepository.existsByTrainCode(trainCode)) {
-            throw new TrainException("Train code already exist");
-        }
-
-        if (trainClasses == null || trainClasses.isEmpty()) {
-            throw new TrainClassException("Train must have at least one class");
-        }
-        if (trainClasses.size() != new HashSet<>(trainClasses).size()) {
-            throw new TrainClassException("Duplicate train classes are not allowed");
-
-        }
-
-    }
-
 
     @Override
     public Train findTrainById(Long trainId) {
@@ -128,6 +118,37 @@ public class TranServiceImpl implements TrainService {
                 new TrainClassException("Train not found"));
         return foundTrain.getTrainClasses();
     }
+
+    /**
+     * Validates train name/code uniqueness and allocations/classes correctness
+     */
+    private void verifyTrain(String trainName, String trainCode, List<TrainClassAllocation> allocations) {
+        if (trainRepository.existsByTrainName(trainName)) {
+            throw new TrainException("Train Name already exists");
+        }
+        if (trainRepository.existsByTrainCode(trainCode)) {
+            throw new TrainException("Train code already exists");
+        }
+
+        if (allocations == null || allocations.isEmpty()) {
+            throw new TrainClassException("Train must have at least one allocation");
+        }
+
+        long distinctCount = allocations.stream()
+                .map(TrainClassAllocation::getTrainClass)
+                .distinct()
+                .count();
+        if (distinctCount != allocations.size()) {
+            throw new TrainClassException("Duplicate train classes are not allowed in allocations");
+        }
+
+        allocations.forEach(allocation -> {
+            if (allocation.getSeatCount() <= 0) {
+                throw new TrainClassException("Seat count must be positive for class " + allocation.getTrainClass());
+            }
+        });
+    }
+
 
 }
 
