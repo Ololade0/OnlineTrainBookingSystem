@@ -6,12 +6,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import train.booking.train.booking.dto.PaymentRequest;
+import train.booking.train.booking.model.enums.PaymentMethod;
 import train.booking.train.booking.service.PayPalService;
 import train.booking.train.booking.service.PayStackService;
 import train.booking.train.booking.service.PaymentService;
 import train.booking.train.booking.service.StripeService;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,6 +28,12 @@ public class PaymentController {
 
     private final PaymentService paymentService;
     private final PayStackService payStackService;
+
+@GetMapping("/get-all-paymentMethods")
+    public ResponseEntity<?> getAllPaymentMethod(){
+        List<PaymentMethod> paymentMethodList = paymentService.getAllPaymentMethod();
+        return ResponseEntity.ok(paymentMethodList);
+    }
 
 
     @PostMapping("/payment")

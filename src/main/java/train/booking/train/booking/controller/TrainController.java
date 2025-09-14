@@ -30,7 +30,6 @@ public class TrainController {
     @PostMapping("/create-train")
     @PreAuthorize("isAuthenticated() and hasRole('ROLE_SUPERADMIN')")
     public ResponseEntity<BaseResponse> createTrain(@RequestBody @Validated TrainDto trainDto) {
-
         BaseResponse response = trainService.newTrain(trainDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

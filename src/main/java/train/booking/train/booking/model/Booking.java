@@ -38,7 +38,7 @@ public class Booking {
     private LocalTime travelTime;
     private BigDecimal totalFareAmount;
     @Enumerated(EnumType.STRING)
-    private AgeRange passengerType;
+    private AgeRange ageRange;
     private int seatNumber;
 
 

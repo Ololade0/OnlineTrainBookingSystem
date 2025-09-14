@@ -27,6 +27,7 @@ import train.booking.train.booking.exceptions.PriceCannotBeFoundException;
 import train.booking.train.booking.model.*;
 import train.booking.train.booking.model.enums.AgeRange;
 import train.booking.train.booking.model.enums.BookingStatus;
+import train.booking.train.booking.model.enums.PaymentMethod;
 import train.booking.train.booking.model.enums.TrainClass;
 import train.booking.train.booking.repository.BookingRepository;
 import train.booking.train.booking.service.*;
@@ -35,12 +36,10 @@ import train.booking.train.booking.utils.PnrCodeGenerator;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -146,7 +145,7 @@ public class BookingServiceImpl implements BookingService {
                 .bookingDate(LocalDateTime.now())
                 .user(user)
                 .scheduleId(schedule.getId())
-                .passengerType(dto.getPassengerType())
+                .ageRange(dto.getPassengerType())
                 .travelDate(schedule.getDepartureDate())
                 .travelTime(schedule.getDepartureTime())
                 .trainClass(dto.getTrainClass())
@@ -217,7 +216,7 @@ public class BookingServiceImpl implements BookingService {
         ticket.setPaymentMethod(foundPayment.getPaymentMethod());
         ticket.setTotalFare(booking.getTotalFareAmount());
         ticket.setFirstName(booking.getUser().getFirstName());
-        ticket.setAgeRange(booking.getPassengerType());
+        ticket.setAgeRange(booking.getAgeRange());
         ticket.setSeatNumber(booking.getSeatNumber());
         ticket.setIdentificationType(booking.getUser().getIdentificationType());
         ticket.setIdNumber(booking.getUser().getIdNumber());
@@ -306,11 +305,23 @@ public class BookingServiceImpl implements BookingService {
     public Page<Booking> bookingHistory(String email, int page, int size) {
         User foundUser =userService.findUserByEmailOrNull(email);
         LocalTime now = LocalTime.now();
-        Pageable pageable = PageRequest.of(page, size, Sort.by("travelTime"));
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC,
+                "travelTime"));
        Page<Booking> pastBooking =  bookingRepository.findByUserAndTravelTimeBefore(foundUser, now, pageable);
        return pastBooking;
     }
 
+    @Override
+    public Page<Booking> getAllBookings(BookingStatus bookingStatus,AgeRange ageRange, TrainClass trainClass,
+                                        PaymentMethod paymentMethod, LocalDate localDate, int page, int size) {
+    Pageable pageable = PageRequest.of(page, size,Sort.by(Sort.Direction.DESC, "bookingDate"));
+      return bookingRepository.findAllBookings(bookingStatus,ageRange, trainClass, paymentMethod, localDate, pageable);
+    }
+
+    @Override
+    public List<BookingStatus> findAllBookingStatus() {
+        return Arrays.asList(BookingStatus.values());
+    }
 
 
 }

@@ -6,11 +6,14 @@ import org.springframework.stereotype.Service;
 import train.booking.train.booking.dto.PaymentRequest;
 import train.booking.train.booking.exceptions.PaymentProcessingException;
 import train.booking.train.booking.model.BookingPayment;
+import train.booking.train.booking.model.enums.PaymentMethod;
 import train.booking.train.booking.model.enums.PaymentStatus;
 import train.booking.train.booking.repository.PaymentRepository;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -57,6 +60,11 @@ public class PaymentServiceImpl implements PaymentService {
             return paymentRepository.save(bookingPayment);
         }
 
+    @Override
+    public List<PaymentMethod> getAllPaymentMethod() {
+        List<PaymentMethod> paymentMethodList = Arrays.asList(PaymentMethod.values());
+        return paymentMethodList;
+    }
 
 
 }

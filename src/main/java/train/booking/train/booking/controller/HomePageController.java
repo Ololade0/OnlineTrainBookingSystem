@@ -11,8 +11,6 @@ public class HomePageController {
 
     @GetMapping("/health")
     public ResponseEntity<String> health() {
-        System.out.println("Health check ping received at " + java.time.LocalDateTime.now());
-
         return ResponseEntity.ok("App is alive");
     }
 }
