@@ -51,6 +51,13 @@ public class BookingController {
         return ResponseEntity.ok(booking);
     }
 
+    @GetMapping("/{bookingId}")
+    public ResponseEntity<?> findBookingById(@PathVariable Long bookingId) {
+        Booking booking = bookingService.findBookingById(bookingId);
+        return ResponseEntity.ok(booking);
+    }
+
+
 
     @GetMapping("/receipt/{bookingId}")
 
