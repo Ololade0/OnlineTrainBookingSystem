@@ -13,6 +13,8 @@ public interface PriceListService {
     List<PriceList> createPrices(List<PriceListDTO> priceDtos, Long scheduleId);
 
     List<PriceListDTO> getPricesByScheduleId(Long id);
+
+    PriceList getSpecificPrice(Long scheduleId, TrainClass trainClass, AgeRange ageRange);
 //   List<PriceList> getPriceListByScheduleAndStation(Long scheduleId, Long stationId);
 
 //   PriceList getSpecificPrice(Long scheduleId, Long stationId, TrainClass trainClass, AgeRange ageRange);

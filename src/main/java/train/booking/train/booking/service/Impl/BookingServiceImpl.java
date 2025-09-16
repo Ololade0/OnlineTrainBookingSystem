@@ -162,7 +162,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
         public Booking findBookingById(Long bookingId) {
           return bookingRepository.findById(bookingId).orElseThrow(()->
-               new BookingCannotBeFoundException("Booking with Id" + bookingId + " cannot be found ")
+               new BookingCannotBeFoundException("Booking with Id " + bookingId + " cannot be found ")
 
           );
         }

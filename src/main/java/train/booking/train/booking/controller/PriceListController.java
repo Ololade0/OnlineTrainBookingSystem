@@ -43,15 +43,14 @@ public class PriceListController {
 //        }
 
 
-//        @GetMapping("/detail")
-//        public ResponseEntity<PriceList> getSpecificPrice(
-//                @RequestParam Long scheduleId,
-//                @RequestParam Long stationId,
-//                @RequestParam TrainClass trainClass,
-//                @RequestParam AgeRange ageRange
-//        ) {
-//            return ResponseEntity.ok(priceListService.getSpecificPrice(scheduleId, stationId, trainClass, ageRange));
-//        }
+        @GetMapping("/detail")
+        public ResponseEntity<PriceList> getSpecificPrice(
+                @RequestParam Long scheduleId,
+                @RequestParam TrainClass trainClass,
+                @RequestParam AgeRange ageRange
+        ) {
+            return ResponseEntity.ok(priceListService.getSpecificPrice(scheduleId, trainClass, ageRange));
+        }
     }
 
 

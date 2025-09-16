@@ -8,6 +8,8 @@ import train.booking.train.booking.dto.PriceListDTO;
 import train.booking.train.booking.exceptions.PriceAlreadyExist;
 import train.booking.train.booking.exceptions.PriceListException;
 import train.booking.train.booking.model.PriceList;
+import train.booking.train.booking.model.enums.AgeRange;
+import train.booking.train.booking.model.enums.TrainClass;
 import train.booking.train.booking.repository.PriceListServiceRepository;
 import train.booking.train.booking.service.PriceListService;
 import train.booking.train.booking.service.TrainService;
@@ -28,13 +30,13 @@ public class PriceListServiceImpl implements PriceListService {
     private final TrainService trainService;
 
 
-
 //    @Transactional
 //    public List<PriceList> createPrice(List<PriceListDTO> priceDtos, Long scheduleId) {
 //        if (priceDtos == null || priceDtos.isEmpty()) {
 //            throw new PriceListException("Price list cannot be null or empty.");
 //        }
-////        Train train = trainService.findTrainById(priceDtos.get());
+
+    /// /        Train train = trainService.findTrainById(priceDtos.get());
 //
 //        // Track unique combinations of trainClass + ageRange in the request
 //        Set<String> uniqueKeys = new HashSet<>();
@@ -79,9 +81,6 @@ public class PriceListServiceImpl implements PriceListService {
 //        log.info("✅ Created {} price entries for schedule {}", savedPrices.size(), scheduleId);
 //        return savedPrices;
 //    }
-
-
-
     @Transactional
     public List<PriceList> createPrices(List<PriceListDTO> priceDtos, Long scheduleId) {
         if (priceDtos == null || priceDtos.isEmpty()) {
@@ -151,7 +150,6 @@ public class PriceListServiceImpl implements PriceListService {
                 )
                 .toList();
     }
-}
 
 
 //    @Override
@@ -160,18 +158,18 @@ public class PriceListServiceImpl implements PriceListService {
 //    }
 
 
-//    PriceList price = priceListServiceRepository
+    //    PriceList price = priceListServiceRepository
 //            .findByTrainClassAndScheduleIdAndStationIdAndAgeRange(trainClass, scheduleId, stationId, ageRange)
 //            .orElseThrow(() -> new RuntimeException("Price not found for this combination"));
 //
 //    @Override
 //
-//    public PriceList getSpecificPrice(Long scheduleId, Long stationId, TrainClass trainClass, AgeRange ageRange) {
-//        return priceListServiceRepository
-//                .findByScheduleIdAndStationIdAndTrainClassAndAgeRange(scheduleId, stationId, trainClass, ageRange)
-//                .orElseThrow(() -> new PriceListException("Price not found for given criteria"));
-//    }
-
+    public PriceList getSpecificPrice(Long scheduleId, TrainClass trainClass, AgeRange ageRange) {
+        return priceListServiceRepository
+                .findByScheduleIdAndTrainClassAndAgeRange(scheduleId, trainClass, ageRange)
+                .orElseThrow(() -> new PriceListException("Price not found for given criteria"));
+    }
+}
 
 //    @Override
 //    public PriceList updatePriceList(Long priceId, UpdatePriceDTO updatePriceDTO) {
