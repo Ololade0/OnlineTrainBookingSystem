@@ -43,6 +43,8 @@ public class User extends AuditBaseEntity{
 
     private IdentificationType identificationType;
     private boolean isVerified = false;
+
+    private int isDeleted ;
     private String activationToken;
 
     @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)

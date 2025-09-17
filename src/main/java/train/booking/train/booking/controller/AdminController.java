@@ -35,6 +35,7 @@ public class AdminController {
 
 
     @PostMapping("/register-superadmin")
+    @PreAuthorize("isAuthenticated() and hasRole('SUPERADMIN')")
     public ResponseEntity<BaseResponse> superAdminSignUp(@RequestBody UserDTO signUpRequest) throws UnirestException, RoleNotFoundException {
         BaseResponse response = adminService.superAdminSignUp(signUpRequest);
         HttpStatus status = response.isSuccess() ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST;

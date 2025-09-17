@@ -36,7 +36,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/register")
-    @PreAuthorize("isAuthenticated() and hasRole('SUPERADMIN')")
+
     public ResponseEntity<?> registerUser(@Valid @RequestBody UserDTO signUpRequest) throws UnirestException, RoleNotFoundException {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         System.out.println("Authenticated userssss: " + auth.getName());
