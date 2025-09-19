@@ -11,6 +11,6 @@ public class HomePageController {
 
     @GetMapping("/health")
     public ResponseEntity<String> health() {
-        return ResponseEntity.ok("App is alive");
+        return ResponseEntity.ok(null);
     }
 }

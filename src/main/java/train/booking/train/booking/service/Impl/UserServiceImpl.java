@@ -71,8 +71,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 .orElse(RoleType.USER_ROLE);
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        // Check if the user is authenticated AND not anonymous
         boolean isRealUser = authentication != null
                 && authentication.isAuthenticated()
                 && !(authentication instanceof AnonymousAuthenticationToken);
@@ -80,7 +78,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         if (!isRealUser) {
             requestedRoleType = RoleType.USER_ROLE;
         }
-        // Build new user entity
         String activationToken = UUID.randomUUID().toString();
         User signupUser = User.builder()
                 .firstName(userDTO.getFirstName())
@@ -96,21 +93,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 .activationToken(activationToken)
                 .roleHashSet(new HashSet<>())
                 .build();
-
-        // Assign the role
         Role assignedRole = roleService.findByRoleType(requestedRoleType);
         signupUser.getRoleHashSet().add(assignedRole);
-
         log.info("Assigning role {} to new user {}", requestedRoleType, userDTO.getEmail());
-
-        // Save the user
         userRepository.save(signupUser);
-
-        // Send activation email
         Map<String, Object> emailMap = getMap(signupUser);
         notificationService.sendEmailV3(signupUser.getEmail(), "ACTIVATION LINK", helper.build(emailMap, "account-activation-email"));
-
-        // Build response DTO
         UserDTO responseDto = UserDTO.builder()
                 .firstName(signupUser.getFirstName())
                 .lastName(signupUser.getLastName())
@@ -120,8 +108,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         return ResponseUtil.success("Account successfully created", responseDto);
     }
-
-
 
     private static Map getMap(User signupUser) {
         Map m = new HashMap<>();
@@ -147,7 +133,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         }
     }
-
     private void validatePasswordStrength(String password) {
         if (!password.matches("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$")) {
             throw new WeakPasswordException("Password must be at least 8 characters long and include uppercase, lowercase, a number, and a special character.");
@@ -167,8 +152,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     }
 
-
-
     @Override
     public User findUserByEmailOrNull(String email) {
         Optional<User> user = Optional.ofNullable(userRepository.findUserByEmail(email).orElseThrow(() -> new UserCannotBeFoundException("User cannot be found")));
@@ -187,7 +170,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return Optional.ofNullable(userRepository.findByActivationToken(token)
                 .orElseThrow(() -> new UserCannotBeFoundException("User with token cannot be found ")));
     }
-
 
     private UserLoginResponse buildSuccessfulLoginResponse(User user) {
         return UserLoginResponse.builder()
@@ -254,7 +236,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             userRepository.save(savedUser);
             return response(savedUser);
         }
-
         return ResponseUtil.failed("User not found", null);
     }
 
@@ -276,34 +257,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         updatedDto.setIdNumber(savedUser.getIdNumber());
         return ResponseUtil.success("User updated successfully", null);
     }
-
-
-//    @Override
-//    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-//        Optional<User> user = userRepository.findUserByEmail(username);
-//        if(user!= null){
-//            return new org.springframework.security.core.userdetails.User(user.get().getEmail(), user.get().getPassword(), getAuthorities(user.get().getRoleHashSet()));
-//        }
-//        return null;
-//    }
-//
-//    private Collection<? extends GrantedAuthority> getAuthorities(Set<Role> roleHashSet) {
-//        return roleHashSet.stream().map(role -> new SimpleGrantedAuthority(role.getRoleType().name())).collect(Collectors.toSet());
-//    }
-
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findUserByEmail(
                 email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
-
-        // ✅ Convert RoleType to authorities (SUPERADMIN_ROLE → SUPERADMIN_ROLE)
         Set<GrantedAuthority> authorities = user.getRoleHashSet().stream()
                 .map(Role::getRoleType)
                 .map(Enum::name)
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toSet());
-
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPassword(),
