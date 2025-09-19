@@ -76,13 +76,10 @@ public class AdminServiceImpl implements AdminService {
                 .activationToken(activationToken)
                 .roleHashSet(new HashSet<>())
                 .build();
-
-        // 4. Assign SUPERADMIN role
         Role assignedRole = roleService.findByRoleType(RoleType.SUPERADMIN_ROLE);
         signupUser.getRoleHashSet().add(assignedRole);
 
         userRepository.save(signupUser);
-        // 6. Send activation email
         Map<String, Object> model = getMap(signupUser, activationLink);
         notificationService.sendEmailV3(signupUser.getEmail(), "ACTIVATION LINK", helper.build(model, "account-activation-email"));
 

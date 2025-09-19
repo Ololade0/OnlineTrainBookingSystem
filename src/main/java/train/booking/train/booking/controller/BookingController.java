@@ -115,7 +115,7 @@ public class BookingController {
     @GetMapping("/bookings-history")
     public ResponseEntity<?> myBookings(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "50") int size,
             Model model,
             @AuthenticationPrincipal User user) {
 

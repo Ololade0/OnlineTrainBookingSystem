@@ -66,7 +66,7 @@ public class NotificationServiceImpl implements NotificationService {
             @Override
             public void sendEmailV3(String recipient, String subject, String body) {
                 MailDTO request = new MailDTO();
-                request.setSender(sender);
+                request.setSender(sender == null || sender.isBlank() ? "noreply@booking.ng" : sender);
                 request.setRecipient(recipient);
                 request.setSubject(subject);
                 request.setBody(body);
