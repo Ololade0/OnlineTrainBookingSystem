@@ -34,7 +34,6 @@ public String calculateDistance(Station departure, Station arrival) {
             .queryParam("api_key", apiKey)
             .toUriString();
 
-    // ✅ Build request body dynamically
     DistanceRequestDTO requestBody = new DistanceRequestDTO(
             new double[][]{
                     {departure.getLongitude(), departure.getLatitude()},
