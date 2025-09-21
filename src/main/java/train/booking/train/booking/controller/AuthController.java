@@ -76,6 +76,7 @@ import java.util.Optional;
                 return ResponseEntity.ok(Map.of(
                         "accessToken", jwtToken,
                         "email", user.getEmail(),
+                        "userId", user.getId(),
                         "roles", user.getRoleHashSet()
                                 .stream()
                                 .map(role -> role.getRoleType().name())
