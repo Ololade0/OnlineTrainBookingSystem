@@ -113,19 +113,12 @@ public class BookingController {
 
 
     @GetMapping("/bookings-history")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> myBookings(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "50") int size,
-            Model model,
-            @AuthenticationPrincipal User user) {
-
-        if (user == null) {
-            throw new AccessDeniedException("You must login first!");
-        }
-
-        String authenticatedEmail = user.getEmail();
-
-        Page<Booking> pastBookings = bookingService.bookingHistory(authenticatedEmail, page, size);
+            @RequestParam Long userId) {
+        Page<Booking> pastBookings = bookingService.bookingHistory(userId, page, size);
         return ResponseEntity.ok(pastBookings);
 
     }

@@ -40,7 +40,7 @@ public interface BookingService {
 
     Page<Booking> findAllBookingsBySchedule(int size, int page, Long scheduleId);
 
-    Page<Booking> bookingHistory(String email, int page, int size);
+    Page<Booking> bookingHistory(Long userId, int page, int size);
     Page<Booking> getAllBookings(BookingStatus bookingStatus, AgeRange ageRange,  TrainClass trainClass,
                                  PaymentMethod paymentMethod, LocalDate localDate, int page, int size);
 

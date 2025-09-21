@@ -302,8 +302,8 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public Page<Booking> bookingHistory(String email, int page, int size) {
-        User foundUser =userService.findUserByEmailOrNull(email);
+    public Page<Booking> bookingHistory(Long userId, int page, int size) {
+        User foundUser =userService.findUserById(userId);
         LocalTime now = LocalTime.now();
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC,
                 "travelTime"));
