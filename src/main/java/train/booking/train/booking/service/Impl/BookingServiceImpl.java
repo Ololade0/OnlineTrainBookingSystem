@@ -301,15 +301,7 @@ public class BookingServiceImpl implements BookingService {
         return dto;
     }
 
-    @Override
-    public Page<Booking> bookingHistory(Long userId, int page, int size) {
-        User foundUser =userService.findUserById(userId);
-        LocalTime now = LocalTime.now();
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC,
-                "travelTime"));
-       Page<Booking> pastBooking =  bookingRepository.findByUserAndTravelTimeBefore(foundUser, now, pageable);
-       return pastBooking;
-    }
+
 
     @Override
     public Page<Booking> getAllBookings(BookingStatus bookingStatus,AgeRange ageRange, TrainClass trainClass,
@@ -321,6 +313,15 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingStatus> findAllBookingStatus() {
         return Arrays.asList(BookingStatus.values());
+    }
+
+    @Override
+    public Page<Booking> bookingHistory(Long userId, BookingStatus bookingStatus, AgeRange ageRange,
+                                        PaymentMethod paymentMethod, LocalDate travelDate,int page, int size) {
+        User foundUser = userService.findUserById(userId);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "travelTime"));
+        Page<Booking> bookingPage = bookingRepository.findBookingHistoryForASingleUser(foundUser.getId(), bookingStatus, ageRange, paymentMethod, travelDate, pageable);
+        return bookingPage;
     }
 
 

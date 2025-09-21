@@ -114,11 +114,15 @@ public class BookingController {
 
     @GetMapping("/bookings-history")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<?> myBookings(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "50") int size,
-            @RequestParam Long userId) {
-        Page<Booking> pastBookings = bookingService.bookingHistory(userId, page, size);
+        public ResponseEntity<?>myBookings(
+                @RequestParam(required = true) Long userId,
+                @RequestParam(required = false)BookingStatus bookingStatus,
+                @RequestParam(required = false) AgeRange ageRange,
+                @RequestParam(required = false)PaymentMethod paymentMethod,
+                @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)LocalDate travelDate,
+                @RequestParam(defaultValue = "0") int page,
+                @RequestParam(defaultValue = "50") int size){
+        Page<Booking> pastBookings = bookingService.bookingHistory(userId, bookingStatus, ageRange, paymentMethod, travelDate,page, size);
         return ResponseEntity.ok(pastBookings);
 
     }

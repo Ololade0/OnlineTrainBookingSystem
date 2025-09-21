@@ -30,7 +30,20 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query("SELECT b FROM bookings b WHERE b.scheduleId = :scheduleId")
     Page<Booking> findAllByScheduleId(@Param("scheduleId") Long scheduleId, Pageable pageable);
 
-    Page<Booking> findByUserAndTravelTimeBefore(User foundUser, LocalTime now, Pageable pageable);
+    @Query("SELECT b FROM bookings b " +
+            "WHERE b.user.id = :userId " +
+            "AND (:bookingStatus IS NULL OR b.bookingStatus = :bookingStatus) " +
+            "AND (:ageRange IS NULL OR b.ageRange = :ageRange) " +
+            "AND (:paymentMethod IS NULL OR b.paymentMethod = :paymentMethod) " +
+            "AND (:travelDate IS NULL OR b.travelDate = :travelDate)")
+    Page<Booking> findBookingHistoryForASingleUser(
+            @Param("userId") Long foundUser,
+            @Param("bookingStatus") BookingStatus bookingStatus,
+            @Param("ageRange") AgeRange ageRange,
+            @Param("paymentMethod") PaymentMethod paymentMethod,
+            @Param("travelDate") LocalDate travelDate,
+            Pageable pageable);
+
     @Query("SELECT b FROM bookings b" +
             " WHERE (:bookingStatus IS NULL OR b.bookingStatus = :bookingStatus)" +
             "AND (:ageRange IS NULL OR b.ageRange = :ageRange) " +
