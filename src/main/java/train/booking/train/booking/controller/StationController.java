@@ -46,7 +46,7 @@ public class StationController {
     }
 
     @GetMapping("/get-all-station")
-    @PreAuthorize("isAuthenticated() and hasRole('ROLE_SUPERADMIN')")
+//    @PreAuthorize("isAuthenticated() and hasRole('ROLE_SUPERADMIN')")
     public ResponseEntity<?> getAllStations(@RequestParam int page, @RequestParam int size) {
       Page<Station> stationsPage = stationService.getAllstations(page, size);
         return ResponseEntity.ok(stationsPage);
